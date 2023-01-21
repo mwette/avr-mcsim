@@ -1,0 +1,109 @@
+#!/bin/sh
+
+# Copyright (C) 2022-2023 Matthew Wette
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+TOP=`pwd`/..
+
+SID=/opt/sandia/include
+SLD=/opt/sandia/lib
+CC=gcc
+CXX=g++
+CFLAGS="-fPIC -I$SID"
+LDFLAGS="-L$SLD -Wl,-rpath=$SLD"
+
+${CXX} -c ${CFLAGS} N_CIR_XyceCInterface.C
+${CC} -o spice.so -shared N_CIR_XyceCInterface.o ${LDFLAGS} \
+	-lxyce \
+	-lNeuronModels		\
+	-lADMS			\
+	-llocathyra		\
+	-llocaepetra		\
+	-llocalapack		\
+	-lloca			\
+	-lteko			\
+	-lstratimikosamesos	\
+	-lstratimikosifpack	\
+	-lanasazitpetra		\
+	-lModeLaplace		\
+	-lanasazi		\
+	-lamesos2		\
+	-lshylu_nodehts		\
+	-lbelos			\
+	-lzoltan2		\
+	-lamesos		\
+	-lxpetra		\
+	-ltrilinosss		\
+	-ltpetra		\
+	-lkokkostsqr		\
+	-lzoltan		\
+	-lsimpi			\
+	-lepetra		\
+	-lrtop			\
+	-lbelosxpetra		\
+	-ltpetrainout		\
+	-ltpetraclassiclinalg	\
+	-lkokkoskernels		\
+	-lteuchoskokkoscomm	\
+	-laztecoo		\
+	-ltriutils		\
+	-ltrilinoscouplings	\
+	-lstokhos_muelu		\
+	-lstokhos_ifpack2	\
+	-lstokhos_amesos2	\
+	-lstokhos_xpetra	\
+	-lstokhos_tpetra	\
+	-lstokhos_sacado	\
+	-lstokhos		\
+	-lmuelu-adapters	\
+	-lmuelu-interface	\
+	-lmuelu			\
+	-lnoxepetra		\
+	-lnoxlapack		\
+	-lnox			\
+	-lintrepid2		\
+	-lstratimikos		\
+	-lstratimikosbelos	\
+	-lstratimikosamesos2	\
+	-lstratimikosaztecoo	\
+	-lstratimikosml		\
+	-lifpack2-adapters	\
+	-lifpack2		\
+	-ltacho			\
+	-lml			\
+	-lifpack		\
+	-lgaleri-xpetra		\
+	-lisorropia		\
+	-lxpetra-sup		\
+	-lthyraepetraext	\
+	-lthyraepetra		\
+	-lthyracore		\
+	-ltpetraext		\
+	-ltpetraclassicnodeapi	\
+	-ltpetraclassic		\
+	-lshards		\
+	-lsacado		\
+	-lkokkosalgorithms	\
+	-lkokkoscontainers	\
+	-lkokkoscore		\
+	-lepetraext		\
+	-lteuchoscore		\
+	-lteuchoskokkoscompat	\
+	-lteuchosremainder	\
+	-lteuchosnumerics	\
+	-lteuchoscomm		\
+	-lteuchosparameterlist	\
+	-lteuchosparser		\
+	\
+	-lfftw3 		\
+	-llapack		\
+	-lblas			\
+	-lgfortran		\
+	-lquadmath 		\
+	-lstdc++		\
+	-lm			\
+	-ldl			
