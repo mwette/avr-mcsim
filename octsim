@@ -1,0 +1,200 @@
+#!/bin/sh
+# -*- scheme -*-
+#
+# Copyright (C) 2022-2023 Matthew Wette
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+TOP=/home/mwette/proj/avr
+LD_LIBRARY_PATH=$TOP
+LD_LIBRARY_PATH=$TOP/octsx:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$TOP/avr0dev:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$TOP/avr0per:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$TOP/octbx:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH
+
+GUILE_LOAD_PATH=$HOME/repo/sv/nyacc/current
+GUILE_LOAD_PATH=$TOP:$GUILE_LOAD_PATH
+export GUILE_LOAD_PATH
+
+if [ $# -gt 0 -a "$1" = "-D" ]; then
+  shift;
+  exec gdb --args guile -ds $0 $@
+else
+  exec guile --debug -ds $0 $@
+fi
+!#
+
+;;(use-modules (system base language))
+(define (sf fmt . args) (apply simple-format #t fmt args))
+(use-modules (ice-9 pretty-print))
+(define (pp x) (pretty-print x #:per-line-prefix "  "))
+
+;; ====================================
+
+(use-modules (srfi srfi-37))
+
+(define (fail fmt . args)
+  (let ((cep (current-error-port)))
+    (simple-format cep "octsim error: ")
+    (apply simple-format cep fmt args)
+    (newline cep)
+    (quit)))
+
+(define (show-usage)
+  (simple-format #t "Usage: octsim [-D] [options] [file]
+
+  -D			run within gdb
+  -h, --help		print this message
+
+  -C, --mcu chip	which MCU to use (default mega4809)
+  -S, --spice circuit	include spice sim of circuit
+  -m, --main=FILE	run main code
+  -x, --xml=FILE	read system setup from file
+
+  -b, --break=ADDR	set a breakpoint at ADDR in hex
+  -t, --trace		trace
+
+  -T, --test		execute code as test run
+  -r, --run	        run
+  -r, --run[=TIME]	run for TIME seconds
+
+  Passing a FILE argument gives same behavior as --main=FILE.
+
+  Good luck.\n"))
+
+(define (ocons key value opts)
+  (acons key (cons value (or (assq-ref opts key) '())) opts))
+
+(define (mk-zopt key)
+  (lambda (option name arg opts)
+    (acons key #t opts)))
+
+(define (mk-sopt key)
+  (lambda (option name arg opts)
+    (acons key arg opts)))
+
+(define (mk-mopt key)
+  (lambda (option name arg opts)
+    (ocons key arg opts)))
+
+(define options
+  (list
+   (option '(#\h "help") #f #f (mk-zopt 'help))
+   (option '(#\b "break") #t #f (mk-mopt 'bkpt))
+   (option '(#\t "trace") #f #f (mk-zopt 'trace))
+   ;;
+   (option '(#\C "mcu") #t #f (mk-sopt 'mcu))
+   (option '(#\S "spice") #t #f (mk-sopt 'spice))
+   (option '(#\m "main") #t #f (mk-sopt 'main))
+   (option '(#\x "xml") #t #f (mk-sopt 'xml))
+   ;;
+   (option '(#\T "test") #f #f (mk-zopt 'test))
+   (option '(#\r "run") #t #f (mk-sopt 'run))
+   (option '(#\B "batch") #f #f (mk-zopt 'batch))
+   ))
+
+(define (parse-args args)
+  (args-fold args
+	     options
+	     (lambda (opt name arg opts)
+	       (fail "unrecognized option: ~S" name))
+	     (lambda (arg opts)
+               (if (assq-ref opts 'main) (fail "one file arg: ~S" arg))
+	       (acons 'main arg opts))
+	     '((mcu . "mega4809") (bkpt))))
+
+;; ====================================
+
+(use-modules (octsys))
+(use-modules (ice-9 readline))
+(use-modules (ice-9 top-repl))
+(use-modules (ice-9 regex))
+(use-modules (system repl common))
+(use-modules (sxml simple))
+
+(define sys #f)
+(define mcu #f)
+(define cpu #f)
+
+(define (arg->addr arg)
+  (cond
+   ((not arg) #x0)
+   ((string-prefix? "0x" arg) (string->number (substring arg 2) 16))
+   ((string->number arg 16))
+   (else (error "bad breakpoint addr:" arg))))
+
+(define str->sns
+  (let ((rx1 (make-regexp "([0-9]*)\\.([0-9]*)")))
+    (lambda (str)
+      (and=>
+       (regexp-exec rx1 str)
+       (lambda (m)
+         (values
+          (string-fold
+           (lambda (c v)
+             (+ (* 10 v) (- (char->integer c) (char->integer #\0))))
+           0 (match:substring m 1))
+          (string-fold
+           (lambda (c v)
+             (+ (* 10 v) (- (char->integer c) (char->integer #\0))))
+           0 (let ((fs (match:substring m 2)))
+               (string-append
+                fs (make-string (- 9 (string-length fs)) #\0))))))))))
+
+(define (setup-main-sys opts)
+  (set! sys (make-sys))
+  (set! mcu (make-mcu sys (assq-ref opts 'mcu) (assq-ref opts 'main)))
+  (set! cpu (get-mcu-cpu mcu)))
+
+(define (my-prompt) "octosys> ")
+
+(let ((opts (parse-args (cdr (program-arguments)))))
+  
+  (cond
+   ((assq-ref opts 'help)
+    (show-usage) (exit 0))
+   
+   ((assq-ref opts 'xml) =>
+    (lambda (filename)
+      (process-sysx-file filename)
+      (set! sys (%sys))
+      (sf "loaded ~S\n" filename)))
+   
+   ((assq-ref opts 'main)
+    (setup-main-sys opts)
+    (sf "loaded ~S\n" (assq-ref opts 'main)))
+
+   (else
+    (sf "nothing to run\n")
+    (exit 1)))
+
+  (if (assq-ref opts 'trace)
+      (cpu-set-trace cpu))
+
+  (for-each
+   (lambda (bkpt) (cpu-add-brkpt cpu (arg->addr bkpt)))
+   (assq-ref opts 'bkpt))
+
+  (cond
+   ((assq-ref opts 'test)
+    (cpu-add-brkpt cpu 4)
+    (sys-cont sys cpu)
+    (sys-run-to-cpu-word-addr sys cpu 2))
+   
+  ((assq-ref opts 'run) =>
+   (lambda (to_str)
+     (call-with-values (lambda () (str->sns to_str))
+       (lambda (s ns)
+         (sys-run-sns sys s ns)))))
+
+  (else #t))
+  
+  (unless (assq-ref opts 'batch)
+    (activate-readline)
+    (top-repl)))
+
+;; --- last line ---
