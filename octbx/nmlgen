@@ -1,0 +1,175 @@
+#!/usr/bin/python3
+
+# Copyright (C) 2019,2023 Matthew Wette
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+from scipy.stats import norm
+from scipy.optimize import minimize_scalar as min1
+import pdb
+
+output = 'c'
+
+
+def doit1(f1, n):
+    f1.write("#define NML_NVAL %d\n" % n)
+    n = n + 1
+    f1.write("float nml_vals[] = {\n")
+    sm = 0.0
+    s = " "
+    l = len(s)
+    f1.write(s)
+    g = 1.0/n
+    a = 0.0
+    for i in range(n-1):
+        if i < n-1:
+            b = norm.ppf(0.5 + 0.5*(i + 1.0)/n)
+        else:
+            b = 3*a
+        x = (a + b)/2.0
+        s = " %12.9e," % x
+        sm += norm.pdf(x)
+        a = b
+        if l + len(s) > 78:
+            f1.write("\n ")
+            l = 1
+        l = l + len(s)
+        f1.write(s)
+        pass
+    f1.write("\n};\n")
+    f1.write("// check: %f == 0.5?\n" % (sm/(n-1)))
+    pass
+
+def doit2(f1, n):
+    f1.write("float vals[] = {\n")
+    s = " "
+    l = len(s)
+    f1.write(s)
+    for i in range(1,n):
+        x = norm.ppf(0.5 + 0.5*(i + 0.5)/n)
+        s = " %12.9e," % x
+        if l + len(s) > 78:
+            f1.write("\n ")
+            l = 1
+        l = l + len(s)
+        f1.write(s)
+        pass
+    f1.write("\n};\n")
+    pass
+
+def doit3(f1, n):
+    #f1.write("#define NML_NVAL %d\n" % n)
+    #f1.write("float nml_vals[] = {\n")
+    f1.write("nmlnval = %d\n" % n)
+    f1.write("nmlvals= [\n")
+    s = " "
+    sm = 0.0
+    l = len(s)
+    f1.write(s)
+    g = 1.0/(n+1.0)
+    a = 0.0
+    for i in range(n):
+        b = norm.ppf(0.5 + 0.5*(i+1.0)/(n+1.0))
+        s = " %12.9e," % b
+        sm += norm.pdf(b)
+        if l + len(s) > 78:
+            f1.write("\n ")
+            l = 1
+        l = l + len(s)
+        f1.write(s)
+        pass
+    #f1.write("\n};\n")
+    f1.write("];\n")
+    f1.write("// check %f == 0.5?\n" % (sm/n))
+    pass
+
+def doit4(f1, n):
+    #f1.write("#define NML_NVAL %d\n" % n)
+    f1.write("nmlnval = %d\n" % n)
+    #f1.write("float nml_vals[] = {\n")
+    f1.write("nmlvals = [\n")
+    s = " "
+    l = len(s)
+    f1.write(s)
+    g = 1.0/(n+1.0)
+    a = 0.0
+    for i in range(n-1):
+        if i < n-1:
+            b = norm.ppf(0.5 + 0.5*(i + 1.0)/n)
+        else:
+            b = 3*a
+        x = (a + b)/2.0
+        s = " %12.9e," % x
+        a = b
+        if l + len(s) > 78:
+            f1.write("\n ")
+            l = 1
+        l = l + len(s)
+        f1.write(s)
+        pass
+    f1.write("\n};\n")
+    pass
+
+
+def doit5(f1, n):
+    if output == 'julia':
+        f1.write("nmlnval = %d\n" % n)
+        f1.write("nmlvals= [\n")
+    else:
+        f1.write("#define NML_NVAL %d\n" % n)
+        f1.write("float nml_vals[] = {\n")
+    s = " "; l = len(s)
+    f1.write(s)
+    iz = list(range(n))
+    bz = list(map(lambda i: norm.ppf(0.5+0.5*(i*1.0/n)), iz))
+    #pdb.set_trace()
+    bz.append(100.0*bz[-1])
+    sm = 0.0
+    for i in range(n):
+        bl = bz[i]; bu = bz[i+1];
+        if i < n-1:
+            sn = min1(lambda v: abs(norm.pdf(v)*(bu-bl)-0.5/n),
+                      bounds=(bl,bu),
+                      method='bounded')
+            vi = sn.x
+            sm += norm.pdf(vi)*(bu - bl)
+        else:
+            vi = bl
+            vi = norm.ppf(0.5 + sm) # so that sum == 0.5
+        if output == 'julia':
+            s = " %12.9e," % vi
+        else:
+            s = " %8f," % vi
+        if l + len(s) > 78:
+            f1.write("\n ")
+            l = 1
+        l = l + len(s)
+        f1.write(s)
+        pass
+    #f1.write("\n};\n")
+    if output == 'julia':
+        f1.write("];\n")
+    else:
+        f1.write("};\n")
+    pass
+    
+    
+import sys
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("usage: gennml <num-vals>")
+        sys.exit(1)
+        pass
+    f1 = sys.stdout
+    nv = int(sys.argv[1])
+    #doit1(f1, nv)
+    #doit2(f1, nv)
+    #doit3(f1, nv)
+    #doit4(f1, nv)
+    doit5(f1, nv)
+
+# --- last line ---

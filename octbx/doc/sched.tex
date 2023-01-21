@@ -1,0 +1,53 @@
+%% oct0sim.tex - my architecture for AVR simulation
+%%
+%% $Id$
+%%
+
+\documentclass{article}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{epsfig}
+
+\setlength{\topmargin}{-.5in}
+\setlength{\textheight}{9in}
+\setlength{\textwidth}{6.5in}
+\setlength{\evensidemargin}{0in}
+\setlength{\oddsidemargin}{0in}
+
+\title{%
+Basic Architecture for Octsim
+}
+\author{Matt Wette}
+\date{\large 08 Aug 22}
+
+\begin{document}
+%\maketitle
+
+The scheduler is bla
+
+Time scheduler (tmsch):
+\begin{itemize}
+\item
+  Time is represented in fixed point.
+\item
+  Events are scheduled at a specific time plus/minus N*$\epsilon$
+  (or neps) where $-100 < neps < 100$ and $neps != 0$.
+\item
+  When we advance time to $t$, all events at $t + neps$ for $neps < 0$
+  are executed.  When we start again, events for $t + neps$ for $neps
+  > 0$ will be executed.
+\item
+  neps = -1,99 should be reserved for telemetry collection
+\item
+  Todo on telemetry:  If collected at -1 and not changed by 99 can we
+  skip collection?  Think about this.
+\end{itemize}
+
+Tick scheduler (tkosc + tkclk):
+\begin{itemize}
+\item We use neps but all events are executed.  We would not expect to
+  use $neps < 0$.
+\end{itemize}
+
+\end{document}
+%% --- last line ---

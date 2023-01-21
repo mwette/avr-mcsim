@@ -1,0 +1,70 @@
+% pins.tex
+%
+% $ pdflatex pins.tex
+% $ convert -density 300 pins.pdf -quality 90 pins.png
+
+%%\documentclass[crop,tikz,convert=pdf2svg]
+%\documentclass[preview]{standalone}
+\documentclass{article}
+\usepackage{tikz}
+
+%\usetikzlibrary{shapes,angles,arrows,calc,positioning,matrix}
+
+\begin{document}
+
+Currently the only kind of pin we deal with is iopin.
+An iopin can provide digital or analog behavior.
+
+\leftline{iopin use cases:}
+\begin{enumerated}
+\item input, output (or output high-impedance?)
+\item input levels: hi, lo
+\item input events: rising, falling, either
+\item read output (i.e., can always read)
+\item analog input or output
+\end{enumerated}
+
+\leftline{controls:}
+\begin{enumerated}
+\item slew rate control
+\item pullup for output
+\item disable clock sync (to main osc) to reduce power
+\item sync or async input event generation
+\item port invdr (input or output)
+\end{enumerated}
+
+\leftline{states:}
+\begin{enumerated}
+\item aveage power consumption
+\end{enumerated}
+
+\leftlne{port registers:}
+\begin{enumerated}
+\item DIR, DIRSET, DIRCLR, DIRTGL
+\item OUT, OUTSET, OUTCLR, OUTTGL
+\item IN
+\item INTFLAGS
+\item PORTCTL
+  one bit to enable slew-rate limiting
+\item PINnCTRL
+  invert, pullup enable, interrupt on edge(s) or level, or none, and
+  input disable
+\end{enumerated}
+
+\leftline{model:}
+\begin{align*}
+  Ip & = (Vdd - Vn)/Rp \\
+  %if (OUT 
+  Iin & = TBD \\
+\end{align*}
+where $R_p$ is typically 35 kOhm (range 20 - 50).
+In analog mode $R_{in}$ is 14 kOhm.
+
+\vskip 5pt
+
+To bus, pins are pulling low, high imped, or pullup.
+If any pulling low, then all Vp are 0.0.
+else, if any pullup, then all Vp are Vdd.
+
+\end{document}
+% --- last line ---

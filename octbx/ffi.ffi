@@ -1,0 +1,17 @@
+;; octbx ffi				-*- Scheme -*-
+
+;; Copyright 2022-2023 Matthew Wette
+;;
+;; This library is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU Lesser General Public
+;; License as published by the Free Software Foundation; either
+;; version 2.1 of the License, or (at your option) any later version.
+
+(define-ffi-module (octbx ffi)
+  #:include '("octbx.h")
+  #:inc-filter (lambda (file-spec path-spec)
+                 ;;(simple-format #t "~S ~S\n" file-spec path-spec)
+                 (string-contains path-spec "octbx/"))
+  #:library '("liboctbx"))
+
+;; --- last line ---

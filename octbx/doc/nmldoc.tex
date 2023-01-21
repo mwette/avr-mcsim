@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{epsfig}
+
+\setlength{\textheight}{9in}
+\setlength{\textwidth}{6.5in}
+\setlength{\topmargin}{-.5in}
+\setlength{\evensidemargin}{0in}
+\setlength{\oddsidemargin}{0in}
+
+\newcommand{\clk}{\text{clk}}
+
+\title{%
+title
+}
+\author{Matt Wette }
+\date{\today}
+
+\begin{document}
+
+
+We use the constraint that the value
+
+We want $N$ values in the interval $(0.5,1)$.
+We generate bounds $b(i) = ppf(i/N)$ where ppf is the inverse
+cumulative distribution function (CDF).
+Consider the $i$-th value (indexed from zero),
+which spans $(b_i,b_{i+1})$.  We (probably) want to choose $v_i$ so
+that $p(v_i) = P(b_{i+1})-P(b_i)/(b_{i+1}-b_i)$.
+
+% But isn't that just $ppf((b_{i+1}+b{i})/2)$ ?  NO
+
+% from scipy.optimize import minimize_scalar
+% minimize_scalar(lambda x: abs(norm.pdf(x)-goal), bounds=(bi,bi+1))
+
+\end{document}
