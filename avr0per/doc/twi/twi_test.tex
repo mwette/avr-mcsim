@@ -1,0 +1,42 @@
+% twi_test.tex
+%
+% $ pdflatex twi_test.tex
+% $ convert -density 300 diag.pdf -quality 90 file.jpg
+
+\documentclass[preview,margin=2pt]{standalone}
+\usepackage{pgf,tikz,tikzscale}
+\setlength{\textwidth}{8.5in}
+\usetikzlibrary{shapes,calc,positioning}
+\usetikzlibrary{arrows.meta,bending}
+
+\newcommand{\intrAPIF}{intr$_\textrm{\tiny APIF}$}
+\newcommand{\intrDIF}{intr$_\textrm{\tiny DIF}$}
+\newcommand{\uA}{\ensuremath{\!\uparrow}}
+\newcommand{\dA}{\ensuremath{\!\downarrow}}
+\newcommand{\udA}{\ensuremath{\!\updownarrow}}
+\newcommand{\ua}{\ensuremath{\uparrow}}
+\newcommand{\da}{\ensuremath{\downarrow}}
+\newcommand{\uda}{\ensuremath{\updownarrow}}
+
+% TODO:
+%  need to incorporate clock
+
+
+\tikzset{>={Stealth[scale=1.5]}}
+
+\begin{document}
+{ }
+\vskip 1.0cm
+\begin{centering}
+  \include{twm_diag}
+  %\vskip 1pc
+  %\include{tws_diag}
+  %\vskip 1pc
+  %\include{mon_diag}
+  %\vskip 1pc
+  % stds show SDA/SCL, microchip SCL/SDA
+  %\include{mega_low}
+\end{centering}
+\vfill
+\end{document}
+% --- last line ---

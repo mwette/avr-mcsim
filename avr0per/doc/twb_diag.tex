@@ -1,0 +1,16 @@
+% twb_diag.tex
+
+\begin{sequencediagram}
+
+  \newthread{m1}{M1}
+
+  \newthread{m2}{M2}
+
+  \newinst{bus}{Bus}
+
+  \newthread{s1}{S1}
+
+  \begin{call}{m1}{S(addr)}{bus}{res}\end{call}
+  \begin{message}{m1}{EOS}{m1} \end{message}
+
+\end{sequencediagram}

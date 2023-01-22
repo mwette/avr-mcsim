@@ -1,0 +1,45 @@
+% mega_low.tex - avr0 twi master logic
+% todo: MCMD for recv data, repeated start
+% todo: must check ERR before DACK
+\newcommand{\ttsz}{\footnotesize}
+\begin{tikzpicture}[text=black,node font=\small,>=stealth]%,>={scale=2}]
+  %[auto,thick,node distance=2cm]
+  arrow/.style={scale=2}
+
+  %
+  \node (UNKN) at (0,0) [circle, draw, radius=1cm] {UNKN};
+  \draw[->] (UNKN) edge[out=15,in=-15,looseness=8]
+                   node[above,pos=0.25] {start} (UNKN);
+       
+  \node (ST) [left=1cm of UNKN, circle, draw, radius=8pt, fill] {};
+  \draw[->] (ST) -- (UNKN);
+
+  \node (IDLE) at ($(UNKN)+(-4cm,-3cm)$) [circle, draw, radius=1cm] {IDLE};
+
+  \node (WAIT) at ($(IDLE)+(8.0cm,0cm)$) [circle, draw, radius=1cm] {WAIT};
+
+  \node (EXEC) at ($(IDLE)+(4cm,-4cm)$) [circle, draw, radius=1cm] {EXEC};
+
+  \draw[->] (UNKN) edge[bend right=20] node[above,sloped] {stop} (IDLE);
+  \draw[->] (UNKN) edge[bend right=15] node[below,sloped] {timeout} (IDLE);
+
+  \draw[->] (IDLE) edge[bend left=15] node[above,sloped] {start} (WAIT);
+  \draw[->] (IDLE) edge[bend right=15] node[below,sloped]
+       {addr$\rightarrow$\texttt{\ttsz MADDR}/start} (EXEC);
+
+  \draw[->] (WAIT) edge[bend left=15] node[above,sloped] {stop} (IDLE);
+  \draw[->] (WAIT) edge[bend left=20] node[below,sloped] {timeout} (IDLE);
+
+  \draw[->] (EXEC) edge[bend right=15] node[below,sloped]
+       {\texttt{\ttsz STOP}$\rightarrow$\texttt{\ttsz MCMD}/stop} (IDLE);
+  \draw[->] (EXEC) edge[bend right=15] node[above,sloped] {arb-lost} (WAIT);
+
+  \draw[->] (EXEC) edge[out=0,in=330,looseness=8] node[right,pos=0.25]
+       {$\rightarrow$\texttt{\ttsz MADDR}/start} (EXEC);
+       
+  \draw[->] (WAIT) edge[out=15,in=-15,looseness=8]
+                   node[above,pos=0.25] {start} (WAIT);
+       
+\end{tikzpicture}
+
+% --- last line ---

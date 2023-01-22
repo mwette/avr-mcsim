@@ -1,0 +1,19 @@
+% twb_test.tex
+%
+% $ pdflatex twi_test.tex
+% $ convert -density 300 diag.pdf -quality 90 file.jpg
+
+\documentclass[preview,margin=2pt]{standalone}
+\usepackage{pgf,tikz,tikzscale}
+\setlength{\textwidth}{7.5in}
+\usetikzlibrary{shapes,calc,positioning}
+\usetikzlibrary{arrows.meta,bending}
+\usepackage{pgf-umlsd}
+
+\begin{document}
+\include{twb_diag}
+%\include{twm_diag}
+%\vskip 1pc
+%\include{tws_diag}
+\end{document}
+% --- last line ---

@@ -1,0 +1,327 @@
+%% twi_desc.ltx
+%%
+
+\documentclass{article}
+\usepackage{times}
+%\usepackage{amsmath}
+%\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{tikz}
+%\usepackage{tikzscale}
+\usetikzlibrary{shapes,calc,positioning}
+\usetikzlibrary{arrows.meta,bending}
+\usepackage{tikz-timing}
+%\usetikztiminglibrary[rising arrows]{clockarrows}
+
+\setlength{\topmargin}{-.5in}
+\setlength{\textheight}{9in}
+\setlength{\textwidth}{6.5in}
+\setlength{\evensidemargin}{0in}
+\setlength{\oddsidemargin}{0in}
+
+\title{%
+Notes on Using TWI for AVR 0-series MCUs
+}
+\author{MattRW}
+\date{\large 11 Jan 2020}
+
+\include{defs}
+
+\begin{document}
+%\maketitle
+
+\iffalse
+NOTES
+
+The master always runs SCL.  The slave (should always) stretch.
+1) TMOUT/pin_wrD(scl, 0) -> 2
+2) SHIFT/wait(t_lo) -> 3
+3) TMOUT/pin_wr(scl, 1) -> 1
+
+
+When slave needs to change SDA, it
+S) XH (SDA-SCL)
+1) waits for SCL hi->lo (SHIFT)
+2) pulls SCL low, pulls SDA hi/lo
+3) if (2) SDA is change, wait for transition, else goto (4)
+4) waits for SCL lo->hi (LATCH);
+   checks SDA level if SDA commanded low, but is high, signal error
+5) waits for SCL hi->lo (SHIFT), then release SDA
+P) HL
+
+\fi
+
+%\vskip 1pc
+%One byte write.
+
+\iffalse
+\begin{tabular}{|l|l|p{3in}|}
+  \hline
+  M start &
+  $D\dA \tF \tH $ &
+  start \\ \hline
+
+  M addr x &
+  $\left[\, C\dA\,\tF\,D\udA\,\ti\,C\uA\,\tH\,\right]_8 $ &
+  addr, R/W \\ \hline
+
+  S ack M &
+  $ C\dA d\udA C\uA C\dA d\uA \tL $ &
+  S sets Dn until M releases \\ \hline
+
+  \iffalse
+  S ack/str &
+  $C\dA d\udA c\dA C\uA t_X c\uA  C\dA d\uA $ &
+  S sets D, stretches SCL \\ \hline
+  \fi
+  
+  M send &
+  $C\dA D\udA \left[C\dA\,\tF\,D\udA\,\ti\,C\uA\,\tH\,?\right]_8$ &
+  \\ \hline
+\end{tabular}
+\fi
+
+\includegraphics[width=5.5in]{timing}
+\vskip 1pc
+%    timing/dslope=0.1,
+%    timing/.style={x=5ex,y=2ex},
+%    x=5ex,
+%    timing/rowdist=3ex,
+%    timing/name/.style={font=\sffamily\scriptsize}
+\begin{tikztimingtable}[%
+    timing/slope=1,
+    timing/yunit=.8cm,timing/rowdist=1.2cm,
+    timing/draw grid,
+    timing/name/.style={font=\sffamily\scriptsize}
+  ]
+  {SDA} & HHHLLLUDDDDSSDDUDDDDDD \\
+  {SCL} & HHHHHLLSLHHSSHLLSSLH \\
+  %{st} & 1D{0}1D{1}1D{2}1D{3}1D{4} \\
+\end{tikztimingtable}
+\vfill
+\vfill
+
+%WRT transtions in a M|S event $\ua$ or $\da$ represents observation of
+%the bus.  That is $>0.7V_{dd}$ or $<0.3V_{dd}$
+
+\begin{centering}
+\begin{tabular}{c@{}p{2.5cm} c@{}p{2cm} c@{}p{2cm} }
+  \underline{M} & & \underline{B} & & \underline{S} & \\ 
+
+  0  & & HH & & HH & \\
+  $\da$ & $/D\dA$ & $\dA$ & $D\dA$ & $\dA$ & $D\dA/$ S\\
+  \\
+
+  1 &  & LH & & LH & \\
+  $\da$ & $t_H/C\dA $ & $\dA$ & $C\dA$ & $\dA$ & $C\dA$ \\
+  \\
+
+  2 &  & LL & & LL & \\
+  $\da$ & $t_F/D\udA $ & $\da$ & $D\udA$ & $\da$ & $D\udA$ \\
+  \\
+
+  3 & & xL  & & xL & \\
+  $\da$ & $t_L/C\uA $ & $\da$ & $C\uA$  & $\da$ &  \\
+  \\
+
+  4 & & xR  & & xL & \\
+  $\da$ & & $\da$ & $t_R/C\uA$ & $\da$ &  $C\uA/l$ \\
+  \\
+
+  5 &  & xH & & xH & \\
+  $\da$ & $t_H/C\dA $ & $\da$ & $C\dA$  & $\da$ & $C\dA/s$ \\
+  \\
+
+  % the following is wrong because 3 is LL and we go to Lx
+  6 & \hfil $[n>0] \ra 2$  & ?L & & ?L & \\
+  $\da$ & $[n=0]$ & $\da$ &  & $\da$ & \\
+  \\
+
+  7 &  & xL & & xL & \\
+  $\da$ & $D\dA/l$ & $\da$ & $D\dA$ & $\da$ & $/ D\dA$ \\
+  \\
+
+  % optional clock stretch here
+  
+  8 &  & LL & & LL & \\
+  $\da$ & $t_L/C\uA$ & $\da$ & $C\uA$ & $\da$ &   \\
+  \\
+
+  9 &  & LR & & LL & \\
+  $\da$ & $t_L/C\uA $ & $\da$ & & $\da$ & $C\uA/D\uA $ \\
+  \\
+
+  \iffalse
+  10 &  & LH & & LH & \\
+  $\da$ &  & $\da$ & & $\da$ & \\
+
+  11 &  & LH & & LH & \\
+  $\da$ &  & $\da$ & & $\da$ & \\
+
+  12 &  & LH & & LH & \\
+  $\da$ &  & $\da$ & & $\da$ & \\
+
+  13 &  & LH & & LH & \\
+  $\da$ &  & $\da$ & & $\da$ & \\
+
+  14 &  & LH & & LH & \\
+  $\da$ &  & $\da$ & & $\da$ & \\
+  \fi
+
+\end{tabular}
+\end{centering}
+
+\vskip 1pc
+\begin{figure}[h]
+  \begin{centering}
+  %\include{mon_diag}
+  \end{centering}
+\end{figure}
+
+\vfill
+
+\iffalse
+
+This document reflects work-in-progress on working with TWI on the
+0-series of AVR microcontrollers.  My first project will be to retrive
+data from an I2C based M6040(???) based IMU.
+
+MSTATUS:\hfil\break
+\begin{tabular}{r|c|c|c|c|c|c|c|c|}
+ bit & 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+     & RIF & WIF & HOLD & ACK & ARBLOST & ERR & \multicolumn{2}{|c|}{STATE} \\
+     &  RW & RW & RW & R & RW & RW & RW & RW
+\end{tabular}
+
+SSTATUS:\hfil\break
+\begin{tabular}{r|c|c|c|c|c|c|c|c|}
+ bit & 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+     & DIF & APIF & HOLD & RXACK & COL & ERR & DIR & AP \\
+     &  RW & RW & R & R & RW & RW & R & R
+\end{tabular}
+
+\begin{figure}[h]\label{fig:1}
+  \centering
+  \include{twm_diag}
+\end{figure}
+\vskip 1pc
+
+Figure~\ref{fig:1} is a state diagram for software control of the TWI
+master function. Currently it only shows the write operation (where
+\textit{n} is the number of data bytes to be written).
+Transitions are of the form \textit{event[condition]/action}.
+
+The event \textit{write} represents the event of making a call to the
+texttt{write()} function; the event \textit{intr} represents the
+master interrupt to \texttt{TWIM\_vect}.
+
+The condition \textit{BE-AL} represents a BUSERR or ARBLOST flag (in
+the \texttt{MSTATUS} register).  The conditions \textit{ACK} and
+\textit{NACK} represent the assocated response from the slaved
+indicated in the \texttt{RXACK} flag.  The term \textit{else} is a
+pseudo-condition that is ``not anything else.''
+
+The action \textit{addr} represents writing a byte to the
+\texttt{MADDR} register.  The action \textit{data} represents writing a
+byte to the \texttt{MDATA} register.  The action \textit{stop}
+represents issuing a STOP by setting the associated bit in the
+\texttt{MCBRLB} register.  The action \textit{reset} represents
+issuing a reset via the FLUSH bit in the \texttt{MCTRLB} register.
+
+Notes on master service:
+\begin{enumerate}
+\item
+This assumes before initial transition is made that the registers are
+set up and the service is enabled.
+\end{enumerate}
+
+\vskip 1pc
+
+Now let's look at the slave operation.  Figure~\ref{fig:2} is a state
+diagram for the slave operation.
+
+\begin{figure}[h]\label{fig:2}
+  \centering
+  \include{tws_diag}
+\end{figure}
+
+Notes:
+\begin{enumerate}
+\item
+This assumes before initial transition is made that the registers are
+set up and the service is enabled.
+\item
+[ADR] means interrupt flag APIF set and AP=1 in SSTATUS
+\item
+[STOP] means interrupt flag APIF set and AP=0 in SSTATUS
+\end{enumerate}
+
+\begin{description}
+\item[{1:intr[ADR]}]
+todo
+
+\item[{2:[R]}]
+todo
+
+\item[{3:[W]}]
+todo
+
+\item[{4:intr[STOP]}]
+todo
+
+\item[{11:[OK]/ACK}]
+todo
+
+\item[{12:[else]/NACK}]
+todo
+
+\item[{13:intr[DIF]}]
+todo
+
+\item[{14:[else]/put}]
+todo
+
+\item[{15:[STOP]}]
+todo
+
+\item[{16:intr}]
+If DIF go on.
+
+\item[{17:[ACK]/n-{}-}]
+Assumes DIF.
+
+\item[{18:[NACK]}]
+Assumes DIF.
+
+\item[{19:[STOP]}]
+todo
+
+\item[{20:[n$>$0]/put}]
+todo
+
+\item[{21:[n=0]/zero}]
+todo
+
+\item[{31:[OK]/ACK}]
+todo
+
+\item[{32:[else]/NACK]}]
+todo
+
+\item[{33:intr}]
+todo
+
+\item[{34:[STOP]}]
+todo
+
+\item[{35:[OK]/get,ACK}]
+todo
+
+\item[{36:[else]/NACK}]
+todo
+
+\end{description}
+
+\fi
+\end{document}
+%% --- last line of doc.ltx ---

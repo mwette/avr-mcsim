@@ -1,0 +1,89 @@
+% mon_diag.tex - TWI bus monitor or node_mon.tex ?
+
+% todo: MCMD for recv data, repeated start
+% todo: must check ERR before DACK
+
+% bus monitor, simple version
+% : monitors  SCL, SDA state to generate START, STOP, bits
+%\tikzset{>={Stealth[width=3mm,length=3mm]}}
+\iftrue
+\vskip 1pc
+\begin{tikzpicture}%
+  [text=black, node font=\small,scale=0.8]
+
+  \node (HH) at (0,0) [circle, draw, radius=1cm] {HH};
+  \node (LH) at ($(HH)+(-4cm,-4cm)$) [circle, draw, radius=1cm] {LH};
+  \node (HL) at ($(HH)+(4cm,-4cm)$) [circle, draw, radius=1cm] {HL};
+  \node (LL) at ($(HL)+(-4cm,-4cm)$) [circle, draw, radius=1cm] {LL};
+
+  \node (SDA) at ($(HH)+(-4.0cm,-0.5cm)$) [rotate=45]
+        {L$\longleftarrow$ SDA $\longrightarrow$H};
+  \node (SCL) at ($(HH)+(4.0cm,-0.5cm)$) [rotate=-45]
+        {H$\longleftarrow$ SCL $\longrightarrow$L};
+
+  \draw[->] (HH) edge[bend left=15] node[above,sloped] {SDA \da\,/start} (LH);
+  \draw[->] (LH) edge[bend left=15] node[above,sloped] {SDA \ua\,/stop} (HH);
+
+  \draw[->] (HH) edge[bend left=15] node[above,sloped] {SCL \da\,/s} (HL);
+  \draw[->] (HL) edge[bend left=15] node[above,sloped] {SCL \ua\,/l} (HH);
+  
+  \draw[->] (LH) edge[bend left=15] node[above,sloped] {SCL \da\,/s} (LL);
+  \draw[->] (LL) edge[bend left=15] node[above,sloped] {SCL \ua\,/l} (LH);
+  
+  \draw[->] (HL) edge[bend left=15] node[above,sloped] {SDA \da} (LL);
+  \draw[->] (LL) edge[bend left=15] node[above,sloped] {SDA \ua} (HL);
+
+  \node (sig) [below=3.5 of LH,rectangle,draw,anchor=west]
+        {\tiny simple TWI monitor};
+  \node (sig) [below=3.5 of HL,rectangle,draw,anchor=east]
+        {\tiny MattRW v210425a};
+  
+\end{tikzpicture}
+\fi
+
+% simulation model
+\iffalse
+\vskip 1pc
+\begin{tikzpicture}[text=black,node font=\small]
+
+  \node (HH) at (0,0) [circle, draw, radius=1cm] {HH};
+  \node (HL) at ($(HH)+(4cm,-4cm)$) [circle, draw, radius=1cm] {HL};
+  \node (LH) at ($(HH)+(-4cm,-4cm)$) [circle, draw, radius=1cm] {LH};
+  \node (LL) at ($(LH)+(4cm,-4cm)$) [circle, draw, radius=1cm] {LL};
+  \node (RH) at ($0.5*(HH)+0.5*(LH)+(-0.5cm,0.5cm)$)
+        [circle, draw, radius=1cm] {RH};
+  \node (RL) at ($0.5*(HL)+0.5*(LL)+(-0.5cm,0.5cm)$)
+        [circle, draw, radius=1cm] {RL};
+
+  \node (SCL) at ($(HH)+(-4.0cm,-0.5cm)$) [rotate=45]
+        {L$\longleftarrow$ SCL $\longrightarrow$H};
+  \node (SDA) at ($(HH)+(4.0cm,-0.5cm)$) [rotate=-45]
+        {H$\longleftarrow$ SDA $\longrightarrow$L};
+
+  \draw[->] (HH) edge[bend left=15] node[above,sloped] {[any L]/start} (HL);
+  \draw[->] (HL) edge[bend left=15] node[above,sloped] {[all H]/stop} (HH);
+
+  \draw[->] (HH) edge[bend left=15] node[above,sloped] {[any L]} (LH);
+  \draw[->] (LH) edge[bend left=15] node[above,sloped] {[all H]} (RH);
+  \draw[->] (RH) edge[bend left=15] node[above,sloped] {} (HH);
+  
+  \draw[->] (HL) edge[bend left=15] node[above,sloped] {[any L]} (LL);
+  \draw[->] (LL) edge[bend left=15] node[above,sloped] {[all H]} (RL);
+  \draw[->] (RL) edge[bend left=15] node[above,sloped] {} (HL);
+  
+  
+  \draw[->] (LH) edge[bend left=15] node[above,sloped] {[any L]/data=0} (LL);
+  \draw[->] (LL) edge[bend left=15] node[above,sloped] {[all H]/data=1} (LH);
+  
+  %\draw[->] (HH) edge[out=90,in=0,looseness=8] node[right,pos=0.4] {} (HH);
+  %\draw[->] (HL) edge[out=45,in=-45,looseness=8] node[right] {} (HL);
+
+  \node (sig) [below=3.5 of LH,rectangle,draw,anchor=west]
+        {\tiny simulation model};
+  \node (sig) [below=3.5 of HL,rectangle,draw,anchor=east]
+        {\tiny MattRW v210218a};
+  
+\end{tikzpicture}
+\fi
+
+% --- last line ---
