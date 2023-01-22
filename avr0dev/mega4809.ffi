@@ -1,0 +1,17 @@
+;; avr0dev mega4809			-*- Scheme -*-
+
+;; Copyright (C) 2020,2023 Matthew Wette
+;;
+;; This library is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU Lesser General Public
+;; License as published by the Free Software Foundation; either
+;; version 2.1 of the License, or (at your option) any later version.
+
+(define-ffi-module (avr0dev mega4809)
+  #:include '("avr0dev/mega4809.h")
+  #:library '("mega4809")
+  #:use-ffi-module (avr0per ffi)
+  #:use-ffi-module (octbx ffi)
+  )
+
+;; --- last line ---
