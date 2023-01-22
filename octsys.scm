@@ -7,7 +7,7 @@
 ;; License as published by the Free Software Foundation; either
 ;; version 2.1 of the License, or (at your option) any later version.
 
-(define-module (octosys2)
+(define-module (octsys)
   #:export (process-sysx-file
             make-sys sys? get-sys-clk 
             make-mcu mcu? get-mcu-cpu cpu-reset

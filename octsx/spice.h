@@ -43,7 +43,7 @@ typedef struct spice {
   char **mea_names;
   spice_mea_t meas[SPC_MEA_MAX];
   double tv[2];
-  logr_t *logr;
+  //logr_t *logr;
 } spice_t;
 
 void spice_init(spice_t *, struct tmsch *clk, int argc, char **argv);

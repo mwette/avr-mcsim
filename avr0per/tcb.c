@@ -100,7 +100,8 @@ static void tcb_bot_act(void *arg, tkclk_t *clk) {
   switch (reg->CTRLB & TCB_CNTMODE_gm) {
 
   case TCB_CNTMODE_INT_gc:
-    tcb->cmp_act = tkclk_sched(clk, reg->CCMP*fact, -1, tcb_cmp_act, tcb);
+    tcb->cmp_act = tkclk_sched(clk, REG16U(reg->CCMP)*fact,
+			       -1, tcb_cmp_act, tcb);
     tcb->cmp_act->name = "tcb_cmp_act";
     break;
 
@@ -135,7 +136,8 @@ static void tcb_cmp_act(void *arg, tkclk_t *clk) {
   switch (reg->CTRLB & TCB_CNTMODE_gm) {
 
   case TCB_CNTMODE_INT_gc: // FIXME read doc's
-    tcb->cmp_act = tkclk_sched(clk, (reg->CCMP + 1)*fact, -1, tcb_cmp_act, tcb);
+    tcb->cmp_act = tkclk_sched(clk, (REG16U(reg->CCMP) + 1)*fact,
+			       -1, tcb_cmp_act, tcb);
     tcb->cmp_act->name = "tcb_cmp_act";
     if (reg->INTCTRL & TCB_ENABLE_bm) mcu_ir(mcu, tcb->int_vn);
     break;
@@ -242,7 +244,8 @@ void tcb_wr(tcb_t *tcb, int addr, uint8_t val) {
       }
       switch (reg->CTRLB & TCB_CNTMODE_gm) {
       case TCB_CNTMODE_INT_gc:
-	tcb->cmp_act = tkclk_sched(clk, reg->CCMP*fact, -1, tcb_cmp_act, tcb);
+	tcb->cmp_act = tkclk_sched(clk, REG16U(reg->CCMP)*fact, -1,
+				   tcb_cmp_act, tcb);
 	tcb->cmp_act->name = "tcb_cmp_act";
 	break;
       case TCB_CNTMODE_PWM8_gc:

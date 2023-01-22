@@ -194,11 +194,12 @@ void adc_conv_act(void *_adc, tkclk_t *clk) {
 
   // FIXME get MCU Vref
   if (aval >= 5.0) {
-    reg->RES = 0x3ff;
+    reg->RESH = 0x3; reg->RESL = 0xff;
   } else if (aval <= 0.0) {
-    reg->RES = 0;
+    reg->RESH = 0; reg->RESL = 0;
   } else {
-    reg->RES = (uint16_t)floor(1024.0*aval/5.0);
+    res = (uint16_t)floor(1024.0*aval/5.0);
+    reg->RESH = REG16H(res); reg->RESL = REG16L(res);
   }
   //printf("aval = %f  RES=%d\n", aval, reg->RES);
   reg->INTFLAGS |= ADC_RESRDY_bm;
@@ -254,8 +255,6 @@ uint8_t adc_rd(adc_t *adc, int addr) {
     reg->INTFLAGS &= ~ADC_ENABLE_bm;	    /* clear intr flag */
     mcu_ir(mcu, -(adc->resrdy_vn));	    /* clear pending intr */
     reg->TEMP = reg->RESH;
-    printf(" RES => %d = 0x%04x = 0x%02x%02x\n",
-	   reg->RES, reg->RES, reg->RESH, reg->RESL);
     return reg->RESL;
     break;
   case RESH_OFFSET:                     /* ADC Accumulator Result */

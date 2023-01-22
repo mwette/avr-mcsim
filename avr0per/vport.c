@@ -8,6 +8,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  */
 #include <stdint.h>
+#include <stdlib.h>
 #include "octbx.h"
 #include "vport.h"
 
@@ -20,7 +21,7 @@
 #define INTFLAGS_OFFSET 0x3             /* Interrupt Flags */
 
 uint8_t vport_rd(vport_t *vport, int offs) {
-  VPORT_reg_t *reg = vport->reg;
+  vport_reg_t *reg = vport->reg;
 
   switch (offs) {
   case DIR_OFFSET:                      /* Data Direction */
@@ -42,7 +43,7 @@ uint8_t vport_rd(vport_t *vport, int offs) {
 }
 
 void vport_wr(vport_t *vport, int offs, uint8_t val) {
-  VPORT_reg_t *reg = vport->reg;
+  vport_reg_t *reg = vport->reg;
 
   switch (offs) {
   case DIR_OFFSET:                      /* Data Direction */

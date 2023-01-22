@@ -45,9 +45,14 @@ sublibs:
 .PHONY: clean
 clean:
 	rm -f oct4809 octscm *.so *.o *~
+	(cd octbx; $(MAKE) clean; $(MAKE))
+	(cd avr0per; $(MAKE) clean; $(MAKE))
+	(cd avr0dev; $(MAKE) clean; $(MAKE))
+	(cd octsx; $(MAKE) clean; $(MAKE))
 
-.PHONY: all-from-clean afc
-all-from-clean afc:
+.PHONY: all-from-clean AFC
+all-from-clean AFC:
+	rm -f oct4809 octscm *.so *.o *~
 	(cd octbx; $(MAKE) clean; $(MAKE))
 	(cd avr0per; $(MAKE) clean; $(MAKE))
 	(cd avr0dev; $(MAKE) clean; $(MAKE))

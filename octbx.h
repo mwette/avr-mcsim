@@ -10,14 +10,21 @@
 #ifndef OCTBX_H__
 #define OCTBX_H__
 
+#include <stdint.h>
+
+#define reg16_t_(N) struct { uint8_t N ## L; uint8_t N ## H; }
+
+#define REG16H(V) (((V) >> 8) & 0xFF)
+#define REG16L(V) ((V) & 0xFF)
+#define REG16S(N) ((int16_t)(((N ## H) << 8) | (N ## L)))
+#define REG16U(N) ((uint16_t)(((N ## H) << 8) | (N ## L)))
+
 #include "octbx/sched.h"
 #include "octbx/avr_cpu.h"
 #include "octbx/avr_pin.h"
 #include "octbx/avr_mcu.h"
 #include "octbx/hooks.h"
-#include "octbx/misc.h"
 #include "octbx/log.h"
-#include "octbx/logger.h"
 #include "octbx/twi_bus.h"
 
 #endif

@@ -267,7 +267,7 @@ static void tca_bot_act(void *arg, tkclk_t *clk) {
 
   fact = tca_fact(reg);
   dir_up = !(reg->SINGLE.CTRLE & TCA_SINGLE_DIR_bm);
-  delta = reg->SINGLE.PER;
+  delta = REG16U(reg->SINGLE.PER);
   
   tca->top_act = tkclk_sched(clk, delta*fact, +1, tca_top_act, tca);
   tca->bot_act = 0;
@@ -282,7 +282,7 @@ static void tca_top_act(void *arg, tkclk_t *clk) {
 
   fact = tca_fact(reg);
   dir_up = !(reg->SINGLE.CTRLE & TCA_SINGLE_DIR_bm);
-  delta = reg->SINGLE.PER - reg->SINGLE.CNT;
+  delta = REG16U(reg->SINGLE.PER) - REG16U(reg->SINGLE.CNT);
   
   if (tca->bot_act) tca->bot_act = tkclk_cancel(clk, tca->bot_act);
   tca->bot_act = tkclk_sched(clk, fact, +1, tca_bot_act, tca);
@@ -351,11 +351,11 @@ static void check_activities(tca_t *tca, int flag) {
   if ((reg->SINGLE.CTRLD & TCA_SINGLE_SPLITM_bm) == 0) {
     /* normal (single) mode */
     if ((reg->SINGLE.CTRLA & TCA_SINGLE_ENABLE_bm) == 0) return;
-    if (reg->SINGLE.PER) {
+    if (reg->SINGLE.PERH || reg->SINGLE.PERL) {
       dir_up = !(reg->SINGLE.CTRLE & TCA_SINGLE_DIR_bm);
 
       if (dir_up) {
-	delta = reg->SINGLE.PER - reg->SINGLE.CNT;
+	delta = REG16U(reg->SINGLE.PER) - REG16U(reg->SINGLE.CNT);
 	if (delta < 0) delta += 65536;
 	if (tca->top_act) tca->top_act = tkclk_cancel(clk, tca->top_act);
 	tca->top_act = tkclk_sched(clk, delta*fact, +1, tca_top_act, tca);
@@ -366,7 +366,7 @@ static void check_activities(tca_t *tca, int flag) {
       }
       switch (reg->SINGLE.CTRLB & TCA_WGMODE_gm) {
       case TCA_SINGLE_WGMODE_NORMAL_gc:
-	delta = reg->SINGLE.PER;
+	delta = REG16U(reg->SINGLE.PER);
 	if (reg->SINGLE.CTRLB & TCA_SINGLE_CMP0EN_bm) {
 	  tca->cmp0_act = tkclk_sched(clk, delta*fact, +1, tca_cmp0_act, tca);
 	}
