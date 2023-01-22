@@ -1,14 +1,7 @@
 #!/bin/sh
 # -*- scheme -*-
-#
-# Copyright (C) 2022-2023 Matthew Wette
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
 
-TOP=/home/mwette/proj/avr
+TOP=$(dirname $(realpath $0))
 LD_LIBRARY_PATH=$TOP
 LD_LIBRARY_PATH=$TOP/octsx:$LD_LIBRARY_PATH
 LD_LIBRARY_PATH=$TOP/avr0dev:$LD_LIBRARY_PATH
@@ -16,7 +9,6 @@ LD_LIBRARY_PATH=$TOP/avr0per:$LD_LIBRARY_PATH
 LD_LIBRARY_PATH=$TOP/octbx:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 
-GUILE_LOAD_PATH=$HOME/repo/sv/nyacc/current
 GUILE_LOAD_PATH=$TOP:$GUILE_LOAD_PATH
 export GUILE_LOAD_PATH
 
@@ -27,6 +19,12 @@ else
   exec guile --debug -ds $0 $@
 fi
 !#
+;; Copyright (C) 2022-2023 Matthew Wette
+;;
+;; This library is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU Lesser General Public
+;; License as published by the Free Software Foundation; either
+;; version 2.1 of the License, or (at your option) any later version.
 
 ;;(use-modules (system base language))
 (define (sf fmt . args) (apply simple-format #t fmt args))
