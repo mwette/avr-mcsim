@@ -157,6 +157,12 @@ void tmsch_init(tmsch_t *sch, int nevt) {
   evts[nevt-1].next = 0;
 }
 
+void tmsch_init(tmsch_t *sch, int nevt) {
+  free(sch->evts);
+  memset(sch, 0, sizeof(tmsch_t));
+}
+
+
 void tmsch_print(tmsch_t *sch) {
   tmevt_t *evt;
 
@@ -266,7 +272,7 @@ int tk_ge(osctick_t a, osctick_t b) {
   return 1 - tk_le(a, b);
 }
 
-#define TKOSC_NEVT_DEF 1024		/* need a lot here */
+#define TKOSC_NEVT_DEF 512		/* need a lot here */
 
 void tkosc_init(tkosc_t *tkosc, tmsch_t *tmsch, int nevt) {
   tkevt_t *evts;
@@ -289,6 +295,11 @@ void tkosc_init(tkosc_t *tkosc, tmsch_t *tmsch, int nevt) {
   tkosc->time = tmsch->time;
   tkosc->seed = u_genseed();
   tkosc->step = 1;
+}
+
+void tkosc_fini(tkosc_t *tkosc) {
+  free(tkosc->evts);
+  memset(tkosc, 0, sizeof(tkosc_t));
 }
 
 void tkosc_print(tkosc_t *tkosc) {

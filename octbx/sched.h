@@ -79,6 +79,7 @@ typedef struct tmsch {
 } tmsch_t;
 
 void tmsch_init(tmsch_t *sch, int nevt);
+void tmsch_fini(tmsch_t *sch);
 tmevt_t *tmsch_sched(tmsch_t *sch, simtime_t when, int8_t neps,
 		     tmevt_rout_t *rout, void *arg);
 tmevt_t *tmsch_cancel(tmsch_t *sch, tmevt_t *evt);
@@ -148,6 +149,7 @@ typedef struct tkosc {
 void tkosc_break_evt(void *arg, struct tkclk *clk);
 
 void tkosc_init(tkosc_t *sch, struct tmsch *tmsch, int nevt);
+void tkosc_fini(tkosc_t *sch);
 void tkosc_sync(tkosc_t *sch);
 void tkosc_print(tkosc_t *sch);
 

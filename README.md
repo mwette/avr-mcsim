@@ -43,7 +43,7 @@ The format of output is
 1. time, cpu hash
 2. register names (does not include r2-r7 to keep under 80 columns)
 3. register values
-4. CC register flags, stack pointer value, stack
+4. status register (SREG) bits, stack pointer value, stack
 5. PC, and next instruction to execute
 
 
