@@ -2005,19 +2005,86 @@ static int eval_JMP(cpu_t *cpu, uint16_t insn) {
   return upd->nclk;
 }
 
-/* only on xmega */
+/* only on xmega: load and clear; untested */
 static int eval_LAC(cpu_t *cpu, uint16_t insn) {
-  abort();
+  update_t *upd = &cpu->upd;
+  int dx;
+  uint8_t Rd, Ru;
+  wreg_t Rz;
+
+  dx = get_dx(insn);
+  Rd = cpu->regs[dx];
+  Rz.lo = cpu->regs[REGZ_IX+0];
+  Rz.hi = cpu->regs[REGZ_IX+1];
+
+  Ru = cpu_rd(cpu, Rz.w) & ~Rd;
+    
+  upd->pc = cpu->pc + 1;
+  upd->nclk = 2;
+  upd->nval = 2;
+  upd->vals[0].tg = TG_REG;
+  upd->vals[0].ix = dx;
+  upd->vals[0].dv = Rd;
+  upd->vals[1].tg = TG_DAT;
+  upd->vals[1].ix = Rz.w;
+  upd->vals[1].dv = Ru;
+  if (cpu->gen_asml) asmsav1(&upd->asml, "lac   Z,r%d", dx);
+  return upd->nclk;
 }
 
-/* only on xmega */
+/* only on xmega : load and set; untested */
 static int eval_LAS(cpu_t *cpu, uint16_t insn) {
-  abort();
+  update_t *upd = &cpu->upd;
+  int dx;
+  uint8_t Rd, Ru;
+  wreg_t Rz;
+
+  dx = get_dx(insn);
+  Rd = cpu->regs[dx];
+  Rz.lo = cpu->regs[REGZ_IX+0];
+  Rz.hi = cpu->regs[REGZ_IX+1];
+
+  Ru = cpu_rd(cpu, Rz.w) | Rd;
+
+  upd->pc = cpu->pc + 1;
+  upd->nclk = 2;
+  upd->nval = 2;
+  upd->vals[0].tg = TG_REG;
+  upd->vals[0].ix = dx;
+  upd->vals[0].dv = Rd;
+  upd->vals[1].tg = TG_DAT;
+  upd->vals[1].ix = Rz.w;
+  upd->vals[1].dv = Ru;
+  if (cpu->gen_asml) asmsav1(&upd->asml, "las   Z,r%d", dx);
+  return upd->nclk;
 }
 
-/* only on xmega */
+/* only on xmega: load and toggle: untested */
 static int eval_LAT(cpu_t *cpu, uint16_t insn) {
-  abort();
+  update_t *upd = &cpu->upd;
+  int dx;
+  uint8_t Rd, Ru;
+  wreg_t Rz;
+
+  dx = get_dx(insn);
+  Rd = cpu->regs[dx];
+  Rz.lo = cpu->regs[REGZ_IX+0];
+  Rz.hi = cpu->regs[REGZ_IX+1];
+
+  Ru = cpu_rd(cpu, Rz.w);
+  Ru = (Ru & ~Rd) | ((Ru ^ Rd) & Rd);
+
+  upd->pc = cpu->pc + 1;
+  upd->nclk = 2;
+  upd->nval = 2;
+  upd->vals[0].tg = TG_REG;
+  upd->vals[0].ix = dx;
+  upd->vals[0].dv = Rd;
+  upd->vals[1].tg = TG_DAT;
+  upd->vals[1].ix = Rz.w;
+  upd->vals[1].dv = Ru;
+  if (cpu->gen_asml) asmsav1(&upd->asml, "lat   Z,r%d", dx);
+  return upd->nclk;
 }
 
 static int eval_LD_(cpu_t *cpu, uint16_t insn, int _x, char _n) {

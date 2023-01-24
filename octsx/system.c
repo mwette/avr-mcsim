@@ -245,7 +245,7 @@ sys_t *make_sys(int argc, char *argv[]) {
 
 void sys_init(sys_t *sys, int argc, char *argv[]) {
   memset(sys, 0, sizeof(sys_t));
-  tmsch_init(&sys->clk);
+  tmsch_init(&sys->clk, 0);
 }
 
 void sys_fini(sys_t *sys) {

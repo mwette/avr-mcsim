@@ -70,17 +70,15 @@ typedef struct tmevt {
   const char *name;
 } tmevt_t;
 
-#define TMSCH_NEVT 64			/* main, spice, one-per-osc */
-
 typedef struct tmsch {
   tmevt_t todo;
   tmevt_t done;
   tmevt_t *evt;
   simtime_t time;
-  tmevt_t evts[TMSCH_NEVT];
+  tmevt_t *evts;
 } tmsch_t;
 
-void tmsch_init(tmsch_t *sch);
+void tmsch_init(tmsch_t *sch, int nevt);
 tmevt_t *tmsch_sched(tmsch_t *sch, simtime_t when, int8_t neps,
 		     tmevt_rout_t *rout, void *arg);
 tmevt_t *tmsch_cancel(tmsch_t *sch, tmevt_t *evt);
@@ -101,8 +99,6 @@ int tk_lt(osctick_t a, osctick_t b);
 int tk_le(osctick_t a, osctick_t b);
 int tk_gt(osctick_t a, osctick_t b);
 int tk_ge(osctick_t a, osctick_t b);
-
-#define TKOSC_NEVT 256			/* need a lot here */
 
 struct tkosc;
 struct tkclk;
@@ -146,12 +142,12 @@ typedef struct tkosc {
   uint32_t step;		        /* step size in ticks */
 
   /* event heap */
-  tkevt_t evts[TKOSC_NEVT];	        /* event list */
+  tkevt_t *evts;			/* event list */
 } tkosc_t;
 
 void tkosc_break_evt(void *arg, struct tkclk *clk);
 
-void tkosc_init(tkosc_t *sch, struct tmsch *tmsch);
+void tkosc_init(tkosc_t *sch, struct tmsch *tmsch, int nevt);
 void tkosc_sync(tkosc_t *sch);
 void tkosc_print(tkosc_t *sch);
 

@@ -105,7 +105,7 @@ main()
   int err;
   uint8_t addr;
 
-  tmsch_init(&sch0);
+  tmsch_init(&sch0, 0);
   tm = sch0.time;
 
   /* bus */

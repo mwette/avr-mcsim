@@ -139,18 +139,22 @@ simtime_t tm_add(simtime_t a, simtime_t b) {
   return ts;
 }
 
-void tmsch_init(tmsch_t *sch) {
+#define TMSCH_NEVT_DEF 256		/* main, spice, one-per-osc */
+
+void tmsch_init(tmsch_t *sch, int nevt) {
   tmevt_t *evts;
-  
+
+  if (nevt <= 0) nevt = TMSCH_NEVT_DEF;
   memset(sch, 0, sizeof(tmsch_t));
+  evts = sch->evts = malloc(nevt*sizeof(tmevt_t));
   evts = sch->evts;
   sch->done.next = &evts[0];
   evts[0].prev = &sch->done;
-  for (int i = 1; i < TMSCH_NEVT; i++) {
+  for (int i = 1; i < nevt; i++) {
     evts[i-1].next = &evts[i];
     evts[i].prev = &evts[i-1];
   }
-  evts[TMSCH_NEVT-1].next = 0;
+  evts[nevt-1].next = 0;
 }
 
 void tmsch_print(tmsch_t *sch) {
@@ -262,20 +266,23 @@ int tk_ge(osctick_t a, osctick_t b) {
   return 1 - tk_le(a, b);
 }
 
-void tkosc_init(tkosc_t *tkosc, tmsch_t *tmsch) {
+#define TKOSC_NEVT_DEF 1024		/* need a lot here */
+
+void tkosc_init(tkosc_t *tkosc, tmsch_t *tmsch, int nevt) {
   tkevt_t *evts;
 
   assert(tmsch != 0);
   
   memset(tkosc, 0, sizeof(tkosc_t));
-  evts = tkosc->evts;
+  if (nevt <= 0) nevt = TKOSC_NEVT_DEF;
+  evts = tkosc->evts = malloc(nevt*sizeof(tkevt_t));
   tkosc->done.next = &evts[0];
   evts[0].prev = &tkosc->done;
-  for (int i = 1; i < TKOSC_NEVT; i++) {
+  for (int i = 1; i < nevt; i++) {
     evts[i-1].next = &evts[i];
     evts[i].prev = &evts[i-1];
   }
-  evts[TKOSC_NEVT-1].next = 0;
+  evts[nevt-1].next = 0;
   tkosc->tmsch = tmsch;
   tkosc->neps = NEPS_OSC;
   tkosc->tick = 0;

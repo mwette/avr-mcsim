@@ -73,7 +73,7 @@ void mega4809_init(void* _mcu, tmsch_t *tmsch) {
   cpu->host = mcu;
 
   tkosc = &mcu->osc20m;
-  tkosc_init(tkosc, tmsch);
+  tkosc_init(tkosc, tmsch, 0);
   tkosc->tick_per = 0.05e-6;		/* 20.0 MHz */
   tkosc->allan_dev = 80.0e-6;		/* Allan deviaion (ppu) */
   tkosc->drift_dev = 30.0e-6;		/* (thermal) drift deviaion (ppu) */
@@ -84,7 +84,7 @@ void mega4809_init(void* _mcu, tmsch_t *tmsch) {
 #endif
   
   tkosc = &mcu->osculp32k;
-  tkosc_init(tkosc, tmsch);
+  tkosc_init(tkosc, tmsch, 0);
   tkosc->tick_per = 30.51757813e-6;	/* 32768 Hz */
   tkosc->allan_dev = 80.0e-6;
   tkosc->drift_dev = 30.0e-6;
@@ -95,7 +95,7 @@ void mega4809_init(void* _mcu, tmsch_t *tmsch) {
 #endif
 
   tkosc = &mcu->xosc32k;		/* FIXME: external hookup */
-  tkosc_init(tkosc, tmsch);
+  tkosc_init(tkosc, tmsch, 0);
   tkosc->tick_per = 30.51757813e-6;	/* 32768 Hz */
   tkosc->allan_dev = 8.0e-6;
   tkosc->drift_dev = 30.0e-6;

@@ -150,6 +150,7 @@ void cpu_disp(cpu_t *cpu);
 
 int asmstrf(asmline_t *, int show_ba, char *buf, int bufsiz);
 
+/* breakpoints */
 void brkpt_init(brkpt_t *brkpts, int nbrkpt);
 int brkpt_alloc(cpu_t *cpu);
 void brkpt_dealloc(cpu_t *cpu, int ix);
@@ -161,13 +162,15 @@ int brkpt_at(cpu_t *cpu, uint32_t pc);
 int add_brkpt(cpu_t *cpu, uint32_t pc_ba);
 int rem_brkpt(cpu_t *cpu, uint32_t pc_ba);
 
-void wtcpt_init(void);
-int wtcpt_alloc(cpu_t *cpu);
-void wtcpt_dealloc(int ix);
-void wtcpt_set(int ix, uint16_t addr);
-uint16_t wtcpt_unset(int ix);
-int add_wtcpt(cpu_t *cpu, uint16_t addr);
-int del_wtcpt(cpu_t *cpu, uint16_t addr);
+/* watchpoints -- not implemented */
+void wchpt_init(void);
+int wchpt_alloc(cpu_t *cpu);
+void wchpt_dealloc(int ix);
+void wchpt_set(int ix, uint16_t addr);
+uint16_t wchpt_unset(int ix);
+
+int add_wchpt(cpu_t *cpu, uint16_t addr);
+int del_wchpt(cpu_t *cpu, uint16_t addr);
 
 /* for elfen tool: */
 cpu_t *make_raw_cpu(uint16_t *prog, uint8_t *data);
