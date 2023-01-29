@@ -263,6 +263,11 @@ simtime_t get_simtime(sys_t *sys) {
   return sys->clk.time;
 }
 
+void get_simtime_tp(sys_t *sys, simtime_t *tp) {
+  assert(tp);
+  *tp = sys->clk.time;
+}
+
 #ifndef NO_DYNLD
 mcu_t *make_mcu(tmsch_t *tmsch, char *dev, char *code) {
   mcu_t *mcu;
@@ -552,6 +557,14 @@ void sys_run_sns(sys_t *sys, long s, long ns) {
   to.nsec = ns; 
   to = tm_add(sys->clk.time, to);
   sys_run_to(sys, to);
+}
+
+void sys_run_sus(sys_t *sys, long s, long us) {
+  sys_run_sns(sys, s, 1000*us);
+}
+
+void sys_run_sms(sys_t *sys, long s, long ms) {
+  sys_run_sus(sys, s, 1000*ms);
 }
 
 void sys_run_dt(sys_t *sys, float dt) {

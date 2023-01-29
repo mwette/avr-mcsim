@@ -192,6 +192,9 @@ fi
   
   (unless (assq-ref opts 'batch)
     (activate-readline)
+    (process-use-modules
+     '(((bytestructures guile)) ((ffi runtime))
+       ((ffi octbx)) ((ffi octsx))))
     (top-repl)))
 
 ;; --- last line ---

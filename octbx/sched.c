@@ -157,7 +157,7 @@ void tmsch_init(tmsch_t *sch, int nevt) {
   evts[nevt-1].next = 0;
 }
 
-void tmsch_init(tmsch_t *sch, int nevt) {
+void tmsch_fini(tmsch_t *sch) {
   free(sch->evts);
   memset(sch, 0, sizeof(tmsch_t));
 }

@@ -7,6 +7,9 @@
 ;; License as published by the Free Software Foundation; either
 ;; version 2.1 of the License, or (at your option) any later version.
 
+;; Issues:
+;; 1) guile FFI does not return structs :(
+
 (define-module (octsys)
   #:export (process-sysx-file
             make-sys sys? get-sys-clk 
@@ -18,16 +21,13 @@
             make-raw-cpu cpu-set-pc cpu-get-pc cpu-show-insn
             
             dev-name dev-guts
-            make-bus bus? bus-relevel bus-conn-to-pin
-            )
+            make-bus bus? bus-relevel bus-conn-to-pin)
   
-  #:use-module (system foreign)
   #:use-module (rnrs bytevectors)
-  #:use-module (octbx ffi)
-  #:use-module (octsx ffi)
-  #:use-module (system ffi-help-rt)
-  #:use-module ((system foreign) #:prefix ffi:)
-  )
+  #:use-module (ffi octbx)
+  #:use-module (ffi octsx)
+  #:use-module (ffi runtime)
+  #:use-module ((system foreign) #:prefix ffi:))
 
 (define lbx (dynamic-link "liboctbx"))
 (define lsx (dynamic-link "liboctsx"))
@@ -66,16 +66,17 @@
          #`(begin
              (define-public #,(gen-id #'name "add-" #'name "-hook!")
                (let* ((n #,(gen-str "add_" c-name "_hook"))
-                      (f (pointer->procedure
-                          void (dynamic-func n lbx) (list '*))))
+                      (f (ffi:pointer->procedure
+                          ffi:void (dynamic-func n lbx) (list '*))))
                  (lambda (proc)
                    (define (wrapped-proc obj) (proc ((fht-wrap arg) obj)))
                    (hash-set! hook-tab proc wrapped-proc)
-                   (f (procedure->pointer void wrapped-proc (list '*))))))
+                   (f (ffi:procedure->pointer
+                       ffi:void wrapped-proc (list '*))))))
              (define-public #,(gen-id #'name "rem-" #'name "-hook!")
                (let* ((n #,(gen-str "rem_" c-name "_hook"))
-                      (f (pointer->procedure
-                          void (dynamic-func n lbx) (list '*))))
+                      (f (ffi:pointer->procedure
+                          ffi:void (dynamic-func n lbx) (list '*))))
                  (lambda (proc)
                    (let ((wrapped-proc (hash-ref hook-tab proc)))
                      (when wrapped-proc
@@ -102,7 +103,7 @@
 (export %sys)
 
 (define (make-sys . args)
-  (let ((sys (make_sys 0 %null-pointer)))
+  (let ((sys (make_sys 0 ffi:%null-pointer)))
     (unless (%sys) (%sys sys))
     sys))
 
@@ -164,24 +165,27 @@
     (insn_wsize insn cpu)))
 (export cpu-insn-wsize)
 
-;; === system stuff 
+;; === system stuff
+
+(define-public get-simtime              ; guile ffi does not return structs
+  (lambda* (#:optional sys)
+    (let ((t (make-simtime_t)))
+      (get_simtime_tp (or sys (%sys)) (pointer-to t))
+      t)))
 
 (define-public sys-cont
-  (lambda* (sys #:optional (cpu %null-pointer)) (sys_cont sys cpu)))
+  (lambda* (sys #:optional (cpu ffi:%null-pointer)) (sys_cont sys cpu)))
 (define-public sys-cpu-next
   (lambda* (sys cpu #:optional (n 1)) (sys_cpu_next sys cpu n)))
 (define-public sys-cpu-step
   (lambda* (sys cpu #:optional (n 1)) (sys_cpu_step sys cpu n)))
 
-;; sys-run-to sys s ns ???
-(define-public (sys-run-to sys s ns)
-  (sys_run_to sys (make-c-struct (list int32 int32) (list s ns))))
 (define-public sys-run-ns sys_run_ns)
 (define-public (sys-run-us sys us) (sys_run_ns sys (* 1000 us)))
 (define-public (sys-run-ms sys us) (sys_run_ns sys (* 1000000 us)))
 (define-public sys-run-sns sys_run_sns)
-;;(define-public sys-run-sus sys_run_sus)
-;;(define-public sys-run-sms sys_run_sms)
+(define-public sys-run-sus sys_run_sus)
+(define-public sys-run-sms sys_run_sms)
 (define-public sys-run-dt sys_run_dt)
 
 (define-public (sys-run sys val)
@@ -199,7 +203,8 @@
 
 ;; use to get back to gdb
 (define-public sys-dummy
-  (let ((~f (pointer->procedure void (dynamic-func "sys_dummy" lsx) (list))))
+  (let ((~f (ffi:pointer->procedure
+             ffi:void (dynamic-func "sys_dummy" lsx) (list))))
     (lambda* () (~f))))
   
 
@@ -219,6 +224,8 @@
 (define make-bus make_bus)
 (define bus-relevel bus_relevel)
 (define bus-conn-to-pin bus_conn_to_pin)
+(export make-bus)
+
 
 (define (dev-type dev)
   (cond
@@ -227,18 +234,28 @@
    ;;((osc? dev) 'OCT_T_OSC)
    ;;((cir? dev) 'OCT_T_CIR)
    (else #f)))
+(export dev-type)
 
 (define* (dev-insert name ref #:optional sys)
   (let ((sy (or sys (%sys))) (ty (dev-type ref)))
     (dev_insert sy name ty ref)))
+(export dev-insert)
 
 (define* (dev-lookup name #:optional sys)
-  (dev_lookup (or sys (%sys) name) name))
+  (let* ((dev (dev_lookup (or sys (%sys) name) name))
+         (dev (if (eqv? ffi:%null-pointer (fh-object-ref dev)) #f dev))
+         (guts (and dev (dev-guts dev))))
+    (and dev
+         (case (dev_type dev)
+           ((0) dev)
+           ((1) (make-mcu_t* guts))
+           ((2) (make-bus_t* guts))
+           ;;((3) (make-osc_t* guts))
+           (else #f)))))
+(export dev-lookup)
 
 (define (sx-attr. sx)
-  (if (and (pair? (cdr sx))
-	   (pair? (cadr sx))
-	   (eqv? '@ (caadr sx)))
+  (if (and (pair? (cdr sx)) (pair? (cadr sx)) (eqv? '@ (caadr sx)))
       (map (lambda (pair) (cons (car pair) (cadr pair))) (cdadr sx))
       '()))
 
@@ -259,9 +276,10 @@
       guts))
 
   (define (nd-name-to-dev name)
-    (when verbose (sf "nd-name-to-dev\n"))
+    (when verbose (sf "nd-name-to-dev ~S\n" name))
     (fold
      (lambda (name dev)
+       (when verbose (sf "  name=~S  dev=~S type=~S\n" name dev (dev_type dev)))
        (cond
 	((sys? dev) (dev-lookup name))
 	((mcu? dev) (mcu-pin-byname dev name))
@@ -340,8 +358,7 @@
 
   (let ((post-ops (probe-sys sysx '())))
     (for-each (lambda (op) (op)) post-ops)
-    (sys-run-to (%sys) 0 0)
-    ))
+    (sys-run-sns (%sys) 0 0)))
 
 (define-public (process-sysx-file file)
   (define (file->sxml file)
@@ -352,75 +369,7 @@
 	(lambda (port) (xml->sxml port #:trim-whitespace? #t))))
      (else
       (error "expecting port or filename"))))
-  (process-sysx (file->sxml file) #:xdir (dirname file)))
-
-#|
-;; not working:
-(define-public get-simtime
-  (let ((~f (ffi:pointer->procedure
-             (list ffi:int32 ffi:int32)
-             (dynamic-func "get_simtime" (dynamic-link "liboctsx"))
-             (list '*))))
-    (lambda* (#:optional (sys (%sys)))
-      (let* ((res (~f (fh-object-addr sys)))
-             (res (make-simtime_t* res))
-             (res (fh-object-ref res '*)))
-        res))))
-|#
-
-#|
-(define-public (process-sysx-file file)
-  (sf "process-sysx-file not implemented -- I quit\n")
-  (quit))
-|#
-
-  
-;; === for spin ================================================================
-
-#|
-
-(define-public make-raw-cpu
-  (let ((~f (pointer->procedure
-	     '* (dynamic-func "make_raw_cpu" lbx) (list '* '*))))
-    (lambda (prog data) ;; prog data are bytevectors
-      (let ((~prog (cond
-		    ((pointer? prog) prog)
-		    ((bytevector? prog) (bytevector->pointer prog))
-		    (else (error "expecting pointer or bytevector"))))
-	    (~data (cond
-		    ((pointer? data) prog)
-		    ((bytevector? data) (bytevector->pointer data))
-		    (else (error "expecting pointer or bytevector")))))
-	(wrap-cpu (~f ~prog ~data))))))
-
-
-;; cpu-set-pc cpu pc
-(define-public cpu-set-pc
-  (let ((~f (pointer->procedure
-      void (dynamic-func "cpu_set_pc" lbx) (list '* uint32))))
-    (lambda (cpu pc)
-      (~f (unwrap-cpu cpu) pc))))
-
-;; cpu-get-pc cpu => pc
-(define-public cpu-get-pc
-  (let ((~f (pointer->procedure
-      uint32 (dynamic-func "cpu_get_pc" lbx) (list '*))))
-    (lambda (cpu)
-      (~f (unwrap-cpu cpu)))))
-
-;; cpu-show-insn cpu [#:show-ba #t | #f ] => insn-string
-;; use cpu-set-pc to set pc first
-(define-public cpu-show-insn
-  (let ((~f (pointer->procedure
-	     '* (dynamic-func "cpu_show_insn" lbx) (list '* int))))
-    (lambda* (cpu #:key show-ba)
-      (pointer->string (~f (unwrap-cpu cpu) (if show-ba 1 0))))))
-
-(define (process-spec osys)
-  (let* ((sys (make-sys)))
-    sys))
-
-|#
+      (process-sysx (file->sxml file) #:xdir (dirname file)))
 
 ;; --- last line ---
 

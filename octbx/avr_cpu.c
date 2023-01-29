@@ -4214,7 +4214,10 @@ int cpu_load_hex(cpu_t *cpu, char *filename) {
   uint16_t sect, addr;
   uint8_t buf[8], *text, val, csum, nv;
   
-  if (access(filename, R_OK) != 0) { printf("no file\n"); abort(); }
+  if (access(filename, R_OK) != 0) {
+    fprintf(stderr, "file not found: \"%s\"\n", filename);
+    return -1;
+  }
   fd = open(filename, O_RDONLY);
   if (fd < 0) return -1;
 

@@ -66,7 +66,7 @@ typedef enum {
 } buslev_t;
 
 typedef struct bus {
-   tmsch_t *tmsch;
+  tmsch_t *tmsch;
   int npin;
   iopin_t *pins[4];
   int lev;
@@ -89,11 +89,13 @@ tmsch_t *sys_tmsch(sys_t *sys);
 tkclk_t *sys_cpu_clk(sys_t *sys);
 tmsch_t *get_sys_clk(sys_t *sys);
 simtime_t get_simtime(sys_t *sys);
+void get_simtime_tp(sys_t *sys, simtime_t *tp);
 
 void sys_run_to(sys_t *sys, simtime_t to);
 void sys_run_ns(sys_t *sys, long ns);
-void sys_run_sus(sys_t *sys, long s, long us);
 void sys_run_sns(sys_t *sys, long s, long ns);
+void sys_run_sus(sys_t *sys, long s, long us);
+void sys_run_sms(sys_t *sys, long s, long ms);
 void sys_run_to_cpu_addr(sys_t *sys, cpu_t *cpu, uint32_t pc);
 void sys_run_dt(sys_t *sys, float dt);
 
