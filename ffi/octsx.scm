@@ -2,7 +2,7 @@
 
 (define-module (ffi octsx)
   #:use-module (ffi octbx)
-  #:use-module (ffi ffi-help-rt)
+  #:use-module (ffi runtime)
   #:use-module ((system foreign) #:prefix ffi:)
   #:use-module (bytestructures guile))
 

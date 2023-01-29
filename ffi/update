@@ -4,7 +4,7 @@ function compile () {
     base=$1
     guild compile-ffi ffi/$1.ffi
     ed -s ffi/$base.scm <<-EndOfInput
-	/system ffi-help-rt/s/system/ffi/
+	/system ffi-help-rt/s//ffi runtime/
 	wq
 	EndOfInput
 }

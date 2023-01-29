@@ -1,6 +1,6 @@
-;;; system/ffi-help-rt.scm - NYACC's FFI help runtime
+;;; ffi/runtime.scm - NYACC's FFI help runtime
 
-;; Copyright (C) 2016-2019,2022 Matthew R. Wette
+;; Copyright (C) 2016-2019,2022-2023 Matthew R. Wette
 ;;
 ;; This library is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,7 @@
 
 ;;; Code:
 
-(define-module (ffi ffi-help-rt)
+(define-module (ffi runtime)
   #:export (*ffi-help-version*
 
             ;; user level routines
@@ -61,7 +61,7 @@
   #:use-module (srfi srfi-9)
   #:version (1 08 1))
 
-(define *ffi-help-version* "1.08.1")
+(define *ffi-help-version* "1.08.1+")
 
 (use-modules (ice-9 pretty-print))
 (define (sferr fmt . args)
