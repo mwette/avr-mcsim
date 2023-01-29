@@ -1,4 +1,4 @@
-;; octbx ffi				-*- Scheme -*-
+;; ffi/octbx 				-*- Scheme -*-
 
 ;; Copyright 2022-2023 Matthew Wette
 ;;
@@ -7,7 +7,7 @@
 ;; License as published by the Free Software Foundation; either
 ;; version 2.1 of the License, or (at your option) any later version.
 
-(define-ffi-module (octbx ffi)
+(define-ffi-module (ffi octbx)
   #:include '("octbx.h")
   #:inc-filter (lambda (file-spec path-spec)
                  ;;(simple-format #t "~S ~S\n" file-spec path-spec)

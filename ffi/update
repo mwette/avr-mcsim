@@ -1,0 +1,18 @@
+#!/bin/bash
+
+function compile () {
+    base=$1
+    guild compile-ffi -X ffi/$1.ffi
+    ed -s ffi/$base.scm <<-EndOfInput
+	/system ffi-help-rt/s/system/ffi/
+	wq
+	EndOfInput
+}
+
+if [ ! -d ffi ]; then
+    echo "update:expecting to run from parent to ffi/"
+    exit 1
+fi
+
+compile octbx
+compile octsx

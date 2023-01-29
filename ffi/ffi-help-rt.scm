@@ -295,8 +295,8 @@
           ((number? val)
            (make-struct/no-tail type (bytestructure desc val)))
           ((ffi:pointer? val)
-           (make-struct/no-tail type (bytestructure desc
-                                                    (ffi:pointer-address val))))
+           (make-struct/no-tail
+            type (bytestructure desc (ffi:pointer-address val))))
           (else (make-struct/no-tail type val))))
         (() (make 0))))))
 
@@ -344,10 +344,11 @@
       (and (fh-object? obj) (eq? (struct-vtable obj) type)))
     (define make
       (case-lambda
-        ((arg) (if (bytestructure? arg)
-                   (make-struct/no-tail type arg)
-                   (make-struct/no-tail type (bytestructure desc arg))))
-        (args (make-struct/no-tail type (apply bytestructure desc args)))))))
+        (() (make-struct/no-tail type (bytestructure desc)))
+        ((arg)
+         (if (bytestructure? arg)
+             (make-struct/no-tail type arg)
+             (make-struct/no-tail type (bytestructure desc arg))))))))
 
 (define-syntax-rule (define-fh-vector-type type elt-desc type? make)
   (begin
