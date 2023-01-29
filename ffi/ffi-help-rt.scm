@@ -17,7 +17,7 @@
 
 ;;; Code:
 
-(define-module (system ffi-help-rt)
+(define-module (ffi ffi-help-rt)
   #:export (*ffi-help-version*
 
             ;; user level routines

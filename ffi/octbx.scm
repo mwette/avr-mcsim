@@ -1,18 +1,11 @@
-;; Copyright 2022-2023 Matthew Wette
-;;
-;; This library is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU Lesser General Public
-;; License as published by the Free Software Foundation; either
-;; version 2.1 of the License, or (at your option) any later version.
+;; generated with `guild compile-ffi ffi/octbx.ffi'
 
-;; generated with `guild compile-ffi octbx/ffi.ffi'
-
-(define-module (octbx ffi)
-  #:use-module (system ffi-help-rt)
+(define-module (ffi octbx)
+  #:use-module (ffi ffi-help-rt)
   #:use-module ((system foreign) #:prefix ffi:)
   #:use-module (bytestructures guile))
 
-(define octbx-ffi-llibs
+(define ffi-octbx-llibs
   (delay (list (dynamic-link "liboctbx"))))
 
 
@@ -57,7 +50,7 @@
                    ffi:uint32
                    "u_genseed"
                    (list)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda () (let () ((force ~u_genseed))))))
 (export u_genseed)
 
@@ -68,7 +61,7 @@
                    ffi:uint32
                    "make_rand"
                    (list)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda () (let () ((force ~make_rand))))))
 (export make_rand)
 
@@ -79,7 +72,7 @@
                    ffi:float
                    "nml_rand"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (seedp)
       (let ((~seedp (unwrap~pointer seedp)))
         ((force ~nml_rand) ~seedp)))))
@@ -93,7 +86,7 @@
                    "tm_lt"
                    (list (list ffi:int32 ffi:int32)
                          (list ffi:int32 ffi:int32))
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a ((fht-unwrap simtime_t) a))
             (~b ((fht-unwrap simtime_t) b)))
@@ -108,7 +101,7 @@
                    "tm_le"
                    (list (list ffi:int32 ffi:int32)
                          (list ffi:int32 ffi:int32))
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a ((fht-unwrap simtime_t) a))
             (~b ((fht-unwrap simtime_t) b)))
@@ -123,7 +116,7 @@
                    "tm_gt"
                    (list (list ffi:int32 ffi:int32)
                          (list ffi:int32 ffi:int32))
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a ((fht-unwrap simtime_t) a))
             (~b ((fht-unwrap simtime_t) b)))
@@ -138,7 +131,7 @@
                    "tm_ge"
                    (list (list ffi:int32 ffi:int32)
                          (list ffi:int32 ffi:int32))
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a ((fht-unwrap simtime_t) a))
             (~b ((fht-unwrap simtime_t) b)))
@@ -152,7 +145,7 @@
                    (list ffi:int32 ffi:int32)
                    "tm_add_ns"
                    (list (list ffi:int32 ffi:int32) ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (ts nsec)
       (let ((~ts ((fht-unwrap simtime_t) ts))
             (~nsec (unwrap~fixed nsec)))
@@ -168,7 +161,7 @@
                    "tm_add"
                    (list (list ffi:int32 ffi:int32)
                          (list ffi:int32 ffi:int32))
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a ((fht-unwrap simtime_t) a))
             (~b ((fht-unwrap simtime_t) b)))
@@ -182,7 +175,7 @@
                    ffi:float
                    "tm_to_float"
                    (list (list ffi:int32 ffi:int32))
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a)
       (let ((~a ((fht-unwrap simtime_t) a)))
         ((force ~tm_to_float) ~a)))))
@@ -195,7 +188,7 @@
                    (list ffi:int32 ffi:int32)
                    "tm_from_float"
                    (list ffi:float)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (t)
       (let ((~t (unwrap~float t)))
         ((fht-wrap simtime_t)
@@ -209,7 +202,7 @@
                    ffi:void
                    "tmevt_rout_t"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 arg1)
       (let ((~arg0 (unwrap~pointer arg0))
             (~arg1 (unwrap~pointer arg1)))
@@ -266,7 +259,7 @@
 ;;   tmevt_t done;
 ;;   tmevt_t *evt;
 ;;   simtime_t time;
-;;   tmevt_t evts[64];
+;;   tmevt_t *evts;
 ;; } tmsch_t;
 (define-public tmsch_t-desc
   (bs:struct
@@ -274,7 +267,7 @@
           `(done ,tmevt_t-desc)
           `(evt ,tmevt_t*-desc)
           `(time ,simtime_t-desc)
-          `(evts ,(bs:vector 64 tmevt_t-desc)))))
+          `(evts ,tmevt_t*-desc))))
 (define-fh-compound-type tmsch_t tmsch_t-desc tmsch_t? make-tmsch_t)
 (export tmsch_t tmsch_t? make-tmsch_t)
 (define-public tmsch_t*-desc
@@ -300,18 +293,32 @@
   struct-tmsch
   make-struct-tmsch)
 
-;; void tmsch_init(tmsch_t *sch);
+;; void tmsch_init(tmsch_t *sch, int nevt);
 (define tmsch_init
   (let ((~tmsch_init
           (delay (fh-link-proc
                    ffi:void
                    "tmsch_init"
+                   (list ffi-void* ffi:int)
+                   (force ffi-octbx-llibs)))))
+    (lambda (sch nevt)
+      (let ((~sch ((fht-unwrap tmsch_t*) sch))
+            (~nevt (unwrap~fixed nevt)))
+        ((force ~tmsch_init) ~sch ~nevt)))))
+(export tmsch_init)
+
+;; void tmsch_fini(tmsch_t *sch);
+(define tmsch_fini
+  (let ((~tmsch_fini
+          (delay (fh-link-proc
+                   ffi:void
+                   "tmsch_fini"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch)
       (let ((~sch ((fht-unwrap tmsch_t*) sch)))
-        ((force ~tmsch_init) ~sch)))))
-(export tmsch_init)
+        ((force ~tmsch_fini) ~sch)))))
+(export tmsch_fini)
 
 ;; tmevt_t *tmsch_sched(tmsch_t *sch, simtime_t when, int8_t neps, tmevt_rout_t
 ;;      *rout, void *arg);
@@ -325,7 +332,7 @@
                          ffi:int8
                          ffi-void*
                          ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch when neps rout arg)
       (let ((~sch ((fht-unwrap tmsch_t*) sch))
             (~when ((fht-unwrap simtime_t) when))
@@ -351,7 +358,7 @@
                    ffi-void*
                    "tmsch_cancel"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch evt)
       (let ((~sch ((fht-unwrap tmsch_t*) sch))
             (~evt ((fht-unwrap tmevt_t*) evt)))
@@ -368,7 +375,7 @@
                    (list ffi-void*
                          (list ffi:int32 ffi:int32)
                          ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch to neps)
       (let ((~sch ((fht-unwrap tmsch_t*) sch))
             (~to ((fht-unwrap simtime_t) to))
@@ -383,7 +390,7 @@
                    ffi:void
                    "tmsch_print"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch)
       (let ((~sch ((fht-unwrap tmsch_t*) sch)))
         ((force ~tmsch_print) ~sch)))))
@@ -396,7 +403,7 @@
                    ffi:void
                    "tmsch_break_ev"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg sch)
       (let ((~arg (unwrap~pointer arg))
             (~sch ((fht-unwrap tmsch_t*) sch)))
@@ -414,7 +421,7 @@
                    ffi:int
                    "tk_lt"
                    (list ffi:uint64 ffi:uint64)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a (unwrap~fixed a)) (~b (unwrap~fixed b)))
         ((force ~tk_lt) ~a ~b)))))
@@ -427,7 +434,7 @@
                    ffi:int
                    "tk_le"
                    (list ffi:uint64 ffi:uint64)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a (unwrap~fixed a)) (~b (unwrap~fixed b)))
         ((force ~tk_le) ~a ~b)))))
@@ -440,7 +447,7 @@
                    ffi:int
                    "tk_gt"
                    (list ffi:uint64 ffi:uint64)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a (unwrap~fixed a)) (~b (unwrap~fixed b)))
         ((force ~tk_gt) ~a ~b)))))
@@ -453,7 +460,7 @@
                    ffi:int
                    "tk_ge"
                    (list ffi:uint64 ffi:uint64)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (a b)
       (let ((~a (unwrap~fixed a)) (~b (unwrap~fixed b)))
         ((force ~tk_ge) ~a ~b)))))
@@ -466,7 +473,7 @@
                    ffi:void
                    "tkevt_rout_t"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 arg1)
       (let ((~arg0 (unwrap~pointer arg0))
             (~arg1 (unwrap~pointer arg1)))
@@ -539,7 +546,7 @@
 ;;   float drift_rate; /* 1/ drift time  (s) */
 ;;   uint32_t step; /* step size in ticks */
 ;;   /* event heap */
-;;   tkevt_t evts[256]; /* event list */
+;;   tkevt_t *evts; /* event list */
 ;; } tkosc_t;
 (define-public tkosc_t-desc
   (bs:struct
@@ -559,7 +566,7 @@
           `(drift_dev ,float)
           `(drift_rate ,float)
           `(step ,uint32)
-          `(evts ,(bs:vector 256 tkevt_t-desc)))))
+          `(evts ,tkevt_t*-desc))))
 (define-fh-compound-type tkosc_t tkosc_t-desc tkosc_t? make-tkosc_t)
 (export tkosc_t tkosc_t? make-tkosc_t)
 (define-public tkosc_t*-desc
@@ -592,26 +599,40 @@
                    ffi:void
                    "tkosc_break_evt"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg clk)
       (let ((~arg (unwrap~pointer arg))
             (~clk (unwrap~pointer clk)))
         ((force ~tkosc_break_evt) ~arg ~clk)))))
 (export tkosc_break_evt)
 
-;; void tkosc_init(tkosc_t *sch, struct tmsch *tmsch);
+;; void tkosc_init(tkosc_t *sch, struct tmsch *tmsch, int nevt);
 (define tkosc_init
   (let ((~tkosc_init
           (delay (fh-link-proc
                    ffi:void
                    "tkosc_init"
-                   (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
-    (lambda (sch tmsch)
+                   (list ffi-void* ffi-void* ffi:int)
+                   (force ffi-octbx-llibs)))))
+    (lambda (sch tmsch nevt)
       (let ((~sch ((fht-unwrap tkosc_t*) sch))
-            (~tmsch ((fht-unwrap struct-tmsch*) tmsch)))
-        ((force ~tkosc_init) ~sch ~tmsch)))))
+            (~tmsch ((fht-unwrap struct-tmsch*) tmsch))
+            (~nevt (unwrap~fixed nevt)))
+        ((force ~tkosc_init) ~sch ~tmsch ~nevt)))))
 (export tkosc_init)
+
+;; void tkosc_fini(tkosc_t *sch);
+(define tkosc_fini
+  (let ((~tkosc_fini
+          (delay (fh-link-proc
+                   ffi:void
+                   "tkosc_fini"
+                   (list ffi-void*)
+                   (force ffi-octbx-llibs)))))
+    (lambda (sch)
+      (let ((~sch ((fht-unwrap tkosc_t*) sch)))
+        ((force ~tkosc_fini) ~sch)))))
+(export tkosc_fini)
 
 ;; void tkosc_sync(tkosc_t *sch);
 (define tkosc_sync
@@ -620,7 +641,7 @@
                    ffi:void
                    "tkosc_sync"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch)
       (let ((~sch ((fht-unwrap tkosc_t*) sch)))
         ((force ~tkosc_sync) ~sch)))))
@@ -633,7 +654,7 @@
                    ffi:void
                    "tkosc_print"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch)
       (let ((~sch ((fht-unwrap tkosc_t*) sch)))
         ((force ~tkosc_print) ~sch)))))
@@ -651,7 +672,7 @@
                          ffi:int8
                          ffi-void*
                          ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch when neps rout arg)
       (let ((~sch ((fht-unwrap tkosc_t*) sch))
             (~when (unwrap~fixed when))
@@ -677,7 +698,7 @@
                    ffi-void*
                    "tkosc_cancel"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (sch evt)
       (let ((~sch ((fht-unwrap tkosc_t*) sch))
             (~evt ((fht-unwrap tkevt_t*) evt)))
@@ -727,7 +748,7 @@
                    ffi:void
                    "tkclk_init"
                    (list ffi-void* ffi-void* ffi:uint16)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 tkosc div)
       (let ((~arg0 ((fht-unwrap tkclk_t*) arg0))
             (~tkosc ((fht-unwrap tkosc_t*) tkosc))
@@ -747,7 +768,7 @@
                          ffi:int8
                          ffi-void*
                          ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (clk delta neps rout arg)
       (let ((~clk ((fht-unwrap tkclk_t*) clk))
             (~delta (unwrap~fixed delta))
@@ -773,7 +794,7 @@
                    ffi-void*
                    "tkclk_cancel"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (clk evt)
       (let ((~clk ((fht-unwrap tkclk_t*) clk))
             (~evt ((fht-unwrap tkevt_t*) evt)))
@@ -1221,8 +1242,7 @@
                                                                              `(time ,(bs:struct
                                                                                        (list `(sec ,int32)
                                                                                              `(nsec ,int32))))
-                                                                             `(evts ,(bs:vector
-                                                                                       64
+                                                                             `(evts ,(fh:pointer
                                                                                        (bs:struct
                                                                                          (list `(prev ,(fh:pointer
                                                                                                          'void))
@@ -1288,8 +1308,7 @@
                                                           `(drift_dev ,float)
                                                           `(drift_rate ,float)
                                                           `(step ,uint32)
-                                                          `(evts ,(bs:vector
-                                                                    256
+                                                          `(evts ,(fh:pointer
                                                                     (bs:struct
                                                                       (list `(prev ,(fh:pointer
                                                                                       'void))
@@ -1384,7 +1403,7 @@
                    ffi:int
                    "cpu_load_program"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu filename)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~filename (unwrap~pointer filename)))
@@ -1398,7 +1417,7 @@
                    ffi:void
                    "cpu_tick_evt"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg clk)
       (let ((~arg (unwrap~pointer arg))
             (~clk ((fht-unwrap tkclk_t*) clk)))
@@ -1412,7 +1431,7 @@
                    ffi-void*
                    "decode_insn"
                    (list ffi:uint16 ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (insn vers)
       (let ((~insn (unwrap~fixed insn))
             (~vers (unwrap-cpu_vers_t vers)))
@@ -1427,7 +1446,7 @@
                    ffi:uint32
                    "cpu_next_pc"
                    (list ffi-void* ffi:uint32)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu addr)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~addr (unwrap~fixed addr)))
@@ -1441,7 +1460,7 @@
                    ffi:int
                    "insn_wsize"
                    (list ffi:uint16 ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (insn vers)
       (let ((~insn (unwrap~fixed insn))
             (~vers (unwrap-cpu_vers_t vers)))
@@ -1455,7 +1474,7 @@
                    ffi:int
                    "cpu_intr"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu intr_ix)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~intr_ix (unwrap~fixed intr_ix)))
@@ -1469,7 +1488,7 @@
                    ffi:void
                    "cpu_reset"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_reset) ~cpu)))))
@@ -1482,7 +1501,7 @@
                    ffi:void
                    "cpu_disp_regs"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_disp_regs) ~cpu)))))
@@ -1495,7 +1514,7 @@
                    ffi:void
                    "cpu_disp_data"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu addr)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~addr (unwrap~fixed addr)))
@@ -1509,7 +1528,7 @@
                    ffi:void
                    "cpu_disp"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_disp) ~cpu)))))
@@ -1522,7 +1541,7 @@
                    ffi:int
                    "asmstrf"
                    (list ffi-void* ffi:int ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 show_ba buf bufsiz)
       (let ((~arg0 ((fht-unwrap asmline_t*) arg0))
             (~show_ba (unwrap~fixed show_ba))
@@ -1538,7 +1557,7 @@
                    ffi:void
                    "brkpt_init"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (brkpts nbrkpt)
       (let ((~brkpts ((fht-unwrap brkpt_t*) brkpts))
             (~nbrkpt (unwrap~fixed nbrkpt)))
@@ -1552,7 +1571,7 @@
                    ffi:int
                    "brkpt_alloc"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~brkpt_alloc) ~cpu)))))
@@ -1565,7 +1584,7 @@
                    ffi:void
                    "brkpt_dealloc"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu ix)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~ix (unwrap~fixed ix)))
@@ -1579,7 +1598,7 @@
                    ffi:void
                    "brkpt_set"
                    (list ffi-void* ffi:int ffi:uint32)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu ix pc)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~ix (unwrap~fixed ix))
@@ -1594,7 +1613,7 @@
                    ffi:uint16
                    "brkpt_unset"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu ix)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~ix (unwrap~fixed ix)))
@@ -1608,7 +1627,7 @@
                    ffi:void
                    "brkpt_reset"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu ix)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~ix (unwrap~fixed ix)))
@@ -1622,7 +1641,7 @@
                    ffi:int
                    "brkpt_at"
                    (list ffi-void* ffi:uint32)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu pc)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~pc (unwrap~fixed pc)))
@@ -1636,7 +1655,7 @@
                    ffi:int
                    "add_brkpt"
                    (list ffi-void* ffi:uint32)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu pc_ba)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~pc_ba (unwrap~fixed pc_ba)))
@@ -1650,104 +1669,104 @@
                    ffi:int
                    "rem_brkpt"
                    (list ffi-void* ffi:uint32)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu pc_ba)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~pc_ba (unwrap~fixed pc_ba)))
         ((force ~rem_brkpt) ~cpu ~pc_ba)))))
 (export rem_brkpt)
 
-;; void wtcpt_init(void );
-(define wtcpt_init
-  (let ((~wtcpt_init
+;; void wchpt_init(void );
+(define wchpt_init
+  (let ((~wchpt_init
           (delay (fh-link-proc
                    ffi:void
-                   "wtcpt_init"
+                   "wchpt_init"
                    (list)
-                   (force octbx-ffi-llibs)))))
-    (lambda () (let () ((force ~wtcpt_init))))))
-(export wtcpt_init)
+                   (force ffi-octbx-llibs)))))
+    (lambda () (let () ((force ~wchpt_init))))))
+(export wchpt_init)
 
-;; int wtcpt_alloc(cpu_t *cpu);
-(define wtcpt_alloc
-  (let ((~wtcpt_alloc
+;; int wchpt_alloc(cpu_t *cpu);
+(define wchpt_alloc
+  (let ((~wchpt_alloc
           (delay (fh-link-proc
                    ffi:int
-                   "wtcpt_alloc"
+                   "wchpt_alloc"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
-        ((force ~wtcpt_alloc) ~cpu)))))
-(export wtcpt_alloc)
+        ((force ~wchpt_alloc) ~cpu)))))
+(export wchpt_alloc)
 
-;; void wtcpt_dealloc(int ix);
-(define wtcpt_dealloc
-  (let ((~wtcpt_dealloc
+;; void wchpt_dealloc(int ix);
+(define wchpt_dealloc
+  (let ((~wchpt_dealloc
           (delay (fh-link-proc
                    ffi:void
-                   "wtcpt_dealloc"
+                   "wchpt_dealloc"
                    (list ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (ix)
       (let ((~ix (unwrap~fixed ix)))
-        ((force ~wtcpt_dealloc) ~ix)))))
-(export wtcpt_dealloc)
+        ((force ~wchpt_dealloc) ~ix)))))
+(export wchpt_dealloc)
 
-;; void wtcpt_set(int ix, uint16_t addr);
-(define wtcpt_set
-  (let ((~wtcpt_set
+;; void wchpt_set(int ix, uint16_t addr);
+(define wchpt_set
+  (let ((~wchpt_set
           (delay (fh-link-proc
                    ffi:void
-                   "wtcpt_set"
+                   "wchpt_set"
                    (list ffi:int ffi:uint16)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (ix addr)
       (let ((~ix (unwrap~fixed ix))
             (~addr (unwrap~fixed addr)))
-        ((force ~wtcpt_set) ~ix ~addr)))))
-(export wtcpt_set)
+        ((force ~wchpt_set) ~ix ~addr)))))
+(export wchpt_set)
 
-;; uint16_t wtcpt_unset(int ix);
-(define wtcpt_unset
-  (let ((~wtcpt_unset
+;; uint16_t wchpt_unset(int ix);
+(define wchpt_unset
+  (let ((~wchpt_unset
           (delay (fh-link-proc
                    ffi:uint16
-                   "wtcpt_unset"
+                   "wchpt_unset"
                    (list ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (ix)
       (let ((~ix (unwrap~fixed ix)))
-        ((force ~wtcpt_unset) ~ix)))))
-(export wtcpt_unset)
+        ((force ~wchpt_unset) ~ix)))))
+(export wchpt_unset)
 
-;; int add_wtcpt(cpu_t *cpu, uint16_t addr);
-(define add_wtcpt
-  (let ((~add_wtcpt
+;; int add_wchpt(cpu_t *cpu, uint16_t addr);
+(define add_wchpt
+  (let ((~add_wchpt
           (delay (fh-link-proc
                    ffi:int
-                   "add_wtcpt"
+                   "add_wchpt"
                    (list ffi-void* ffi:uint16)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu addr)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~addr (unwrap~fixed addr)))
-        ((force ~add_wtcpt) ~cpu ~addr)))))
-(export add_wtcpt)
+        ((force ~add_wchpt) ~cpu ~addr)))))
+(export add_wchpt)
 
-;; int del_wtcpt(cpu_t *cpu, uint16_t addr);
-(define del_wtcpt
-  (let ((~del_wtcpt
+;; int del_wchpt(cpu_t *cpu, uint16_t addr);
+(define del_wchpt
+  (let ((~del_wchpt
           (delay (fh-link-proc
                    ffi:int
-                   "del_wtcpt"
+                   "del_wchpt"
                    (list ffi-void* ffi:uint16)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu addr)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~addr (unwrap~fixed addr)))
-        ((force ~del_wtcpt) ~cpu ~addr)))))
-(export del_wtcpt)
+        ((force ~del_wchpt) ~cpu ~addr)))))
+(export del_wchpt)
 
 ;; cpu_t *make_raw_cpu(uint16_t *prog, uint8_t *data);
 (define make_raw_cpu
@@ -1756,7 +1775,7 @@
                    ffi-void*
                    "make_raw_cpu"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (prog data)
       (let ((~prog (unwrap~pointer prog))
             (~data (unwrap~pointer data)))
@@ -1771,7 +1790,7 @@
                    ffi:void
                    "cpu_set_pc"
                    (list ffi-void* ffi:uint32)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu pc)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~pc (unwrap~fixed pc)))
@@ -1785,7 +1804,7 @@
                    ffi:uint32
                    "cpu_get_pc"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_get_pc) ~cpu)))))
@@ -1798,7 +1817,7 @@
                    ffi:uint16
                    "cpu_get_insn"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_get_insn) ~cpu)))))
@@ -1811,7 +1830,7 @@
                    ffi-void*
                    "cpu_show_insn"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu show_ba)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu))
             (~show_ba (unwrap~fixed show_ba)))
@@ -1825,7 +1844,7 @@
                    ffi:void
                    "cpu_sei"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_sei) ~cpu)))))
@@ -1838,7 +1857,7 @@
                    ffi:void
                    "cpu_cli"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_cli) ~cpu)))))
@@ -1851,7 +1870,7 @@
                    ffi:void
                    "cpu_set_trace"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_set_trace) ~cpu)))))
@@ -1864,7 +1883,7 @@
                    ffi:void
                    "cpu_clr_trace"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap cpu_t*) cpu)))
         ((force ~cpu_clr_trace) ~cpu)))))
@@ -2156,7 +2175,7 @@
                    ffi:void
                    "iopin_notify_bus"
                    (list ffi-void* ffi:int ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (pin op val)
       (let ((~pin ((fht-unwrap iopin_t*) pin))
             (~op (unwrap~fixed op))
@@ -2171,7 +2190,7 @@
                    ffi:void
                    "iopin_notify_per"
                    (list ffi-void* ffi:int ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (pin op arg)
       (let ((~pin ((fht-unwrap iopin_t*) pin))
             (~op (unwrap~fixed op))
@@ -2186,7 +2205,7 @@
                    ffi:void
                    "iopin_pullup"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (pin ena)
       (let ((~pin ((fht-unwrap iopin_t*) pin))
             (~ena (unwrap~fixed ena)))
@@ -2200,7 +2219,7 @@
                    ffi:uint8
                    "iopin_rdD"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0)
       (let ((~arg0 ((fht-unwrap iopin_t*) arg0)))
         ((force ~iopin_rdD) ~arg0)))))
@@ -2213,7 +2232,7 @@
                    ffi:double
                    "iopin_rdA"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0)
       (let ((~arg0 ((fht-unwrap iopin_t*) arg0)))
         ((force ~iopin_rdA) ~arg0)))))
@@ -2226,7 +2245,7 @@
                    ffi:void
                    "iopin_wrD"
                    (list ffi-void* ffi:uint8)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (pin lev)
       (let ((~pin ((fht-unwrap iopin_t*) pin))
             (~lev (unwrap~fixed lev)))
@@ -2240,7 +2259,7 @@
                    ffi:void
                    "iopin_wrA"
                    (list ffi-void* ffi:double)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 val)
       (let ((~arg0 ((fht-unwrap iopin_t*) arg0))
             (~val (unwrap~float val)))
@@ -2388,8 +2407,7 @@
                                                                                                               `(time ,(bs:struct
                                                                                                                         (list `(sec ,int32)
                                                                                                                               `(nsec ,int32))))
-                                                                                                              `(evts ,(bs:vector
-                                                                                                                        64
+                                                                                                              `(evts ,(fh:pointer
                                                                                                                         (bs:struct
                                                                                                                           (list `(prev ,(fh:pointer
                                                                                                                                           'void))
@@ -2459,8 +2477,7 @@
                                                                                            `(drift_rate
                                                                                               ,float)
                                                                                            `(step ,uint32)
-                                                                                           `(evts ,(bs:vector
-                                                                                                     256
+                                                                                           `(evts ,(fh:pointer
                                                                                                      (bs:struct
                                                                                                        (list `(prev ,(fh:pointer
                                                                                                                        'void))
@@ -2621,7 +2638,7 @@
                    ffi:void
                    "cpuint_init"
                    (list ffi-void* ffi-void* ffi:uint16)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 mcu addr)
       (let ((~arg0 ((fht-unwrap cpuint_t*) arg0))
             (~mcu (unwrap~pointer mcu))
@@ -2636,7 +2653,7 @@
                    ffi:void
                    "cpuint_fini"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0)
       (let ((~arg0 ((fht-unwrap cpuint_t*) arg0)))
         ((force ~cpuint_fini) ~arg0)))))
@@ -2649,7 +2666,7 @@
                    ffi:uint8
                    "cpuint_rd"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 addr)
       (let ((~arg0 ((fht-unwrap cpuint_t*) arg0))
             (~addr (unwrap~fixed addr)))
@@ -2663,7 +2680,7 @@
                    ffi:void
                    "cpuint_wr"
                    (list ffi-void* ffi:int ffi:uint8)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg0 addr val)
       (let ((~arg0 ((fht-unwrap cpuint_t*) arg0))
             (~addr (unwrap~fixed addr))
@@ -2805,7 +2822,7 @@
                    ffi:uint8
                    "def_rd"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (_mcu addr)
       (let ((~_mcu (unwrap~pointer _mcu))
             (~addr (unwrap~fixed addr)))
@@ -2819,7 +2836,7 @@
                    ffi:void
                    "def_wr"
                    (list ffi-void* ffi:int ffi:uint8)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (_mcu addr val)
       (let ((~_mcu (unwrap~pointer _mcu))
             (~addr (unwrap~fixed addr))
@@ -2834,7 +2851,7 @@
                    ffi:void
                    "def_bs"
                    (list ffi-void* ffi:int ffi:uint8 ffi:uint8)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (_mcu addr val msk)
       (let ((~_mcu (unwrap~pointer _mcu))
             (~addr (unwrap~fixed addr))
@@ -2850,7 +2867,7 @@
                    ffi:void
                    "def_ir"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (_mcu ivec)
       (let ((~_mcu (unwrap~pointer _mcu))
             (~ivec (unwrap~fixed ivec)))
@@ -2864,7 +2881,7 @@
                    ffi:void
                    "def_ia"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (_mcu ivec)
       (let ((~_mcu (unwrap~pointer _mcu))
             (~ivec (unwrap~fixed ivec)))
@@ -2878,7 +2895,7 @@
                    ffi:void
                    "def_rt"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (_mcu flags)
       (let ((~_mcu (unwrap~pointer _mcu))
             (~flags (unwrap~fixed flags)))
@@ -2892,7 +2909,7 @@
                    ffi:int
                    "mcu_next_ivec"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (mcu)
       (let ((~mcu ((fht-unwrap mcu_t*) mcu)))
         ((force ~mcu_next_ivec) ~mcu)))))
@@ -2905,7 +2922,7 @@
                    ffi:void
                    "mcu_req_intr"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (mcu iv)
       (let ((~mcu ((fht-unwrap mcu_t*) mcu))
             (~iv (unwrap~fixed iv)))
@@ -2919,7 +2936,7 @@
                    ffi:void
                    "mcu_ack_intr"
                    (list ffi-void* ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (mcu iv)
       (let ((~mcu ((fht-unwrap mcu_t*) mcu))
             (~iv (unwrap~fixed iv)))
@@ -2933,7 +2950,7 @@
                    ffi:uint32
                    "mcu_clr_iv"
                    (list ffi-void* ffi:uint32)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (mcu iv)
       (let ((~mcu ((fht-unwrap mcu_t*) mcu))
             (~iv (unwrap~fixed iv)))
@@ -2947,7 +2964,7 @@
                    ffi:void
                    "add_cpu_call_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -2963,7 +2980,7 @@
                    ffi:void
                    "rem_cpu_call_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -2979,7 +2996,7 @@
                    ffi:void
                    "cpu_call_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap struct-cpu*) cpu)))
         ((force ~cpu_call_hook) ~cpu)))))
@@ -2992,7 +3009,7 @@
                    ffi:void
                    "add_cpu_ret_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3008,7 +3025,7 @@
                    ffi:void
                    "rem_cpu_ret_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3024,7 +3041,7 @@
                    ffi:void
                    "cpu_ret_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap struct-cpu*) cpu)))
         ((force ~cpu_ret_hook) ~cpu)))))
@@ -3037,7 +3054,7 @@
                    ffi:void
                    "add_cpu_intr_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3053,7 +3070,7 @@
                    ffi:void
                    "rem_cpu_intr_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3069,7 +3086,7 @@
                    ffi:void
                    "cpu_intr_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap struct-cpu*) cpu)))
         ((force ~cpu_intr_hook) ~cpu)))))
@@ -3082,7 +3099,7 @@
                    ffi:void
                    "add_cpu_reti_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3098,7 +3115,7 @@
                    ffi:void
                    "rem_cpu_reti_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3114,7 +3131,7 @@
                    ffi:void
                    "cpu_reti_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap struct-cpu*) cpu)))
         ((force ~cpu_reti_hook) ~cpu)))))
@@ -3127,7 +3144,7 @@
                    ffi:void
                    "add_cpu_pre_exec_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3143,7 +3160,7 @@
                    ffi:void
                    "rem_cpu_pre_exec_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3159,7 +3176,7 @@
                    ffi:void
                    "cpu_pre_exec_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap struct-cpu*) cpu)))
         ((force ~cpu_pre_exec_hook) ~cpu)))))
@@ -3172,7 +3189,7 @@
                    ffi:void
                    "add_cpu_post_exec_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3188,7 +3205,7 @@
                    ffi:void
                    "rem_cpu_post_exec_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3204,7 +3221,7 @@
                    ffi:void
                    "cpu_post_exec_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap struct-cpu*) cpu)))
         ((force ~cpu_post_exec_hook) ~cpu)))))
@@ -3217,7 +3234,7 @@
                    ffi:void
                    "add_cpu_post_fetch_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3233,7 +3250,7 @@
                    ffi:void
                    "rem_cpu_post_fetch_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (hook)
       (let ((~hook ((make-fctn-param-unwrapper
                       ffi:void
@@ -3249,7 +3266,7 @@
                    ffi:void
                    "cpu_post_fetch_hook"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (cpu)
       (let ((~cpu ((fht-unwrap struct-cpu*) cpu)))
         ((force ~cpu_post_fetch_hook) ~cpu)))))
@@ -3262,7 +3279,7 @@
                    ffi:void
                    "log_tick"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg osc)
       (let ((~arg (unwrap~pointer arg))
             (~osc ((fht-unwrap tkosc_t*) osc)))
@@ -3276,7 +3293,7 @@
                    ffi:void
                    "log_intr"
                    (list ffi-void* ffi:int ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (arg ivec osc)
       (let ((~arg (unwrap~pointer arg))
             (~ivec (unwrap~fixed ivec))
@@ -3292,116 +3309,11 @@
             ffi:int
             "iprint"
             (append (list ffi:int ffi-void*) (map car ~rest))
-            (force octbx-ffi-llibs)))
+            (force ffi-octbx-llibs)))
         (~lev (unwrap~fixed lev))
         (~fmt (unwrap~pointer fmt)))
     (apply ~iprint ~lev ~fmt (map cdr ~rest))))
 (export iprint)
-
-;; typedef struct logr_item {
-;;   struct logr_item *next;
-;;   uint16_t id;
-;;   uint16_t sz;
-;;   char *data;
-;;   // converter?
-;; } logr_item_t;
-(define-public logr_item_t-desc
-  (bs:struct
-    (list `(next ,(fh:pointer 'void))
-          `(id ,uint16)
-          `(sz ,uint16)
-          `(data ,(fh:pointer int8)))))
-(define-fh-compound-type logr_item_t logr_item_t-desc logr_item_t? 
- make-logr_item_t)
-(export logr_item_t logr_item_t? make-logr_item_t)
-(define-public logr_item_t*-desc
-  (fh:pointer logr_item_t-desc))
-(define-fh-pointer-type logr_item_t* logr_item_t*-desc logr_item_t*? 
- make-logr_item_t*)
-(export logr_item_t* logr_item_t*? make-logr_item_t*)
-(fh-ref<=>deref!
-  logr_item_t*
-  make-logr_item_t*
-  logr_item_t
-  make-logr_item_t)
-(define-public struct-logr_item-desc
-  logr_item_t-desc)
-(define-fh-compound-type struct-logr_item struct-logr_item-desc 
- struct-logr_item? make-struct-logr_item)
-(export struct-logr_item struct-logr_item? make-struct-logr_item)
-(define-public struct-logr_item*-desc
-  logr_item_t*-desc)
-(define-fh-pointer-type struct-logr_item* struct-logr_item*-desc 
- struct-logr_item*? make-struct-logr_item*)
-(export struct-logr_item* struct-logr_item*? make-struct-logr_item*)
-(fh-ref<=>deref!
-  struct-logr_item*
-  make-struct-logr_item*
-  struct-logr_item
-  make-struct-logr_item)
-
-;; typedef struct logr {
-;;   int fd; /* write */
-;;   char bufr[0x10000][2];
-;; } logr_t;
-(define-public logr_t-desc
-  (bs:struct
-    (list `(fd ,int)
-          `(bufr ,(bs:vector 65536 (bs:vector 2 int8))))))
-(define-fh-compound-type logr_t logr_t-desc logr_t? make-logr_t)
-(export logr_t logr_t? make-logr_t)
-(define-public logr_t*-desc
-  (fh:pointer logr_t-desc))
-(define-fh-pointer-type logr_t* logr_t*-desc logr_t*? make-logr_t*)
-(export logr_t* logr_t*? make-logr_t*)
-(fh-ref<=>deref!
-  logr_t*
-  make-logr_t*
-  logr_t
-  make-logr_t)
-(define-public struct-logr-desc logr_t-desc)
-(define-fh-compound-type struct-logr struct-logr-desc struct-logr? 
- make-struct-logr)
-(export struct-logr struct-logr? make-struct-logr)
-(define-public struct-logr*-desc logr_t*-desc)
-(define-fh-pointer-type struct-logr* struct-logr*-desc struct-logr*? 
- make-struct-logr*)
-(export struct-logr* struct-logr*? make-struct-logr*)
-(fh-ref<=>deref!
-  struct-logr*
-  make-struct-logr*
-  struct-logr
-  make-struct-logr)
-
-;; uint16_t logr_reg_item(logr_t *, char *name);
-(define logr_reg_item
-  (let ((~logr_reg_item
-          (delay (fh-link-proc
-                   ffi:uint16
-                   "logr_reg_item"
-                   (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
-    (lambda (arg0 name)
-      (let ((~arg0 ((fht-unwrap logr_t*) arg0))
-            (~name (unwrap~pointer name)))
-        ((force ~logr_reg_item) ~arg0 ~name)))))
-(export logr_reg_item)
-
-;; int log_item(logr_t *, uint16_t id, int size, char *data);
-(define log_item
-  (let ((~log_item
-          (delay (fh-link-proc
-                   ffi:int
-                   "log_item"
-                   (list ffi-void* ffi:uint16 ffi:int ffi-void*)
-                   (force octbx-ffi-llibs)))))
-    (lambda (arg0 id size data)
-      (let ((~arg0 ((fht-unwrap logr_t*) arg0))
-            (~id (unwrap~fixed id))
-            (~size (unwrap~fixed size))
-            (~data (unwrap~pointer data)))
-        ((force ~log_item) ~arg0 ~id ~size ~data)))))
-(export log_item)
 
 ;; typedef enum {
 ;;   TWI_OP_NONE,
@@ -3591,7 +3503,7 @@
                    ffi:void
                    "twi_bus_init"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (bus)
       (let ((~bus ((fht-unwrap twi_bus_t*) bus)))
         ((force ~twi_bus_init) ~bus)))))
@@ -3604,7 +3516,7 @@
                    ffi:int
                    "twi_bus_add_node"
                    (list ffi-void* ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (bus node)
       (let ((~bus ((fht-unwrap twi_bus_t*) bus))
             (~node ((fht-unwrap twi_node_t*) node)))
@@ -3618,7 +3530,7 @@
                    ffi:int
                    "twi_bus_action"
                    (list ffi-void* ffi:uint8 ffi:int)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (bus id op)
       (let ((~bus ((fht-unwrap twi_bus_t*) bus))
             (~id (unwrap~fixed id))
@@ -3633,14 +3545,14 @@
                    ffi:void
                    "twi_node_init"
                    (list ffi-void*)
-                   (force octbx-ffi-llibs)))))
+                   (force ffi-octbx-llibs)))))
     (lambda (bus)
       (let ((~bus ((fht-unwrap twi_node_t*) bus)))
         ((force ~twi_node_init) ~bus)))))
 (export twi_node_init)
 
 ;; access to enum symbols and #define'd constants:
-(define octbx-ffi-symbol-tab
+(define ffi-octbx-symbol-tab
   '((TWI_LS_FL . 3)
     (TWI_LS_RS . 2)
     (TWI_LS_LO . 1)
@@ -3754,8 +3666,6 @@
     (REGX_IX . 26)
     (REG1_IX . 1)
     (REG0_IX . 0)
-    (TKOSC_NEVT . 256)
-    (TMSCH_NEVT . 64)
     (NEPS_TLMPOST . 99)
     (NEPS_TLMPRE . -1)
     (NEPS_BREAK . -99)
@@ -3767,18 +3677,18 @@
     (PICOSEC . 1000000000000)
     (NANOSEC . 1000000000)))
 
-(define octbx-ffi-symbol-val
+(define ffi-octbx-symbol-val
   (lambda (k)
-    (or (assq-ref octbx-ffi-symbol-tab k))))
-(export octbx-ffi-symbol-val)
+    (or (assq-ref ffi-octbx-symbol-tab k))))
+(export ffi-octbx-symbol-val)
 
 (define (unwrap-enum obj)
   (cond ((number? obj) obj)
-        ((symbol? obj) (octbx-ffi-symbol-val obj))
+        ((symbol? obj) (ffi-octbx-symbol-val obj))
         ((fh-object? obj) (struct-ref obj 0))
         (else (error "type mismatch"))))
 
-(define octbx-ffi-types
+(define ffi-octbx-types
   '((struct . "simtime") (pointer . "simtime_t") "simtime_t" (struct . "tmevt"
     ) (pointer . "tmevt_t") "tmevt_t" (struct . "tmsch") (pointer . "tmsch_t")
     "tmsch_t" (struct . "tkevt") (pointer . "tkevt_t") "tkevt_t" (struct . 
@@ -3791,10 +3701,8 @@
     "iopin_t" (struct . "pin") (pointer . "pin_t") "pin_t" "pin_func_t" 
     (struct . "cpuint_reg") (pointer . "cpuint_reg_t") "cpuint_reg_t" (struct 
     . "cpuint") (pointer . "cpuint_t") "cpuint_t" (struct . "mcu") (pointer . 
-    "mcu_t") "mcu_t" "mcu_gen_t" (struct . "logr_item") (pointer . 
-    "logr_item_t") "logr_item_t" (struct . "logr") (pointer . "logr_t") 
-    "logr_t" (struct . "twi_node") (pointer . "twi_node_t") "twi_node_t" 
-    (struct . "twi_bus") (pointer . "twi_bus_t") "twi_bus_t"))
-(export octbx-ffi-types)
+    "mcu_t") "mcu_t" "mcu_gen_t" (struct . "twi_node") (pointer . "twi_node_t"
+    ) "twi_node_t" (struct . "twi_bus") (pointer . "twi_bus_t") "twi_bus_t"))
+(export ffi-octbx-types)
 
 ;; --- last line ---

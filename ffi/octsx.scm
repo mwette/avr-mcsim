@@ -1,19 +1,12 @@
-;; Copyright 2022-2023 Matthew Wette
-;;
-;; This library is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU Lesser General Public
-;; License as published by the Free Software Foundation; either
-;; version 2.1 of the License, or (at your option) any later version.
+;; generated with `guild compile-ffi ffi/octsx.ffi'
 
-;; generated with `guild compile-ffi octsx/ffi.ffi'
-
-(define-module (octsx ffi)
-  #:use-module (octbx ffi)
-  #:use-module (system ffi-help-rt)
+(define-module (ffi octsx)
+  #:use-module (ffi octbx)
+  #:use-module (ffi ffi-help-rt)
   #:use-module ((system foreign) #:prefix ffi:)
   #:use-module (bytestructures guile))
 
-(define octsx-ffi-llibs
+(define ffi-octsx-llibs
   (delay (list (dynamic-link "liboctsx"))))
 
 
@@ -119,7 +112,7 @@
 ;;   char **mea_names;
 ;;   spice_mea_t meas[10];
 ;;   double tv[2];
-;;   logr_t *logr;
+;;   //logr_t *logr;
 ;; } spice_t;
 (define-public spice_t-desc
   (bs:struct
@@ -135,8 +128,7 @@
           `(nmea ,int)
           `(mea_names ,(fh:pointer (fh:pointer int8)))
           `(meas ,(bs:vector 10 spice_mea_t-desc))
-          `(tv ,(bs:vector 2 double))
-          `(logr ,logr_t*-desc))))
+          `(tv ,(bs:vector 2 double)))))
 (define-fh-compound-type spice_t spice_t-desc spice_t? make-spice_t)
 (export spice_t spice_t? make-spice_t)
 (define-public spice_t*-desc
@@ -169,7 +161,7 @@
                    ffi:void
                    "spice_init"
                    (list ffi-void* ffi-void* ffi:int ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (arg0 clk argc argv)
       (let ((~arg0 ((fht-unwrap spice_t*) arg0))
             (~clk ((fht-unwrap struct-tmsch*) clk))
@@ -185,7 +177,7 @@
                    ffi:void
                    "spice_fini"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (arg0)
       (let ((~arg0 ((fht-unwrap spice_t*) arg0)))
         ((force ~spice_fini) ~arg0)))))
@@ -303,7 +295,7 @@
                    ffi-void*
                    "make_sys"
                    (list ffi:int ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (argc argv)
       (let ((~argc (unwrap~fixed argc))
             (~argv (unwrap~pointer argv)))
@@ -318,7 +310,7 @@
                    ffi:void
                    "sys_init"
                    (list ffi-void* ffi:int ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys argc argv)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~argc (unwrap~fixed argc))
@@ -333,7 +325,7 @@
                    ffi:void
                    "sys_fini"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys)
       (let ((~sys ((fht-unwrap sys_t*) sys)))
         ((force ~sys_fini) ~sys)))))
@@ -346,7 +338,7 @@
                    ffi-void*
                    "dev_insert"
                    (list ffi-void* ffi-void* ffi:int ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys name type dev)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~name (unwrap~pointer name))
@@ -363,7 +355,7 @@
                    ffi-void*
                    "dev_lookup"
                    (list ffi-void* ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys name)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~name (unwrap~pointer name)))
@@ -378,7 +370,7 @@
                    ffi-void*
                    "dev_name"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (dev)
       (let ((~dev ((fht-unwrap device_t*) dev)))
         ((force ~dev_name) ~dev)))))
@@ -391,7 +383,7 @@
                    ffi:int
                    "dev_type"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (dev)
       (let ((~dev ((fht-unwrap device_t*) dev)))
         ((force ~dev_type) ~dev)))))
@@ -404,7 +396,7 @@
                    ffi-void*
                    "dev_guts"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (dev)
       (let ((~dev ((fht-unwrap device_t*) dev)))
         ((force ~dev_guts) ~dev)))))
@@ -480,7 +472,7 @@
                    ffi-void*
                    "make_bus"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sch)
       (let ((~sch ((fht-unwrap tmsch_t*) sch)))
         ((fht-wrap bus_t*) ((force ~make_bus) ~sch))))))
@@ -493,7 +485,7 @@
                    ffi:void
                    "bus_relevel"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (bus)
       (let ((~bus ((fht-unwrap bus_t*) bus)))
         ((force ~bus_relevel) ~bus)))))
@@ -506,7 +498,7 @@
                    ffi:void
                    "bus_conn_to_pin"
                    (list ffi-void* ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (bus pin)
       (let ((~bus ((fht-unwrap bus_t*) bus))
             (~pin ((fht-unwrap iopin_t*) pin)))
@@ -520,7 +512,7 @@
                    ffi:void
                    "bus_pin_changed"
                    (list ffi-void* ffi-void* ffi:int ffi:int)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (tgt pin op arg)
       (let ((~tgt (unwrap~pointer tgt))
             (~pin ((fht-unwrap struct-iopin*) pin))
@@ -536,7 +528,7 @@
                    ffi-void*
                    "make_mcu"
                    (list ffi-void* ffi-void* ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (tmsch dev code)
       (let ((~tmsch ((fht-unwrap tmsch_t*) tmsch))
             (~dev (unwrap~pointer dev))
@@ -552,7 +544,7 @@
                    ffi-void*
                    "get_mcu_cpu"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (mcu)
       (let ((~mcu ((fht-unwrap mcu_t*) mcu)))
         ((fht-wrap cpu_t*) ((force ~get_mcu_cpu) ~mcu))))))
@@ -565,7 +557,7 @@
                    ffi-void*
                    "sys_tmsch"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys)
       (let ((~sys ((fht-unwrap sys_t*) sys)))
         ((fht-wrap tmsch_t*) ((force ~sys_tmsch) ~sys))))))
@@ -578,7 +570,7 @@
                    ffi-void*
                    "sys_cpu_clk"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys)
       (let ((~sys ((fht-unwrap sys_t*) sys)))
         ((fht-wrap tkclk_t*) ((force ~sys_cpu_clk) ~sys))))))
@@ -591,7 +583,7 @@
                    ffi-void*
                    "get_sys_clk"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys)
       (let ((~sys ((fht-unwrap sys_t*) sys)))
         ((fht-wrap tmsch_t*) ((force ~get_sys_clk) ~sys))))))
@@ -604,12 +596,26 @@
                    (list ffi:int32 ffi:int32)
                    "get_simtime"
                    (list ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys)
       (let ((~sys ((fht-unwrap sys_t*) sys)))
         ((fht-wrap simtime_t)
          ((force ~get_simtime) ~sys))))))
 (export get_simtime)
+
+;; void get_simtime_tp(sys_t *sys, simtime_t *tp);
+(define get_simtime_tp
+  (let ((~get_simtime_tp
+          (delay (fh-link-proc
+                   ffi:void
+                   "get_simtime_tp"
+                   (list ffi-void* ffi-void*)
+                   (force ffi-octsx-llibs)))))
+    (lambda (sys tp)
+      (let ((~sys ((fht-unwrap sys_t*) sys))
+            (~tp ((fht-unwrap simtime_t*) tp)))
+        ((force ~get_simtime_tp) ~sys ~tp)))))
+(export get_simtime_tp)
 
 ;; void sys_run_to(sys_t *sys, simtime_t to);
 (define sys_run_to
@@ -618,7 +624,7 @@
                    ffi:void
                    "sys_run_to"
                    (list ffi-void* (list ffi:int32 ffi:int32))
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys to)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~to ((fht-unwrap simtime_t) to)))
@@ -632,27 +638,12 @@
                    ffi:void
                    "sys_run_ns"
                    (list ffi-void* ffi:long)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys ns)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~ns (unwrap~fixed ns)))
         ((force ~sys_run_ns) ~sys ~ns)))))
 (export sys_run_ns)
-
-;; void sys_run_sus(sys_t *sys, long s, long us);
-(define sys_run_sus
-  (let ((~sys_run_sus
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_sus"
-                   (list ffi-void* ffi:long ffi:long)
-                   (force octsx-ffi-llibs)))))
-    (lambda (sys s us)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~s (unwrap~fixed s))
-            (~us (unwrap~fixed us)))
-        ((force ~sys_run_sus) ~sys ~s ~us)))))
-(export sys_run_sus)
 
 ;; void sys_run_sns(sys_t *sys, long s, long ns);
 (define sys_run_sns
@@ -661,13 +652,43 @@
                    ffi:void
                    "sys_run_sns"
                    (list ffi-void* ffi:long ffi:long)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys s ns)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~s (unwrap~fixed s))
             (~ns (unwrap~fixed ns)))
         ((force ~sys_run_sns) ~sys ~s ~ns)))))
 (export sys_run_sns)
+
+;; void sys_run_sus(sys_t *sys, long s, long us);
+(define sys_run_sus
+  (let ((~sys_run_sus
+          (delay (fh-link-proc
+                   ffi:void
+                   "sys_run_sus"
+                   (list ffi-void* ffi:long ffi:long)
+                   (force ffi-octsx-llibs)))))
+    (lambda (sys s us)
+      (let ((~sys ((fht-unwrap sys_t*) sys))
+            (~s (unwrap~fixed s))
+            (~us (unwrap~fixed us)))
+        ((force ~sys_run_sus) ~sys ~s ~us)))))
+(export sys_run_sus)
+
+;; void sys_run_sms(sys_t *sys, long s, long ms);
+(define sys_run_sms
+  (let ((~sys_run_sms
+          (delay (fh-link-proc
+                   ffi:void
+                   "sys_run_sms"
+                   (list ffi-void* ffi:long ffi:long)
+                   (force ffi-octsx-llibs)))))
+    (lambda (sys s ms)
+      (let ((~sys ((fht-unwrap sys_t*) sys))
+            (~s (unwrap~fixed s))
+            (~ms (unwrap~fixed ms)))
+        ((force ~sys_run_sms) ~sys ~s ~ms)))))
+(export sys_run_sms)
 
 ;; void sys_run_to_cpu_addr(sys_t *sys, cpu_t *cpu, uint32_t pc);
 (define sys_run_to_cpu_addr
@@ -676,7 +697,7 @@
                    ffi:void
                    "sys_run_to_cpu_addr"
                    (list ffi-void* ffi-void* ffi:uint32)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys cpu pc)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~cpu ((fht-unwrap cpu_t*) cpu))
@@ -691,7 +712,7 @@
                    ffi:void
                    "sys_run_dt"
                    (list ffi-void* ffi:float)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys dt)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~dt (unwrap~float dt)))
@@ -705,7 +726,7 @@
                    ffi:void
                    "sys_cont"
                    (list ffi-void* ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys cpu)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~cpu ((fht-unwrap cpu_t*) cpu)))
@@ -719,7 +740,7 @@
                    ffi:void
                    "sys_cpu_next"
                    (list ffi-void* ffi-void* ffi:int)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys cpu n)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~cpu ((fht-unwrap cpu_t*) cpu))
@@ -734,7 +755,7 @@
                    ffi:void
                    "sys_cpu_step"
                    (list ffi-void* ffi-void* ffi:int)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (sys cpu n)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~cpu ((fht-unwrap cpu_t*) cpu))
@@ -749,7 +770,7 @@
                    ffi-void*
                    "mcu_pin_byname"
                    (list ffi-void* ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (mcu name)
       (let ((~mcu ((fht-unwrap mcu_t*) mcu))
             (~name (unwrap~pointer name)))
@@ -764,7 +785,7 @@
                    ffi:void
                    "connect_nodes"
                    (list ffi-void* ffi-void*)
-                   (force octsx-ffi-llibs)))))
+                   (force ffi-octsx-llibs)))))
     (lambda (a b)
       (let ((~a ((fht-unwrap iopin_t*) a))
             (~b ((fht-unwrap iopin_t*) b)))
@@ -772,7 +793,7 @@
 (export connect_nodes)
 
 ;; access to enum symbols and #define'd constants:
-(define octsx-ffi-symbol-tab
+(define ffi-octsx-symbol-tab
   '((BUS_LEV_HI . 1)
     (BUS_LEV_LOW . 0)
     (BUS_LEV_HI . 1)
@@ -794,24 +815,24 @@
     (SPC_DAC_MAX . 10)
     (SPC_ADC_MAX . 10)))
 
-(define octsx-ffi-symbol-val
+(define ffi-octsx-symbol-val
   (lambda (k)
-    (or (assq-ref octsx-ffi-symbol-tab k)
-        (octbx-ffi-symbol-val k))))
-(export octsx-ffi-symbol-val)
+    (or (assq-ref ffi-octsx-symbol-tab k)
+        (ffi-octbx-symbol-val k))))
+(export ffi-octsx-symbol-val)
 
 (define (unwrap-enum obj)
   (cond ((number? obj) obj)
-        ((symbol? obj) (octsx-ffi-symbol-val obj))
+        ((symbol? obj) (ffi-octsx-symbol-val obj))
         ((fh-object? obj) (struct-ref obj 0))
         (else (error "type mismatch"))))
 
-(define octsx-ffi-types
+(define ffi-octsx-types
   '((struct . "spice_dac") (pointer . "spice_dac_t") "spice_dac_t" (struct . 
     "spice_adc") (pointer . "spice_adc_t") "spice_adc_t" "spice_mea_t" 
     (struct . "spice") (pointer . "spice_t") "spice_t" (struct . "device") 
     (pointer . "device_t") "device_t" (struct . "env") (pointer . "sys_t") 
     "sys_t" (struct . "bus") (pointer . "bus_t") "bus_t"))
-(export octsx-ffi-types)
+(export ffi-octsx-types)
 
 ;; --- last line ---

@@ -12,6 +12,6 @@
   #:inc-filter (lambda (file-spec path-spec)
                  (string-contains path-spec "octsx/" 0))
   #:library '("liboctsx")
-  #:use-ffi-module (octbx ffi))
+  #:use-ffi-module (ffi octbx))
 
 ;; --- last line ---
