@@ -1,18 +1,21 @@
 % todo: MCMD for recv data, repeated start
 % todo: must check ERR before DACK
-\begin{tikzpicture}[text=black,node font=\small,>=stealth]%,>={scale=2}]
-  %[auto,thick,node distance=2cm]
-  arrow/.style={scale=2}
-
+%\begin{tikzpicture}[text=black,node font=\small,>=stealth]%,>={scale=2}]
+\begin{tikzpicture}[%
+    text=black,
+    node font=\small,
+    >=stealth,
+    arrow/.style={scale=2}]
+  
   %
   \node (RDY) at (0,0) [rectangle, rounded corners=15pt, draw,
     minimum height=0.4in, minimum width=0.8in, thick]
         {\parbox[t]{0.6in}{\centering{READY}}};
 
-  \node (D1) [left=4.0cm of RDY, diamond, draw] {};
+  \node (D1) [left=5.0cm of RDY, diamond, draw] {};
   \draw[->] (RDY) -- node[above]{1:intr[ADR]} (D1);
 
-  \node (S0) at ($(RDY.north)+(-0.8cm,0.5cm)$)
+  \node (S0) at ($(RDY.north)+(-1.0cm,0.5cm)$)
         [circle, draw, radius=8pt, fill] {};
   \draw[->] (S0) -- (RDY);
 
@@ -22,7 +25,7 @@
   \coordinate (RL) at (D1 |- RC);
 
   \node (RD1) [above=0.9cm of D1, diamond, draw] {};
-  \draw[->] (D1) -- node[right] {2:[R]} (RD1);
+  \draw[->] (D1) -- node[right] {2:[R]} (RD1); % DIR set
   \coordinate (RD1a) at ($(RD1.east)+(0.5cm,0)$);
   \draw[->] (RD1) -- (RD1a) -- node[above,sloped,pos=0.3] {12:[else]/NACK} (RDY);
 
@@ -31,49 +34,50 @@
 
   \node (RE1) [left=0 of RD2, diamond, draw] {};
 
-  % wait to send
+  % wait for data sent
   \node (WTS) [draw, rounded corners=15pt,
                minimum height=0.4in, minimum width=0.75in, thick]
-        at ($0.7*(RL)+0.3*(RC)$) 
-        {\parbox[c]{0.7in}{\centering{WAIT TO SEND}}};
+        at ($0.6*(RL)+0.4*(RC)$) 
+        {\parbox[c]{1.0in}{\centering{WAIT FOR DATA SENT}}};
 
-  \draw[->] (RD1) -- node[left] {11:[OK]/ACK} (RL) -- (WTS);
+  \draw[->] (RD1) -- (RL) -- node[above] {11:[OK]/ACK} (WTS);
 
   \draw[->] (WTS) -- node[above] {13:intr} (RE1);
 
   % wait to re-send
-  \node (WTR) [right=2.0cm of RD2, rounded corners=15pt,
+  \node (WST) [right=2.0cm of RD2, rounded corners=15pt,
     draw, minimum height=0.4in, minimum width=0.75in, thick]
-        {\parbox[c]{0.7in}{\centering{WAIT TO RESEND}}};
+        {\parbox[c]{0.8in}{\centering{WAIT FOR STATUS}}};
 
-  \draw[->] (RD2) -- node[above] {14:[DIF]/put} (WTR);
+  \draw[->] (RD2) -- node[above] {14:[DIF]/put} (WST);
 
-  \node (RD3) [right=2.0cm of WTR, diamond, draw] {};
+  \node (RD3) [right=2.0cm of WST, diamond, draw] {};
   \node (RD3a) [left=0cm of RD3, diamond, draw] {};
 
-  \draw[->] (WTR) -- node[above] {16:intr} (RD3a);
+  \draw[->] (WST) -- node[above] {16:intr} (RD3a);
 
   \node (WFS) at (RD3 |- RDY) [rounded corners=15pt,
     draw, minimum height=0.4in, minimum width=0.75in, thick]
-        {\parbox[c]{0.7in}{\centering{WAIT FOR STOP}}};
+        {\parbox[c]{0.8in}{\centering{WAIT FOR STOP}}};
 
   \draw[->] (RD3) -- node[right,pos=0.3]{18:[NACK]} (WFS);
   \draw[->] (WFS) -- node[below,sloped] {4:intr[STOP]} (RDY);
 
-  \coordinate (R2) at ($(RE1)+(0,-1.0cm)$);
-  \draw[->] (RE1) -- node[left] {29:[BUSERR]} (R2) -- (WFS);
+  %\coordinate (R2) at ($(RE1)+(0,-1.0cm)$);
+  %\draw[->] (RE1) -- node[left] {29:[BUSERR]} (R2) -- (WFS);
 
   \node (RD4) [above=0.7cm of RD3, diamond, draw] {};
-  \draw[->] (RD3) -- node[right] {17:[ACK]/n-{}-} (RD4);
+  \draw[->] (RD3) -- node[right] {17:[ACK]} (RD4);
 
   \coordinate (R3) at ($(RD3a)+(0.0cm,-0.4cm)$);
   \draw[->] (RD3a) -- (R3) -- node[above,sloped] {19:[STOP]} (RDY);
 
-  \draw[->] (RD4) -- node[above] {20:[n$>$0]/put} (RD4 -| WTR) -- (WTR);
-
   \coordinate (RX1) at ($(RD4) + (0,0.7cm)$);
   \draw[->] (RD4) -- (RX1)
-            -- node[above] {21:[n=0]/zero} (RX1 -| WTR) -- (WTR);
+            -- node[below] {20:[n$>$0]/put,n-{}-} (RX1 -| WTS) -- (WTS);
+
+  % put zero out
+  \draw[->] (RD4) -- node[above] {21:[n=0]/zero} (RD4 -| WST) -- (WST);
 
   % --- WRITE -----------------------
 
@@ -81,7 +85,7 @@
   \coordinate (WL) at (D1 |- WC);
 
   \node (WD1) [below=0.9cm of D1, diamond, draw] {};
-  \draw[->] (D1) -- node[right] {3:[W]} (WD1);
+  \draw[->] (D1) -- node[right] {3:[W]} (WD1); % DIR clr
   \coordinate (WD1a) at ($(WD1.east)+(0.5cm,0)$);
   \draw[->] (WD1) -- (WD1a) -- node[below,sloped,pos=0.3] {32:[else]/NACK} (RDY);
 
@@ -91,8 +95,8 @@
   % wait for data
   \node (WFI) [draw, rounded corners=15pt,
                minimum height=0.4in, minimum width=0.75in, thick]
-        at ($0.7*(WL)+0.3*(WC)$) 
-        {\parbox[c]{0.7in}{\centering{WAIT FOR IT}}};
+        at ($0.6*(WL)+0.4*(WC)$) 
+        {\parbox[c]{1.0in}{\centering{WAIT FOR DATA RCVD}}};
 
   \draw[->] (WD1) -- node[left] {31:[OK]/ACK} (WL) -- (WFI);
 
@@ -105,7 +109,7 @@
 
   \draw[->] (WD3) -- node[above,pos=0.3] {36:[else]/NACK} (WD3 -| WFS) -- (WFS);
 
-  \node (sig) [below=1cm of WL,rectangle,draw] {\tiny MattRW v200619a};
+  \node (sig) [below=1cm of WL,rectangle,draw] {\tiny MattRW v230204a};
 \end{tikzpicture}
 
 \iffalse
