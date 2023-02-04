@@ -1,36 +1,39 @@
 % todo: MCMD for recv data, repeated start
 % todo: must check ERR before DACK
-\begin{tikzpicture}[text=black,node font=\small,>=stealth]
-  arrow/.style={scale=2}
+\begin{tikzpicture}[%
+    text=black,
+    node font=\small,
+    >=stealth,
+    arrow/.style={scale=2}]
 
   %
   \node (WS2) at (0,0) [rectangle, rounded corners=15pt,
     draw, minimum height=0.4in, minimum width=0.75in, thick]
-        {\parbox[c]{0.7in}{\centering{ADDR\  SEND/w}}};
+        {\parbox[c]{1.0in}{\centering{WAIT for Wr ADDR SENT}}};
   \node (WD3a) [right=2.5cm of WS2, diamond, draw] {};
   \node (WD3b) [right=0cm of WD3a, diamond, draw] {};
   \node (WD3c) [right=0cm of WD3b, diamond, draw] {};
   \node (WD4) [right=1.8cm of WD3c, diamond, draw] {};
   \node (WS5) [right=2.5cm of WD4, rectangle, rounded corners=15pt, draw,
     minimum height=0.4in, minimum width=0.7in, thick]
-        {\parbox[t]{0.3in}{\centering{DATA SEND}}};
+        {\parbox[t]{0.9in}{\centering{WAIT for DATA SENT}}};
   \node (WD6a) [right=2.5cm of WS5, diamond, draw ] {};
-  %\node (WD6b) [right=1.0cm of WD6a, diamond, draw ] {};
   \node (WD6b) [right=0cm of WD6a, diamond, draw ] {};
 
   \node (S1) at ($(WD4)+(0,-3.0cm)$) [rectangle, rounded corners=15pt, draw,
     minimum height=0.4in, minimum width=0.8in, thick]
         {\parbox[t]{0.6in}{\centering{\bf READY}}};
   %
-  %\node (S0) [right=1.0cm of S1, circle, draw, radius=8pt, fill] {};
-  \node (S0) [left=1.75cm of S1, circle, draw, radius=8pt, fill] {};
+  \node (S0) at ($(S1.north)+(-1.0cm,0.5cm)$)
+        [circle, draw, radius=8pt, fill] {};
   \draw[->] (S0) -- (S1);
 
   % new:
-  \node (FAIL) at ($(S1)+(7.5cm,0)$) [rectangle, rounded corners=15pt, draw,
+  \node (FAIL) at ($(S1)+(8.0cm,0)$) [rectangle, rounded corners=15pt, draw,
     minimum height=0.4in, minimum width=0.8in, thick]
         {\parbox[t]{0.6in}{\centering{\bf FAIL}}};
   % ^new
+  \draw[->] (FAIL.west) -- node[above] {50:reset/reset} (S1.east);
 
   \draw[->] (S1.165) --
   node[below,pos=0.3,sloped] {11:\textbf{write}/addr} (WS2);
@@ -66,18 +69,18 @@
   \coordinate (t24S) at (WD3a.north);
   \coordinate (t24E) at (FAIL.5);
   \coordinate (t24x25) at (t24S |- t15a);
-  \node[diamond,draw] (d24x25) at (t24x25) {};
+  %\node[diamond,draw] (d24x25) at (t24x25) {X};
   \coordinate (t24a) at ($(t24S)+(0,2.5cm)$);
   \coordinate (t24b) at ($(t24a)+(14.5cm,0)$);
   \coordinate (t24c) at ($(t24b)+(0,-5.0cm)$);
-  \draw[->,rounded corners] (t24S) -- (d24x25) -- (t24a) --
+  \draw[->,rounded corners] (t24S) -- (t24x25) -- (t24a) --
      node[above] {24:[ARBLOST]/?} (t24b) -- (t24c) -- (t24E);
 
-  \coordinate (t25S) at (d24x25.west);
-  \coordinate (t25E) at (WS2.north);
-  \coordinate (t25a) at (t25S -| t25E);
-  \draw[->,rounded corners] (t25S) -- node[above] {25:[nwr$>$0]/nwr-{}-,addr} 
-  (t25a) -- (t25E);
+  %\coordinate (t25S) at (d24x25.west);
+  %\coordinate (t25E) at (WS2.north);
+  %\coordinate (t25a) at (t25S -| t25E);
+  %\draw[->,rounded corners] (t25S) -- node[above] {25:[nwr$>$0]/nwr-{}-,addr} 
+  %(t25a) -- (t25E);
 
   \coordinate (t21S) at (WD6a.south);
   \coordinate (t21E) at (FAIL.north -| t21S);
@@ -95,10 +98,10 @@
   \node (RD3a) [left=0cm of RD3b, diamond, draw] {};
   \node (RS2) [left=2.5cm of RD3a, rounded corners=15pt,
     draw, minimum height=0.4in, minimum width=0.75in, thick]
-        {\parbox[c]{0.7in}{\centering{ADDR\  SEND/r}}};
+        {\parbox[c]{1.0in}{\centering{WAIT for Rd ADDR SENT}}};
   \node (RS5) [right=2.5cm of RD4, rectangle, rounded corners=15pt, draw,
     minimum height=0.4in, minimum width=0.7in, thick]
-        {\parbox[t]{0.3in}{\centering{DATA RECV}}};
+        {\parbox[t]{0.9in}{\centering{WAIT for DATA RCVD}}};
   \node (RD6a) [right=2.5cm of RS5, diamond, draw ] {};
   %\node (RD6b) [right=1.0cm of RD6a, diamond, draw ] {};
   \node (RD6b) [right=0cm of RD6a, diamond, draw ] {};
@@ -138,11 +141,11 @@
   \coordinate (t44S) at (RD3a.south);
   \coordinate (t44E) at (FAIL.355);
   \coordinate (t44x45) at (t44S |- t35a);
-  \node[diamond,draw] (d44x45) at (t44x45) {};
+  %\node[diamond,draw] (d44x45) at (t44x45) {};
   \coordinate (t44a) at ($(t44S)+(0,-2.5cm)$);
   \coordinate (t44b) at ($(t44a)+(14.5cm,0)$);
   \coordinate (t44c) at ($(t44b)+(0,5.0cm)$);
-  \draw[->,rounded corners] (t44S) -- (d44x45) -- (t44a) --
+  \draw[->,rounded corners] (t44S) -- (t44x45) -- (t44a) --
      node[below] {44:[ARBLOST]/?} (t44b) -- (t44c) -- (t44E);
 
   \coordinate (A8a0) at (RD6a.north);
@@ -166,6 +169,6 @@
   node [below,pos=0.35,sloped] {39:[rtw]/addr} (Rx) -- (WS2.310);
   
   \node (sig) [below=2.0 of RS2.south,rectangle,draw]
-        {\tiny MattRW v210202b};
+        {\tiny MattRW v230204a};
 
 \end{tikzpicture}

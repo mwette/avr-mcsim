@@ -38,9 +38,10 @@
   \node (WTS) [draw, rounded corners=15pt,
                minimum height=0.4in, minimum width=0.75in, thick]
         at ($0.6*(RL)+0.4*(RC)$) 
-        {\parbox[c]{1.0in}{\centering{WAIT FOR DATA SENT}}};
+        {\parbox[c]{0.9in}{\centering{WAIT for DATA SENT}}};
 
-  \draw[->] (RD1) -- (RL) -- node[above] {11:[OK]/ACK} (WTS);
+  \draw[->,rounded corners]
+        (RD1) -- (RL) -- node[above,pos=-0.4] {11:[OK]/ACK,put} (WTS);
 
   \draw[->] (WTS) -- node[above] {13:intr} (RE1);
 
@@ -63,21 +64,22 @@
   \draw[->] (RD3) -- node[right,pos=0.3]{18:[NACK]} (WFS);
   \draw[->] (WFS) -- node[below,sloped] {4:intr[STOP]} (RDY);
 
-  %\coordinate (R2) at ($(RE1)+(0,-1.0cm)$);
-  %\draw[->] (RE1) -- node[left] {29:[BUSERR]} (R2) -- (WFS);
+  \coordinate (R2) at ($(RE1)+(0,-1.0cm)$);
+  \draw[->] (RE1) -- node[left] {29:[BUSERR]} (R2) -- (WFS);
 
   \node (RD4) [above=0.7cm of RD3, diamond, draw] {};
   \draw[->] (RD3) -- node[right] {17:[ACK]} (RD4);
 
   \coordinate (R3) at ($(RD3a)+(0.0cm,-0.4cm)$);
-  \draw[->] (RD3a) -- (R3) -- node[above,sloped] {19:[STOP]} (RDY);
+  \draw[->,rounded corners]
+   (RD3a) -- (R3) -- node[above,sloped] {19:[STOP]} (RDY);
 
   \coordinate (RX1) at ($(RD4) + (0,0.7cm)$);
-  \draw[->] (RD4) -- (RX1)
+  \draw[->,rounded corners] (RD4) -- (RX1)
             -- node[below] {20:[n$>$0]/put,n-{}-} (RX1 -| WTS) -- (WTS);
 
   % put zero out
-  \draw[->] (RD4) -- node[above] {21:[n=0]/zero} (RD4 -| WST) -- (WST);
+  \draw[-] (RD4) -- node[below] {21:[n=0]/zero} (RD4 -| WTS);
 
   % --- WRITE -----------------------
 
@@ -87,27 +89,31 @@
   \node (WD1) [below=0.9cm of D1, diamond, draw] {};
   \draw[->] (D1) -- node[right] {3:[W]} (WD1); % DIR clr
   \coordinate (WD1a) at ($(WD1.east)+(0.5cm,0)$);
-  \draw[->] (WD1) -- (WD1a) -- node[below,sloped,pos=0.3] {32:[else]/NACK} (RDY);
+  \draw[->,rounded corners]
+   (WD1) -- (WD1a) -- node[below,sloped,pos=0.3] {32:[else]/NACK} (RDY);
 
   \node (WD2) [diamond, draw] at (WC) {};
   \draw[->] (WD2) -- node[right] {34:[STOP]} (RDY);
 
   % wait for data
-  \node (WFI) [draw, rounded corners=15pt,
+  \node (WFI) [draw, rounded corners,
                minimum height=0.4in, minimum width=0.75in, thick]
         at ($0.6*(WL)+0.4*(WC)$) 
-        {\parbox[c]{1.0in}{\centering{WAIT FOR DATA RCVD}}};
+        {\parbox[c]{0.9in}{\centering{WAIT for DATA RCVD}}};
 
-  \draw[->] (WD1) -- node[left] {31:[OK]/ACK} (WL) -- (WFI);
+  \draw[->,rounded corners]
+        (WD1) -- (WL) -- node[below,pos=-0.4] {31:[OK]/ACK} (WFI);
 
   \draw[->] (WFI) -- node[above] {33:intr} (WD2); % can be APIF or DIF
 
   \node (WD3) [right=0 of WD2, diamond, draw] {};
 
   \coordinate (W1) at ($(WD3) + (0,-1.0cm)$);
-  \draw[->] (WD3) -- node[right] {35:[OK]/get,ACK} (W1) -- (WFI |- W1) -- (WFI);
+  \draw[->,rounded corners]
+  (WD3) -- node[right] {35:[OK]/get,ACK} (W1) -- (WFI |- W1) -- (WFI);
 
-  \draw[->] (WD3) -- node[above,pos=0.3] {36:[else]/NACK} (WD3 -| WFS) -- (WFS);
+  \draw[->,rounded corners]
+  (WD3) -- node[above,pos=0.3] {36:[else]/NACK} (WD3 -| WFS) -- (WFS);
 
   \node (sig) [below=1cm of WL,rectangle,draw] {\tiny MattRW v230204a};
 \end{tikzpicture}
