@@ -69,18 +69,11 @@
   \coordinate (t24S) at (WD3a.north);
   \coordinate (t24E) at (FAIL.5);
   \coordinate (t24x25) at (t24S |- t15a);
-  %\node[diamond,draw] (d24x25) at (t24x25) {X};
   \coordinate (t24a) at ($(t24S)+(0,2.5cm)$);
   \coordinate (t24b) at ($(t24a)+(14.5cm,0)$);
   \coordinate (t24c) at ($(t24b)+(0,-5.0cm)$);
   \draw[->,rounded corners] (t24S) -- (t24x25) -- (t24a) --
      node[above] {24:[ARBLOST]/?} (t24b) -- (t24c) -- (t24E);
-
-  %\coordinate (t25S) at (d24x25.west);
-  %\coordinate (t25E) at (WS2.north);
-  %\coordinate (t25a) at (t25S -| t25E);
-  %\draw[->,rounded corners] (t25S) -- node[above] {25:[nwr$>$0]/nwr-{}-,addr} 
-  %(t25a) -- (t25E);
 
   \coordinate (t21S) at (WD6a.south);
   \coordinate (t21E) at (FAIL.north -| t21S);
@@ -103,7 +96,6 @@
     minimum height=0.4in, minimum width=0.7in, thick]
         {\parbox[t]{0.9in}{\centering{WAIT for DATA RCVD}}};
   \node (RD6a) [right=2.5cm of RS5, diamond, draw ] {};
-  %\node (RD6b) [right=1.0cm of RD6a, diamond, draw ] {};
   \node (RD6b) [right=0cm of RD6a, diamond, draw ] {};
   
   \draw[->] (S1.195) --
@@ -113,14 +105,9 @@
   \draw[->] (RD3c.east) -- node[below] {34:[ACK]} (RD4.west);
   \draw[->] (RD4.east) -- node[below,pos=0.4] {36:[nr$>$0]} (RS5.west);
   \draw[->] (RS5.east) -- node[below,pos=0.4] {40:intr[RIF]} (RD6a.west);
-  %\draw[->] (RD6a.east) -- node[below] {[else]} (RD6b.west);
   \draw[->,rounded corners] (RD6b.south) --
       node[right,pos=0.3] {42:[ACK]/get,nr-{}-}
       ($(RD6b)+(0,-1cm)$) -- ($(RD4)+(0,-1cm)$) -- (RD4.south);
-  %
-  %\node (RD7) [above=0.5cm of RD4, diamond, draw ] {};
-  \draw[->] (RD4.north) -- node[right,pos=0.5] {37:[nr=0]/stop} (S1.south);
-  %\draw[->] (RD7.north) -- node[right,pos=0.2] {38:[else]/stop} (S1.south);
 
   \coordinate (t35S) at (RD3c.south);
   \coordinate (t35E) at (FAIL.345);
@@ -141,7 +128,6 @@
   \coordinate (t44S) at (RD3a.south);
   \coordinate (t44E) at (FAIL.355);
   \coordinate (t44x45) at (t44S |- t35a);
-  %\node[diamond,draw] (d44x45) at (t44x45) {};
   \coordinate (t44a) at ($(t44S)+(0,-2.5cm)$);
   \coordinate (t44b) at ($(t44a)+(14.5cm,0)$);
   \coordinate (t44c) at ($(t44b)+(0,5.0cm)$);
@@ -163,11 +149,6 @@
   \draw[->,thin,rounded corners] (WD7.west) -- 
   node [above,pos=0.35,sloped] {19:[wtr]/addr} (Wx) -- (RS2.50);
 
-  %\coordinate (R1) at ($(RD7.west)-(2.0cm,0)$);
-  %\coordinate (Rx) at ($(RD7.west)!(S1.west)!(R1) + (-2.5cm,0)$);
-  %\draw[->,thin,rounded corners] (RD7.west) -- 
-  %node [below,pos=0.35,sloped] {39:[rtw]/addr} (Rx) -- (WS2.310);
-  
   \node (sig) [below=2.0 of RS2.south,rectangle,draw]
         {\tiny MattRW v230204a};
 
