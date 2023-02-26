@@ -118,9 +118,9 @@
       node[right,pos=0.3] {42:[ACK]/get,nr-{}-}
       ($(RD6b)+(0,-1cm)$) -- ($(RD4)+(0,-1cm)$) -- (RD4.south);
   %
-  \node (RD7) [above=0.5cm of RD4, diamond, draw ] {};
-  \draw[->] (RD4.north) -- node[right,pos=0.5] {37:[nr=0]} (RD7.south);
-  \draw[->] (RD7.north) -- node[right,pos=0.2] {38:[else]/stop} (S1.south);
+  %\node (RD7) [above=0.5cm of RD4, diamond, draw ] {};
+  \draw[->] (RD4.north) -- node[right,pos=0.5] {37:[nr=0]/stop} (S1.south);
+  %\draw[->] (RD7.north) -- node[right,pos=0.2] {38:[else]/stop} (S1.south);
 
   \coordinate (t35S) at (RD3c.south);
   \coordinate (t35E) at (FAIL.345);
@@ -163,10 +163,10 @@
   \draw[->,thin,rounded corners] (WD7.west) -- 
   node [above,pos=0.35,sloped] {19:[wtr]/addr} (Wx) -- (RS2.50);
 
-  \coordinate (R1) at ($(RD7.west)-(2.0cm,0)$);
-  \coordinate (Rx) at ($(RD7.west)!(S1.west)!(R1) + (-2.5cm,0)$);
-  \draw[->,thin,rounded corners] (RD7.west) -- 
-  node [below,pos=0.35,sloped] {39:[rtw]/addr} (Rx) -- (WS2.310);
+  %\coordinate (R1) at ($(RD7.west)-(2.0cm,0)$);
+  %\coordinate (Rx) at ($(RD7.west)!(S1.west)!(R1) + (-2.5cm,0)$);
+  %\draw[->,thin,rounded corners] (RD7.west) -- 
+  %node [below,pos=0.35,sloped] {39:[rtw]/addr} (Rx) -- (WS2.310);
   
   \node (sig) [below=2.0 of RS2.south,rectangle,draw]
         {\tiny MattRW v230204a};
