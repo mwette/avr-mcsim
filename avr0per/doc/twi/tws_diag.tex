@@ -1,6 +1,13 @@
 % todo: MCMD for recv data, repeated start
 % todo: must check ERR before DACK
-%\begin{tikzpicture}[text=black,node font=\small,>=stealth]%,>={scale=2}]
+
+% DS: data send
+% DR: data recv
+% SE: send error
+% RE: recv error
+% SA: start again
+% FR: fail return
+
 \begin{tikzpicture}[%
     text=black,
     node font=\small,
@@ -28,125 +35,122 @@
         [circle, draw, radius=8pt, fill] {};
   \draw[->] (S0) -- (RDY);
 
-  % --- READ ------------------------
-
-  \coordinate (RC) at ($(RDY) + (0,2.5cm)$);
-  \coordinate (RL) at (D1 |- RC);
+  % --- send data ------------------------
 
   \node (DS1) [above=0.9cm of D1, diamond, draw] {};
   \coordinate (DS1a) at ($(DS1.east)+(0.5cm,0)$);
   \draw[->] (DS1) -- (DS1a) -- node[above,sloped,pos=0.3] {12:[else]/NACK} (RDY);
   \draw[->] (D1) -- node[right] {2:[R]} (DS1); % DIR set
 
-  \node (DS2) [diamond, draw] at (RC) {};
-  \node (DS2b) [right=0 of DS2, diamond, draw] {};
-  \draw[->] (DS2) -- node[left,pos=0.3] {15:[STOP]} (RDY);
+  \node (DS3) [diamond, draw] at ($(RDY) + (0,2.5cm)$) {};
+  \node (DS3b) [right=0 of DS3, diamond, draw] {};
+  \draw[->] (DS3) -- node[left,pos=0.2] {15:[STOP]} (RDY);
 
+  \coordinate (DS2) at (D1 |- DS3);
 
-  % wait for data sent
   \node (WDS) [draw, rounded corners=15pt,
                minimum height=1.0cm, minimum width=2.0cm, thick]
-        at ($0.6*(RL)+0.4*(RC)$) 
+        at ($0.6*(DS2)+0.4*(DS3)$) 
         {\parbox[c]{0.9in}{\centering{WAIT for DATA SENT}}};
 
   \draw[->,rounded corners]
-        (DS1) -- (RL) -- node[above,pos=-0.4] {11:[OK]/ACK,put} (WDS);
+        (DS1) -- (DS2) -- node[above,pos=-0.1] {11:[OK]/ACK,put} (WDS);
+        %(DS1) -- (DS2) -- node[above,pos=-0.6] {11:[OK]/ACK,put} (WDS);
 
-  \draw[->] (WDS) -- node[above] {13:intr} (DS2);
+  \draw[->] (WDS) -- node[above] {13:intr} (DS3);
 
   \node (WFS) [right=2.0cm of RDY,rounded corners=15pt,
     draw, minimum height=1.0cm, minimum width=2.0cm, thick]
         {\parbox[c]{0.8in}{\centering{WAIT for STOP{ }$|$Sr}}};
 
-  \coordinate (WB1) at ($(WFS)+(-0.8cm,-1.0cm)$);
-  \coordinate (WB2) at ($(RDY.west)+(-0.8cm,-1.0cm)$);
-  \coordinate (WB3) at ($(J1x)+(0.5cm,0)$);
-  \draw[->,rounded corners] (WFS) -- (WB1) --
-       node [above,pos=0.3] {97:intr[ADR]} (WB2) -- (WB3) -- (J1x);
-
   \node (FLD) [right=2.0cm of WFS,rounded corners=15pt,
     draw, minimum height=0.4in, minimum width=0.75in, thick]
         {\parbox[c]{0.8in}{\centering{FAILED}}};
 
-  \node (DS3) at (DS2 -| WFS) [diamond,draw] {};
+  \node (DS4) at (DS3 -| WFS) [diamond,draw] {};
 
-  \draw[->] (DS2b) -- node[above] {14:[DIF]} (DS3);
+  \draw[->] (DS3b) -- node[above] {14:[DIF]} (DS4);
 
-  \draw[->] (DS3) -- node[right,pos=0.1]{18:[NACK]} (WFS);
+  \draw[->] (DS4) -- node[right,pos=0.1]{18:[NACK]} (WFS);
   \draw[->] (WFS) -- node[below,sloped] {4:intr[STOP]} (RDY);
 
-  \coordinate (SE1) at ($(RDY -| DS2b)+(0.0,+1.5cm)$);
+  \coordinate (SE1) at ($(RDY -| DS3b)+(0.0,+1.5cm)$);
   \coordinate (SE3) at ($(FLD)+(0.0,+1.5cm)$);
   \coordinate (SE2) at ($0.1*(SE1)+0.9*(SE3)$);
-  \draw[->,rounded corners] (DS2b) -- node[right] {29:[err]} (SE1)
+  \draw[->,rounded corners] (DS3b) -- node[right] {29:[err]} (SE1)
      -- (SE2) -- (FLD);
 
-  \node (RD4) [above=0.7cm of DS3, diamond, draw] {};
-  \draw[->] (DS3) -- node[right] {17:[ACK]/getnext} (RD4);
+  \node (DS5) [above=0.7cm of DS4, diamond, draw] {};
+  \draw[->] (DS4) -- node[right] {17:[ACK]/getnext} (DS5);
 
-  \coordinate (R3) at ($(DS3)+(0.0cm,-0.4cm)$);
-  
-  %\draw[->,rounded corners]
-  %(DS3a) -- (R3) -- node[above,sloped] {19:[STOP]} (RDY);
-
-  \coordinate (RX1) at ($(RD4) + (0,0.7cm)$);
-  \draw[->,rounded corners] (RD4) -- (RX1)
-            -- node[below] {20:[valid]/put} (RX1 -| WDS) -- (WDS);
+  \coordinate (DS6) at ($(DS5) + (0,0.7cm)$);
+  \draw[->,rounded corners] (DS5) -- (DS6)
+            -- node[below] {20:[valid]/put} (DS6 -| WDS) -- (WDS);
 
   % put zero out
-  \draw[-] (RD4) -- node[below] {21:[else]/zero} (RD4 -| WDS);
+  \draw[-] (DS5) -- node[below] {21:[else]/zero} (DS5 -| WDS);
 
-  % --- WRITE -----------------------
-
-  \coordinate (WC) at ($(RDY) + (0,-2.5cm)$);
-  \coordinate (WL) at (D1 |- WC);
+  % --- recv data ----------------------
 
   \node (DR1) [below=0.9cm of D1, diamond, draw] {};
-  \draw[->] (D1) -- node[right] {3:[W]} (DR1); % DIR clr
+  \draw[->] (D1) -- node[right] {3:[W]} (DR1);
   \coordinate (DR1a) at ($(DR1.east)+(0.5cm,0)$);
   \draw[->,rounded corners]
    (DR1) -- (DR1a) -- node[below,sloped,pos=0.2] {32:[else]/NACK} (RDY);
 
-  \node (DR2) [diamond, draw] at (WC) {};
-  \draw[->] (DR2) -- node[left,pos=0.2] {34:[STOP]} (RDY);
+  \node (DR3) [diamond, draw] at ($(RDY) + (0,-2.5cm)$) {};
+  \draw[->] (DR3) -- node[left,pos=0.2] {34:[STOP]} (RDY);
 
-  % wait for data
+  \coordinate (DR2) at (D1 |- DR3);
+  
   \node (WDR) [draw, rounded corners=15pt,
                minimum height=0.4in, minimum width=0.75in, thick]
-        at ($0.6*(WL)+0.4*(WC)$) 
+        at ($0.6*(DR2)+0.4*(DR3)$) 
         {\parbox[c]{0.9in}{\centering{WAIT for DATA RCVD}}};
 
   \draw[->,rounded corners]
-        (DR1) -- (WL) -- node[below,pos=-0.4] {31:[OK]/ACK} (WDR);
+        (DR1) -- (DR2) -- node[below,pos=0.0] {31:[OK]/ACK} (WDR);
+        %(DR1) -- (DR2) -- node[below,pos=-0.6] {31:[OK]/ACK} (WDR);
 
-  \draw[->] (WDR) -- node[below] {33:intr} (DR2); % can be APIF or DIF
+  \draw[->] (WDR) -- node[below] {33:intr} (DR3); % can be APIF or DIF
 
-  \node (DR2b) [right=0 of DR2, diamond, draw] {};
+  \node (DR3b) [right=0 of DR3, diamond, draw] {};
 
-  \node (DR3) at (DR2 -| WFS) [diamond,draw] {};
+  \node (DR4) at (DR3 -| WFS) [diamond,draw] {};
 
-  \coordinate (W1) at ($(DR2b) + (0,-1.0cm)$);
-  %\draw[->,rounded corners]
-  %(DR2b) -- node[right] {35:[OK]/get,ACK} (W1) -- (WDR |- W1) -- (WDR);
+  \coordinate (W1) at ($(DR3b) + (0,-1.0cm)$);
 
-  \draw[->] (DR3) -- node[right,pos=0.1] {36:[else]/NACK} (WFS);
+  \draw[->] (DR4) -- node[right,pos=0.1] {36:[else]/NACK} (WFS);
 
-  \draw[->] (DR2b) -- node[above] {99:[DIF]} (DR3);
+  \draw[->] (DR3b) -- node[above] {99:[DIF]} (DR4);
 
-  \coordinate (RE1) at ($(RDY -| DR2b)+(0.0,-1.5cm)$);
+  \coordinate (DR5) at ($(DR4)+(0,-1.0cm)$);
+  
+  \draw[->,rounded corners] (DR4) -- node[right] {35:[OK]/get,ACK} (DR5)
+        -- (WDR |- DR5) -- (WDR);
+
+  % --- recovery - ----------------------
+        
+  \coordinate (SA1) at ($(WFS)+(-0.8cm,-1.0cm)$);
+  \coordinate (SA2) at ($(RDY.west)+(-0.8cm,-1.0cm)$);
+  \coordinate (SA3) at ($(J1x)+(0.5cm,0)$);
+  \draw[->,rounded corners] (WFS) -- (SA1) --
+       node [above,pos=0.3] {97:intr[ADR]} (SA2) -- (SA3) -- (J1x);
+
+  \coordinate (RE1) at ($(RDY -| DR3b)+(0.0,-1.5cm)$);
   \coordinate (RE3) at ($(FLD)+(0.0,-1.5cm)$);
   \coordinate (RE2) at ($0.1*(RE1)+0.9*(RE3)$);
-  \draw[->,rounded corners] (DR2b) -- node[right] {98:[err]} (RE1)
+  \draw[->,rounded corners] (DR3b) -- node[right] {98:[err]} (RE1)
      -- (RE2) -- (FLD);
 
   % failure return
-  \coordinate (FR1) at ($(RDY -| DS2b)+(0.5cm,+1.1cm)$);
+  \coordinate (FR1) at ($(RDY -| DS3b)+(0.5cm,+1.1cm)$);
   \coordinate (FR3) at ($(FLD)+(0.0,+1.1cm)$);
   \coordinate (FR2) at ($0.3*(FR1)+0.7*(FR3)$);
-  \draw[->,rounded corners] (FLD) -- (FR2)
-       -- node[below,pos=0.1] {reset} (FR1) -- (RDY);
+  \draw[->,rounded corners] (FLD) --
+      node [below,sloped,pos=0.5] {reset} (FR2) -- (FR1) -- (RDY);
   
-  \node (sig) [below=1cm of WL,rectangle,draw] {\tiny MattRW v230227a};
+  \node (sig) [below=1cm of DR2,rectangle,draw] {\tiny MattRW v230318a};
 \end{tikzpicture}
 
 \iffalse
