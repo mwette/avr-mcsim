@@ -10,8 +10,9 @@
   \node (WS2) at (0,0) [rectangle, rounded corners=15pt,
     draw, minimum height=0.4in, minimum width=0.75in, thick]
         {\parbox[c]{1.0in}{\centering{WAIT for Wr ADDR SENT}}};
-  \node (WD3a) [right=2.5cm of WS2, diamond, draw] {};
-  \node (WD3b) [right=0cm of WD3a, diamond, draw] {};
+  %\node (WD3a) [right=2.5cm of WS2, diamond, draw] {};
+  %\node (WD3b) [right=0cm of WD3a, diamond, draw] {};
+  \node (WD3b) [right=2.5cm of WS2, diamond, draw] {};
   \node (WD3c) [right=0cm of WD3b, diamond, draw] {};
   \node (WD4) [right=1.8cm of WD3c, diamond, draw] {};
   \node (WS5) [right=2.5cm of WD4, rectangle, rounded corners=15pt, draw,
@@ -22,23 +23,23 @@
 
   \node (S1) at ($(WD4)+(0,-3.0cm)$) [rectangle, rounded corners=15pt, draw,
     minimum height=0.4in, minimum width=0.8in, thick]
-        {\parbox[t]{0.6in}{\centering{\bf READY}}};
+        {\parbox[t]{0.6in}{\centering{READY}}};
   %
   \node (S0) at ($(S1.north)+(-1.0cm,0.5cm)$)
         [circle, draw, radius=8pt, fill] {};
   \draw[->] (S0) -- (S1);
 
   % new:
-  \node (FAIL) at ($(S1)+(8.0cm,0)$) [rectangle, rounded corners=15pt, draw,
+  \node (FLD) at ($(S1)+(8.0cm,0)$) [rectangle, rounded corners=15pt, draw,
     minimum height=0.4in, minimum width=0.8in, thick]
-        {\parbox[t]{0.6in}{\centering{\bf FAIL}}};
+        {\parbox[t]{0.6in}{\centering{FAILED}}};
   % ^new
-  \draw[->] (FAIL.west) -- node[above] {50:reset/reset} (S1.east);
+  \draw[->] (FLD.west) -- node[above] {50:reset/reset} (S1.east);
 
   \draw[->] (S1.165) --
   node[below,pos=0.3,sloped] {11:\textbf{write}/addr} (WS2);
 
-  \draw[->] (WS2.east) -- node[above] {12:intr[WIF]} (WD3a.west);
+  \draw[->] (WS2.east) -- node[above] {12:intr[WIF]} (WD3b.west);
   \draw[->] (WD3c.east) -- node[above] {14:[ACK]} (WD4.west);
   \draw[->] (WD4.east) -- node[above,pos=0.4] {16:[nw$>$0]/put} (WS5.west);
   \draw[->] (WS5.east) -- node[above,pos=0.5] {20:intr[WIF]} (WD6a.west);
@@ -51,7 +52,7 @@
   \draw[->] (WD7.south) -- node[right,pos=0.2] {18:[else]/stop} (S1.north);
 
   \coordinate (t15S) at (WD3c.north);
-  \coordinate (t15E) at (FAIL.15);
+  \coordinate (t15E) at (FLD.15);
   \coordinate (t15a) at ($(t15S)+(0,1.5cm)$);
   \coordinate (t15b) at ($(t15a)+(13.0cm,0)$);
   \coordinate (t15c) at ($(t15b)+(0,-3.5cm)$);
@@ -59,28 +60,29 @@
             node[above,sloped] {15:[NACK]/stop} (t15b) -- (t15c) -- (t15E);
 
   \coordinate (t13S) at (WD3b.north);
-  \coordinate (t13E) at (FAIL.10);
+  \coordinate (t13E) at (FLD.10);
   \coordinate (t13a) at ($(t13S)+(0,2.0cm)$);
   \coordinate (t13b) at ($(t13a)+(13.75cm,0)$);
   \coordinate (t13c) at ($(t13b)+(0,-4.25cm)$);
   \draw[->,rounded corners] (t13S) -- (t13a) --
-            node[above,sloped] {13:[BUSERR]/reset?} (t13b) -- (t13c) -- (t13E);
+            node[above,sloped] {13:[failure]} (t13b) -- (t13c) -- (t13E);
 
-  \coordinate (t24S) at (WD3a.north);
-  \coordinate (t24E) at (FAIL.5);
+  %\coordinate (t24S) at (WD3a.north);
+  \coordinate (t24S) at (WD3b.north);
+  \coordinate (t24E) at (FLD.5);
   \coordinate (t24x25) at (t24S |- t15a);
   \coordinate (t24a) at ($(t24S)+(0,2.5cm)$);
   \coordinate (t24b) at ($(t24a)+(14.5cm,0)$);
   \coordinate (t24c) at ($(t24b)+(0,-5.0cm)$);
-  \draw[->,rounded corners] (t24S) -- (t24x25) -- (t24a) --
-     node[above] {24:[ARBLOST]/?} (t24b) -- (t24c) -- (t24E);
+  %\draw[->,rounded corners] (t24S) -- (t24x25) -- (t24a) --
+  %   node[above] {24:[ARBLOST]/?} (t24b) -- (t24c) -- (t24E);
 
   \coordinate (t21S) at (WD6a.south);
-  \coordinate (t21E) at (FAIL.north -| t21S);
+  \coordinate (t21E) at (FLD.north -| t21S);
   \draw[->] (t21S) -- node[left] {21:[BUSERR]/reset} (t21E);
   
   \coordinate (t23S) at (WD6b.south);
-  \coordinate (t23E) at (FAIL.north -| t23S);
+  \coordinate (t23E) at (FLD.north -| t23S);
   \draw[->] (t23S) -- node[right] {23:[NACK]/stop} (t23E);
 
   % ============================================================================
@@ -88,8 +90,8 @@
   \node (RD4) at ($(S1)+(0,-3.0)$) [diamond,draw] {};
   \node (RD3c) [left=1.8cm of RD4, diamond, draw] {};
   \node (RD3b) [left=0cm of RD3c, diamond, draw] {};
-  \node (RD3a) [left=0cm of RD3b, diamond, draw] {};
-  \node (RS2) [left=2.5cm of RD3a, rounded corners=15pt,
+  %\node (RD3a) [left=0cm of RD3b, diamond, draw] {};
+  \node (RS2) [left=2.5cm of RD3b, rounded corners=15pt,
     draw, minimum height=0.4in, minimum width=0.75in, thick]
         {\parbox[c]{1.0in}{\centering{WAIT for Rd ADDR SENT}}};
   \node (RS5) [right=2.5cm of RD4, rectangle, rounded corners=15pt, draw,
@@ -101,7 +103,7 @@
   \draw[->] (S1.195) --
   node[above,pos=0.3,sloped] {31:\textbf{read}/addr} (RS2);
 
-  \draw[->] (RS2.east) -- node[below,pos=0.5] {32:intr[WIF]} (RD3a.west);
+  \draw[->] (RS2.east) -- node[below,pos=0.5] {32:intr[WIF]} (RD3b.west);
   \draw[->] (RD3c.east) -- node[below] {34:[ACK]} (RD4.west);
   \draw[->] (RD4.east) -- node[below,pos=0.4] {36:[nr$>$0]} (RS5.west);
   \draw[->] (RS5.east) -- node[below,pos=0.4] {40:intr[RIF]} (RD6a.west);
@@ -112,7 +114,7 @@
   \draw[->] (RD4.north) -- node[right,pos=0.5] {37:[nr=0]/stop} (S1.south);
 
   \coordinate (t35S) at (RD3c.south);
-  \coordinate (t35E) at (FAIL.345);
+  \coordinate (t35E) at (FLD.345);
   \coordinate (t35a) at ($(t35S)+(0,-1.5cm)$);
   \coordinate (t35b) at ($(t35a)+(13.0cm,0)$);
   \coordinate (t35c) at ($(t35b)+(0,3.5cm)$);
@@ -120,28 +122,28 @@
         node[below,sloped] {35:[NACK]/stop} (t35b) -- (t35c) -- (t35E);
   
   \coordinate (t33S) at (RD3b.south);
-  \coordinate (t33E) at (FAIL.350);
+  \coordinate (t33E) at (FLD.350);
   \coordinate (t33a) at ($(t33S)+(0,-2.0cm)$);
   \coordinate (t33b) at ($(t33a)+(13.75cm,0)$);
   \coordinate (t33c) at ($(t33b)+(0,4.25cm)$);
   \draw[->,rounded corners] (t33S) -- (t33a) --
         node[below,sloped] {33:[BUSERR]/reset} (t33b) -- (t33c) -- (t33E);
   
-  \coordinate (t44S) at (RD3a.south);
-  \coordinate (t44E) at (FAIL.355);
+  \coordinate (t44S) at (RD3b.south);
+  \coordinate (t44E) at (FLD.355);
   \coordinate (t44x45) at (t44S |- t35a);
   \coordinate (t44a) at ($(t44S)+(0,-2.5cm)$);
   \coordinate (t44b) at ($(t44a)+(14.5cm,0)$);
   \coordinate (t44c) at ($(t44b)+(0,5.0cm)$);
-  \draw[->,rounded corners] (t44S) -- (t44x45) -- (t44a) --
-     node[below] {44:[ARBLOST]/?} (t44b) -- (t44c) -- (t44E);
+  %\draw[->,rounded corners] (t44S) -- (t44x45) -- (t44a) --
+  %   node[below] {44:[ARBLOST]/?} (t44b) -- (t44c) -- (t44E);
 
   \coordinate (A8a0) at (RD6a.north);
-  \coordinate (B8a0) at (FAIL.south -| A8a0);
-  \draw[->] (A8a0) -- node[left] {41:[BUSERR]/reset} (B8a0);
+  \coordinate (B8a0) at (FLD.south -| A8a0);
+  \draw[->] (A8a0) -- node[left] {41:[failure]} (B8a0);
 
   \coordinate (t43S) at (RD6b.north);
-  \coordinate (t43E) at (FAIL.south -| t43S);
+  \coordinate (t43E) at (FLD.south -| t43S);
   \draw[->] (t43S) -- node[right] {43:[NACK]/stop} (t43E);
   
   
@@ -152,6 +154,6 @@
   node [above,pos=0.35,sloped] {19:[wtr]/addr} (Wx) -- (RS2.50);
 
   \node (sig) [below=2.0 of RS2.south,rectangle,draw]
-        {\tiny MattRW v230204a};
+        {\tiny MattRW v230319a};
 
 \end{tikzpicture}
