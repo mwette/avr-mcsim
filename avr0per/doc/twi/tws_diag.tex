@@ -8,6 +8,9 @@
 % SA: start again
 % FR: fail return
 
+% 11: OK means valid_rd(tws,status) returns 1
+% 31: OK means valid_wr(tws,status) returns 1
+
 \begin{tikzpicture}[%
     text=black,
     node font=\small,
@@ -31,7 +34,7 @@
   \coordinate (J1x) at ($(J1)+(0,-0.2cm)$);
   \draw (J1t) edge [thick] (J1b);
 
-  \draw[->] (RDY) -- node[above] {1:intr} (D2);
+  \draw[->] (RDY) -- node[above] {1:intr[APIF]} (D2);
   \draw[->] (D2) -- node[above] {2:[ADR]} (D1 -| J1);
   \draw[->] (D2) -- node [right,pos=0.7] {3:failure} (D3);
   \draw[->] (D1 -| J1) -- (D1);

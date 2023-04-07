@@ -12,6 +12,13 @@
 
 static char ibuf[] = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
+/* Use to print different threads at differnt indentdations. 
+ * Example, twi:
+ *   master
+ *           bus
+ *                   slave
+ *
+ */
 int iprint(int lev, char *fmt, ...) {
   va_list ap;
   

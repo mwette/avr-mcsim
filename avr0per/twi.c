@@ -202,7 +202,7 @@ static twi_sig_t twm_obsv(twi_t *twi, struct iopin *pin, int lev) {
   iopin_t *scl = twi->m.scl_pin;
   twi_sig_t msg;
 
-  iprint(0, "M_obsv: %s %d\n", (pin == sda)? "SDA": "SCL", lev); 
+  iprint(0, "M_obsv: %s => %d\n", (pin == sda)? "SDA": "SCL", lev); 
 	 
   msg = SIG_NONE;
   if (pin == sda) {
@@ -412,7 +412,7 @@ static twi_sig_t tws_obsv(twi_t *twi, struct iopin *pin, int lev) {
   iopin_t *scl = twi->s.scl_pin;
   twi_sig_t msg;
 
-  iprint(2, "S_obsv: %s %d\n", (pin == sda)? "SDA": "SCL", lev); 
+  iprint(2, "S_obsv: %s => %d\n", (pin == sda)? "SDA": "SCL", lev); 
 	 
   msg = SIG_NONE;
   if (pin == sda) {
@@ -475,38 +475,37 @@ static void tws_step(twi_t *twi, twi_sig_t sig) {
   case 0:				/* waiting for start */
     if (sig == SIG_START) {
       iprint(2, "  S start/\n");
-      twi->s.xst = 1;
+      twi->s.xst = 10;
       twi->s.cnt = 0x00;
     } else {
       iprint(2, "  S waiting\n");
     }
     break;
-  case 1:
+  case 10:
     if (sig == SIG_SHIFT) {
       twi->s.cnt = twi->s.cnt? twi->s.cnt >> 1: 0x80;
-      twi->s.xst = 2;
+      twi->s.xst = 20;
     } else abort();
     break;
-  case 2:
+  case 20:
     switch (sig) {
     case SIG_LATCH:
       twi->s.xst = 0;			/* assume miss unless addr bit match */
       if (twi->s.cnt == 0x01) {
 	if (sda->rdlev) {
 	  iprint(2, "  S latch / RD\n");
-	  /* ack and master read */
-	  twi->s.xst = 7;
-	  twi->s.xst = 30;
+	  //reg->SSTATUS |= 
+	  twi->s.xst = 30;		/* ready to ack and read */
 	} else {
 	  iprint(2, "  S latch / WR\n");
 	  /* ack and master write */
-	  twi->s.xst = 7;
+	  twi->s.xst = 40;
 	}
       } else if ((((twi->s.cnt & reg->SADDR) != 0) && (sda->rdlev != 0)) ||
 	  (((twi->s.cnt & reg->SADDR) == 0) && (sda->rdlev == 0))) {
 	/* address+rw bit matches */
 	iprint(2, "  S addr match %x\n", twi->s.cnt);
-	twi->s.xst = 1;
+	twi->s.xst = 10;
       } else {
 	iprint(2, "  S addr mismatch\n");
 	twi->s.xst = 0;
@@ -521,8 +520,11 @@ static void tws_step(twi_t *twi, twi_sig_t sig) {
     }
     break;
 
-    /* ack and master read */
+    /* ack and read */
   case 30: /* ACK */
+    /*
+      if auto-ack do that, else interrupt
+     */
     if (sig != SIG_SHIFT) abort(); // assert
     iprint(2, "  S -> SCL maybe-stretch\n");
     iopin_wrD(scl, 0);			/* SCL maybe stretch */
@@ -549,29 +551,29 @@ static void tws_step(twi_t *twi, twi_sig_t sig) {
     iprint(2, "  S DONE for now.\n");
     break;
     
-    /* ack and master read */
-  case 7: /* ACK */
+    /* ack and write */
+  case 40: /* ACK */
     if (sig != SIG_SHIFT) abort(); // assert
     iprint(2, "  S -> SCL 0\n");
     iopin_wrD(scl, 0);			/* SCL maybe stretch */
-    twi->s.xst = 71;
+    twi->s.xst = 41;
     twi->s.evt = tkclk_sched(clk, twi->s.t_su, +1, twi_slave_act, twi);
     break;
-  case 71:
+  case 41:
     switch (sig) {
     case SIG_TMOUT:
       twi->s.evt = 0;
     case SIG_LATCH:
       iprint(2, "  S -> SDA 0\n");
       iopin_wrD(sda, 0);		/* ACK */
-      twi->s.xst = 72;
+      twi->s.xst = 42;
       break;
     default:
       abort();
       break;
     }
     break;
-  case 72: /* ACK, done */
+  case 42: /* ACK, done */
     switch (sig) {
     case SIG_TMOUT:
       twi->s.evt = 0;
@@ -607,7 +609,7 @@ static void tws_step(twi_t *twi, twi_sig_t sig) {
   case 89:
     if (sig == SIG_LATCH) {
       printf("  S latch/\n");
-      twi->s.xst = 7;
+      twi->s.xst = 40;
     }
     break;
   case 99:

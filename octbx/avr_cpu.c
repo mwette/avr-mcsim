@@ -33,6 +33,14 @@
 #include "avr_mcu.h"
 #include "hooks.h"
 
+/* coordinate w/ octsx.h */
+#ifndef OCT_ADDR_HASH
+#define OCT_ADDR_HASH(A)			\
+  ((((uintptr_t)(A) >> 12) & 0xF00)		\
+   | (((uintptr_t)(A) >> 8) & 0xF0)		\
+   | (((uintptr_t)(A) >> 4) & 0xF))
+#endif
+
 /* === CPU ================================================================== */
 
 #define AM(CPU,ADDR) ((CPU)->upd.asml.am*(ADDR))
@@ -4086,9 +4094,9 @@ void cpu_disp(cpu_t *cpu) {
   simtime_t ts = tkclk->osc->time;
   char buf[ASM_LINSIZ];
   int am = cpu->show_ba? 2: 1;
-  uint16_t hval = ((uintptr_t) cpu / 0x10000) % 0x10000;
+  uint16_t hval = OCT_ADDR_HASH(cpu);
   
-  printf("%02d.%09d cpu: %04x\n", ts.sec, ts.nsec, hval);
+  printf("%02d.%09d cpu: %03x\n", ts.sec, ts.nsec, hval);
   cpu_disp_regs(cpu);
   if (cpu->gen_asml && cpu->upd.asml.fmt) {
     asmstrf(&cpu->upd.asml, cpu->show_ba, buf, sizeof(buf));

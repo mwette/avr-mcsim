@@ -31,6 +31,8 @@
 #include "octsx.h"
 #include "octbx.h"
 
+struct env *def_env;
+
 #define USE_SPICE 0
 
 #if USE_SPICE 
@@ -240,6 +242,7 @@ sys_t *make_sys(int argc, char *argv[]) {
 
   sys = malloc(sizeof(sys_t));
   sys_init(sys, argc, argv);
+  if (def_env == 0) def_env = sys;
   return sys;
 }
 
@@ -269,6 +272,9 @@ void get_simtime_tp(sys_t *sys, simtime_t *tp) {
 }
 
 #ifndef NO_DYNLD
+/* 
+ * if code == NULL don't load code, otherwise return NULL if not found.
+ */
 mcu_t *make_mcu(tmsch_t *tmsch, char *dev, char *code) {
   mcu_t *mcu;
   char *grp;
@@ -293,13 +299,16 @@ mcu_t *make_mcu(tmsch_t *tmsch, char *dev, char *code) {
   }
   mcu = (*make_dev)(tmsch);
   mcu->device = strdup(dev);
-  mcu->code = strdup(code);
+  if (code) mcu->code = strdup(code);
 
   cpu = &mcu->cpu;
   cpu->gen_asml = 1;			/* gen asm line info */
   cpu->show_ba = 1;			/* show byte addresses */
   if (code) {
-    cpu_load_program(cpu, code);
+    if (cpu_load_program(cpu, code) != 0) {
+      fprintf(stderr, "MCU code not loaded: %s\n", dev);
+      return 0;
+    }
     mcu_reset(mcu, 0);
   }
   
@@ -412,7 +421,11 @@ void bus_relevel(bus_t *bus) {
     if ((pn->dir == PIN_DIR_OUT) && (pn->wrlev == PIN_LEV_LOW)) lev = 0;
   }
   if (bus->lev != lev) {
-    iprint(1, "bus level changed\n");
+    if (1 && def_env) {
+      device_t *dev = dev_lookup_byaddr(def_env, bus);
+      if (dev) iprint(1, "Bus %s: level changed: %d => %d\n",
+		      dev->name, bus->lev, lev);
+    }
     bus->lev = lev;
     for (int i = 0; i < bus->npin; i++) {
       pn = bus->pins[i];
@@ -475,38 +488,57 @@ void connect_nodes(iopin_t *a, iopin_t *b) {
 
 /* === config ========================== */
 
-static int oct_hash(char *s) {
+static int oct_name_hash(char *s) {
   int hval = 0;
 
   while (*s != '\0') {
-    hval = (hval + *s++) % OCT_HSIZ;
+    hval = (hval + *s++) % OCT_N_HSIZ;
   }
   return hval;
 }
 
 device_t *dev_insert(sys_t *sys, char *name, devtype_t type, void *guts) {
-  int ix = oct_hash(name);
+  int nx = oct_name_hash(name);
+  int ax = OCT_ADDR_HASH(guts);
   device_t *info, *next, *prev;
   
-  prev = &sys->htab[ix];
-  next = prev->next;
+  prev = &sys->n_htab[nx];
+  next = prev->n.next;
   info = malloc(sizeof(device_t));
-  info->prev = prev;
-  info->next = next;
+  info->n.prev = prev;
+  info->n.next = next;
   info->name = strdup(name);
   info->type = type;
   info->guts = guts;
-  prev->next = info;
-  if (next) next->prev = info;
+  prev->n.next = info;
+  if (next) next->n.prev = info;
+
+  prev = &sys->a_htab[ax];
+  next = prev->a.next;
+  info->a.prev = prev;
+  info->a.next = next;
+  prev->a.next = info;
+  if (next) next->a.prev = info;
+  
   return info;
 }
 
-device_t *dev_lookup(sys_t *sys, char *name) {
-  int ix = oct_hash(name);
+device_t *dev_lookup_byname(sys_t *sys, char *name) {
+  int nx = oct_name_hash(name);
   device_t *hent;
 
-  for (hent = sys->htab[ix].next; hent; hent = hent->next) {
-    if (strcmp(name, hent->name) == 0) return hent;
+  for (hent = sys->n_htab[nx].n.next; hent; hent = hent->n.next) {
+    if (strcmp(hent->name, name) == 0) return hent;
+  }
+  return 0;
+}
+
+device_t *dev_lookup_byaddr(sys_t *sys, void *addr) {
+  int ax = OCT_ADDR_HASH(addr);
+  device_t *hent;
+
+  for (hent = sys->a_htab[ax].a.next; hent; hent = hent->a.next) {
+    if (hent->guts == addr) return hent;
   }
   return 0;
 }

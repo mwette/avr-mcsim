@@ -242,7 +242,7 @@
 (export dev-insert)
 
 (define* (dev-lookup name #:optional sys)
-  (let* ((dev (dev_lookup (or sys (%sys) name) name))
+  (let* ((dev (dev_lookup_byname (or sys (%sys) name) name))
          (dev (if (eqv? ffi:%null-pointer (fh-object-ref dev)) #f dev))
          (guts (and dev (dev-guts dev))))
     (and dev
@@ -253,6 +253,8 @@
            ;;((3) (make-osc_t* guts))
            (else #f)))))
 (export dev-lookup)
+
+;; (dev-lookup/addr addr #:optional sys) ...)
 
 (define (sx-attr. sx)
   (if (and (pair? (cdr sx)) (pair? (cadr sx)) (eqv? '@ (caadr sx)))

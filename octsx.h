@@ -13,7 +13,13 @@
 #include "octbx.h"
 #include "octsx/spice.h"
 
-#define OCT_HSIZ	31		/* hash table size */
+#define OCT_N_HSIZ	31		/* name hash table size */
+#define OCT_A_HSIZ	0x1000		/* addr hash table size */
+
+#define OCT_ADDR_HASH(A)			\
+  ((((uintptr_t)(A) >> 12) & 0xF00)		\
+   | (((uintptr_t)(A) >> 8) & 0xF0)		\
+   | (((uintptr_t)(A) >> 4) & 0xF))
 
 typedef enum {
   OCT_T_NONE,
@@ -25,8 +31,10 @@ typedef enum {
 } devtype_t;
 
 typedef struct device {
-  struct device *next;
-  struct device *prev;
+  struct {
+    struct device *next;
+    struct device *prev;
+  } n, a;				/* name or address */
   char *name;				/* interned name */
   devtype_t type;
   void *guts;
@@ -38,12 +46,8 @@ struct env {
   struct {
     unsigned use_spice: 1;
   } flag;
-#if 0
-  device_t *devlist;
-  device_t *htab[OCT_HSIZ];
-#else
-  device_t htab[OCT_HSIZ];
-#endif
+  device_t n_htab[OCT_N_HSIZ];
+  device_t a_htab[OCT_A_HSIZ];
   spice_t spice;
 };
 
@@ -54,11 +58,11 @@ void sys_init(sys_t *sys, int argc, char **argv);
 void sys_fini(sys_t *sys);
 
 device_t *dev_insert(sys_t *sys, char *name, devtype_t type, void *dev);
-device_t *dev_lookup(sys_t *sys, char *name);
+device_t *dev_lookup_byname(sys_t *sys, char *name);
+device_t *dev_lookup_byaddr(sys_t *sys, void *addr);
 char *dev_name(device_t *dev);
 int dev_type(device_t *dev);
 void *dev_guts(device_t *dev);
-
 
 typedef enum {
   BUS_LEV_LOW = 0,
