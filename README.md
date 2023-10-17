@@ -1,4 +1,4 @@
-# avr-mwsim
+# avr-mcsim: AVR multi-controller simulator
 
 This is yet another simulator for AVR microcontrollers.   The focus has
 been to support the ATmega4809 for now, but the CPU simulator handles all

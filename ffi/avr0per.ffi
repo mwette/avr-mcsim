@@ -7,10 +7,11 @@
 ;; License as published by the Free Software Foundation; either
 ;; version 2.1 of the License, or (at your option) any later version.
 
-(define-ffi-module (avr0per ffi)
+(define-ffi-module (ffi avr0per)
   #:include '("avr0per.h")
   #:inc-filter (lambda (file-spec path-spec)
                  (string-contains path-spec "avr0per/"))
-  #:library '("libavr0per"))
+  #:library '("libavr0per")
+  #:use-ffi-module (ffi octbx))
 
 ;; --- last line ---

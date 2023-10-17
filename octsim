@@ -193,8 +193,8 @@ fi
   (unless (assq-ref opts 'batch)
     (activate-readline)
     (process-use-modules
-     '(((bytestructures guile)) ((ffi runtime))
-       ((ffi octbx)) ((ffi octsx))))
+     '(((bytestructures guile)) ((ffi ffi-help-rt))
+       ((ffi octbx) #:prefix oct:) ((ffi octsx) #:prefix oct:)))
     (top-repl)))
 
 ;; --- last line ---

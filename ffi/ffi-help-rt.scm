@@ -1,6 +1,6 @@
-;;; ffi/runtime.scm - NYACC's FFI help runtime
+;;; ffi/ffi-help-rt.scm - NYACC's FFI help runtime
 
-;; Copyright (C) 2016-2019,2022-2023 Matthew R. Wette
+;; Copyright (C) 2016-2019,2022 Matthew R. Wette
 ;;
 ;; This library is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,7 @@
 
 ;;; Code:
 
-(define-module (ffi runtime)
+(define-module (ffi ffi-help-rt)
   #:export (*ffi-help-version*
 
             ;; user level routines
@@ -59,9 +59,9 @@
   #:use-module (rnrs bytevectors)
   #:use-module ((system foreign) #:prefix ffi:)
   #:use-module (srfi srfi-9)
-  #:version (1 08 1))
+  #:version (1 08 0))
 
-(define *ffi-help-version* "1.08.1+")
+(define *ffi-help-version* "1.08.0")
 
 (use-modules (ice-9 pretty-print))
 (define (sferr fmt . args)
@@ -295,8 +295,8 @@
           ((number? val)
            (make-struct/no-tail type (bytestructure desc val)))
           ((ffi:pointer? val)
-           (make-struct/no-tail
-            type (bytestructure desc (ffi:pointer-address val))))
+           (make-struct/no-tail type (bytestructure desc
+                                                    (ffi:pointer-address val))))
           (else (make-struct/no-tail type val))))
         (() (make 0))))))
 
@@ -328,6 +328,10 @@
 
 ;; @deffn {Syntax} define-fh-compound-type type desc type? make
 ;; Generates an FY aggregate type based on a bytestructure descriptor.
+;; Create data with bytestructure syntax:
+;; @example
+;; (make-foo_t '((x 1) (y 2)))
+;; @end example
 ;; @end deffn
 (define-syntax-rule (define-fh-compound-type type desc type? make)
   (begin

@@ -1,12 +1,14 @@
 #!/bin/bash
+#
+# call from top dir
 
 function compile () {
     base=$1
     guild compile-ffi ffi/$1.ffi
-    ed -s ffi/$base.scm <<-EndOfInput
-	/system ffi-help-rt/s//ffi runtime/
-	wq
-	EndOfInput
+#   ed -s ffi/$base.scm <<-EndOfInput
+#	/system ffi-help-rt/s//ffi runtime/
+#	wq
+#	EndOfInput
 }
 
 if [ ! -d ffi ]; then
@@ -18,5 +20,6 @@ export GUILE_LOAD_PATH=`pwd`:$GUILE_LOAD_PATH
 
 compile octbx
 compile octsx
+compile avr0per
 
 # --- last line ---

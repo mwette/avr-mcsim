@@ -7,9 +7,6 @@
 ;; License as published by the Free Software Foundation; either
 ;; version 2.1 of the License, or (at your option) any later version.
 
-;; Issues:
-;; 1) guile FFI does not return structs :(
-
 (define-module (octsys)
   #:export (process-sysx-file
             make-sys sys? get-sys-clk 
@@ -21,12 +18,14 @@
             make-raw-cpu cpu-set-pc cpu-get-pc cpu-show-insn
             
             dev-name dev-guts
-            make-bus bus? bus-relevel bus-conn-to-pin)
+            make-bus bus? bus-relevel bus-conn-to-pin
+            fh-ref
+            )
   
   #:use-module (rnrs bytevectors)
-  #:use-module (ffi octbx)
-  #:use-module (ffi octsx)
-  #:use-module (ffi runtime)
+  #:use-module ((ffi octbx) #:prefix oct:)
+  #:use-module ((ffi octsx) #:prefix oct:)
+  #:use-module (ffi ffi-help-rt)
   #:use-module ((system foreign) #:prefix ffi:))
 
 (define lbx (dynamic-link "liboctbx"))
@@ -43,7 +42,7 @@
 
 (define-public (echo obj) (display obj) (newline))
 (define-public (echo-cpu obj)
-  (let ((cpu (make-cpu_t* obj)))
+  (let ((cpu (oct:make-cpu_t* obj)))
     (sf "echo-cpu called\n")
     (cpu-disp cpu)
     (sf "---\n")))
@@ -54,7 +53,7 @@
   (define (gen-id id . al)
     (datum->syntax id (string->symbol (apply gen-str al)))))
 
-;; (expose-hook cpu-post-exec cpu_t*)
+;; (expose-hook cpu-post-exec oct:cpu_t*)
 (define hook-tab (make-hash-table))
 (define-syntax expose-hook
   (lambda (x)
@@ -87,106 +86,106 @@
 ;;   (define (demo cpu) (sf "got intr\n") (cpu-disp cpu))
 ;;   (add-cpu-intr-hook! demo)
 
-(expose-hook cpu-intr cpu_t*)
-(expose-hook cpu-reti cpu_t*)
+(expose-hook cpu-intr oct:cpu_t*)
+(expose-hook cpu-reti oct:cpu_t*)
 
 ;; tk-report tk_report
 
 
 ;; octsx
 
-(define-public mcu-pin-byname mcu_pin_byname)
+(define-public mcu-pin-byname oct:mcu_pin_byname)
 
-(define-public connect-nodes connect_nodes)
+(define-public connect-nodes oct:connect_nodes)
 
 (define %sys (make-parameter #f))
 (export %sys)
 
 (define (make-sys . args)
-  (let ((sys (make_sys 0 ffi:%null-pointer)))
+  (let ((sys (oct:make_sys 0 ffi:%null-pointer)))
     (unless (%sys) (%sys sys))
     sys))
 
-(define get-sys-clk get_sys_clk)
+(define get-sys-clk oct:get_sys_clk)
 
 ;; octbx
 
 (define (make-mcu sys dev code)
-  (make_mcu (get-sys-clk sys) dev code))
+  (oct:make_mcu (get-sys-clk sys) dev code))
 
 ;; get-mcu-cpu mcu => cpu
-(define get-mcu-cpu get_mcu_cpu)
+(define get-mcu-cpu oct:get_mcu_cpu)
 
 ;; cpu-reset cpu [flags]
-(define cpu-reset cpu_reset)
+(define cpu-reset oct:cpu_reset)
 
 ;; cpu-disp cpu
-(define cpu-disp cpu_disp)
+(define cpu-disp oct:cpu_disp)
 
 ;; cpu-disp-data cpu addr
-(define cpu-disp-data cpu_disp_data)
+(define cpu-disp-data oct:cpu_disp_data)
 
 ;; cpu-disp-regs cpu
-(define cpu-disp-regs cpu_disp_regs)
+(define cpu-disp-regs oct:cpu_disp_regs)
 
 ;; cpu-add-brkpt cpu byte-addr
-(define cpu-add-brkpt add_brkpt)
+(define cpu-add-brkpt oct:add_brkpt)
 
 ;; cpu-rem-brkpt cpu byte-addr
-(define cpu-rem-brkpt rem_brkpt)
+(define cpu-rem-brkpt oct:rem_brkpt)
 
-(define cpu-set-trace cpu_set_trace)
-(define cpu-clr-trace cpu_clr_trace)
+(define cpu-set-trace oct:cpu_set_trace)
+(define cpu-clr-trace oct:cpu_clr_trace)
 
 ;;(define-public mcu-get-irmsk mcu_get_irmsk)
-(define-public mcu-req-intr mcu_req_intr)
-(define-public mcu-ack-intr mcu_ack_intr)
-(define-public cpu-sei cpu_sei)
-(define-public cpu-cli cpu_cli)
+(define-public mcu-req-intr oct:mcu_req_intr)
+(define-public mcu-ack-intr oct:mcu_ack_intr)
+(define-public cpu-sei oct:cpu_sei)
+(define-public cpu-cli oct:cpu_cli)
 
 ;; === hooks for extras
 
 ;; make-raw-cpu prog data
-(define make-raw-cpu make_raw_cpu)
+(define make-raw-cpu oct:make_raw_cpu)
 
 ;; cpu-set-pc cpu pc
-(define cpu-set-pc cpu_set_pc)
+(define cpu-set-pc oct:cpu_set_pc)
 
 ;; cpu-get-pc cpu
-(define cpu-get-pc cpu_get_pc)
+(define cpu-get-pc oct:cpu_get_pc)
 
 ;; cpu-show-insn cpu pc (define cpu-show-insn cpu_show_insn)
 
 (define (insn-wsize insn cpu)
-  (insn_wsize insn (fh-object-ref cpu 'vers)))
+  (oct:insn_wsize insn (fh-object-ref cpu 'vers)))
 
 (define* (cpu-insn-wsize cpu #:optional insn)
-  (let ((insn (or insn (cpu_get_insn cpu))))
-    (insn_wsize insn cpu)))
+  (let ((insn (or insn (oct:cpu_get_insn cpu))))
+    (oct:insn_wsize insn cpu)))
 (export cpu-insn-wsize)
 
 ;; === system stuff
 
 (define-public get-simtime              ; guile ffi does not return structs
   (lambda* (#:optional sys)
-    (let ((t (make-simtime_t)))
-      (get_simtime_tp (or sys (%sys)) (pointer-to t))
+    (let ((t (oct:make-simtime_t)))
+      (oct:get_simtime_tp (or sys (%sys)) (pointer-to t))
       t)))
 
 (define-public sys-cont
-  (lambda* (sys #:optional (cpu ffi:%null-pointer)) (sys_cont sys cpu)))
+  (lambda* (sys #:optional (cpu ffi:%null-pointer)) (oct:sys_cont sys cpu)))
 (define-public sys-cpu-next
-  (lambda* (sys cpu #:optional (n 1)) (sys_cpu_next sys cpu n)))
+  (lambda* (sys cpu #:optional (n 1)) (oct:sys_cpu_next sys cpu n)))
 (define-public sys-cpu-step
-  (lambda* (sys cpu #:optional (n 1)) (sys_cpu_step sys cpu n)))
+  (lambda* (sys cpu #:optional (n 1)) (oct:sys_cpu_step sys cpu n)))
 
-(define-public sys-run-ns sys_run_ns)
-(define-public (sys-run-us sys us) (sys_run_ns sys (* 1000 us)))
-(define-public (sys-run-ms sys us) (sys_run_ns sys (* 1000000 us)))
-(define-public sys-run-sns sys_run_sns)
-(define-public sys-run-sus sys_run_sus)
-(define-public sys-run-sms sys_run_sms)
-(define-public sys-run-dt sys_run_dt)
+(define-public sys-run-ns oct:sys_run_ns)
+(define-public (sys-run-us sys us) (oct:sys_run_ns sys (* 1000 us)))
+(define-public (sys-run-ms sys us) (oct:sys_run_ns sys (* 1000000 us)))
+(define-public sys-run-sns oct:sys_run_sns)
+(define-public sys-run-sus oct:sys_run_sus)
+(define-public sys-run-sms oct:sys_run_sms)
+(define-public sys-run-dt oct:sys_run_dt)
 
 (define-public (sys-run sys val)
   (cond
@@ -199,7 +198,7 @@
    (else (error "sys-run: bad arg"))))
   
 ;; sys-run-to-cpu-word-addr sys cpu addr
-(define-public sys-run-to-cpu-word-addr sys_run_to_cpu_addr)
+(define-public sys-run-to-cpu-word-addr oct:sys_run_to_cpu_addr)
 
 ;; use to get back to gdb
 (define-public sys-dummy
@@ -215,15 +214,15 @@
 (use-modules (sxml match))
 (use-modules (sxml xpath))
 
-(define (dev-name dev) (ffi:pointer->string (dev_name dev)))
-(define dev-guts dev_guts)
-(define sys? sys_t*?)
-(define mcu? mcu_t*?)
-(define bus? bus_t*?)
+(define (dev-name dev) (ffi:pointer->string (oct:dev_name dev)))
+(define dev-guts oct:dev_guts)
+(define sys? oct:sys_t*?)
+(define mcu? oct:mcu_t*?)
+(define bus? oct:bus_t*?)
 
-(define make-bus make_bus)
-(define bus-relevel bus_relevel)
-(define bus-conn-to-pin bus_conn_to_pin)
+(define make-bus oct:make_bus)
+(define bus-relevel oct:bus_relevel)
+(define bus-conn-to-pin oct:bus_conn_to_pin)
 (export make-bus)
 
 
@@ -238,19 +237,19 @@
 
 (define* (dev-insert name ref #:optional sys)
   (let ((sy (or sys (%sys))) (ty (dev-type ref)))
-    (dev_insert sy name ty ref)))
+    (oct:dev_insert sy name ty ref)))
 (export dev-insert)
 
 (define* (dev-lookup name #:optional sys)
-  (let* ((dev (dev_lookup_byname (or sys (%sys) name) name))
+  (let* ((dev (oct:dev_lookup_byname (or sys (%sys) name) name))
          (dev (if (eqv? ffi:%null-pointer (fh-object-ref dev)) #f dev))
          (guts (and dev (dev-guts dev))))
     (and dev
-         (case (dev_type dev)
+         (case (oct:dev_type dev)
            ((0) dev)
-           ((1) (make-mcu_t* guts))
-           ((2) (make-bus_t* guts))
-           ;;((3) (make-osc_t* guts))
+           ((1) (oct:make-mcu_t* guts))
+           ((2) (oct:make-bus_t* guts))
+           ;;((3) (oct:make-osc_t* guts))
            (else #f)))))
 (export dev-lookup)
 
@@ -281,7 +280,8 @@
     (when verbose (sf "nd-name-to-dev ~S\n" name))
     (fold
      (lambda (name dev)
-       (when verbose (sf "  name=~S  dev=~S type=~S\n" name dev (dev_type dev)))
+       (when verbose
+         (sf "  name=~S  dev=~S type=~S\n" name dev (oct:dev_type dev)))
        (cond
 	((sys? dev) (dev-lookup name))
 	((mcu? dev) (mcu-pin-byname dev name))

@@ -611,6 +611,8 @@ void sys_run_dt(sys_t *sys, float dt) {
   sys_run_to(sys, to);
 }
 
+static int foo() { return 1; }
+
 // sys_run_to_cpu_addr sys cpu pc wordaddress
 void sys_run_to_cpu_addr(sys_t *sys, cpu_t *cpu, uint32_t pc) {
   simtime_t ts = { -1, 0 };

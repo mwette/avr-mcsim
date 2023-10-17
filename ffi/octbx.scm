@@ -1,7 +1,7 @@
 ;; generated with `guild compile-ffi ffi/octbx.ffi'
 
 (define-module (ffi octbx)
-  #:use-module (ffi runtime)
+  #:use-module (ffi ffi-help-rt)
   #:use-module ((system foreign) #:prefix ffi:)
   #:use-module (bytestructures guile))
 
@@ -2692,9 +2692,9 @@
 ;;   cpu_t cpu; /* generic cpu */
 ;;   uint64_t irmsk; /* interrupts requested */
 ;;   uint64_t nimsk; /* non-maskable requested */
-;;   char *device; /* device (e.g., "mega4809") */
-;;   char *code; /* code (e.g., "mcu1.hex") */
-;;   char *name; /* name (e.g., "mcu1") */
+;;   char *device; /* device (e.g., \"mega4809\") */
+;;   char *code; /* code (e.g., \"mcu1.hex\") */
+;;   char *name; /* name (e.g., \"mcu1\") */
 ;;   tkosc_t osc20m; /* on avr0 */
 ;;   tkosc_t osculp32k; /* on avr0 */
 ;;   tkosc_t xosc32k; /* on avr0 */

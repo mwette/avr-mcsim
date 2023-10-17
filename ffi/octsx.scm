@@ -2,7 +2,7 @@
 
 (define-module (ffi octsx)
   #:use-module (ffi octbx)
-  #:use-module (ffi runtime)
+  #:use-module (ffi ffi-help-rt)
   #:use-module ((system foreign) #:prefix ffi:)
   #:use-module (bytestructures guile))
 
@@ -213,16 +213,22 @@
   (assq-ref devtype_t-enum-vnl v))
 
 ;; typedef struct device {
-;;   struct device *next;
-;;   struct device *prev;
+;;   struct {
+;;     struct device *next;
+;;     struct device *prev;
+;;   } n, a; /* name or address */
 ;;   char *name; /* interned name */
 ;;   devtype_t type;
 ;;   void *guts;
 ;; } device_t;
 (define-public device_t-desc
   (bs:struct
-    (list `(next ,(fh:pointer 'void))
-          `(prev ,(fh:pointer 'void))
+    (list `(n ,(bs:struct
+                 (list `(next ,(fh:pointer 'void))
+                       `(prev ,(fh:pointer 'void)))))
+          `(a ,(bs:struct
+                 (list `(next ,(fh:pointer 'void))
+                       `(prev ,(fh:pointer 'void)))))
           `(name ,(fh:pointer int8))
           `(type ,int)
           `(guts ,(fh:pointer 'void)))))
@@ -257,14 +263,16 @@
 ;;   struct {
 ;;     unsigned use_spice : 1;
 ;;   } flag;
-;;   device_t htab[31];
+;;   device_t n_htab[31];
+;;   device_t a_htab[0x1000];
 ;;   spice_t spice;
 ;; };
 (define-public struct-env-desc
   (bs:struct
     (list `(clk ,tmsch_t-desc)
           `(flag ,(bs:struct (list `(use_spice ,unsigned-int 1))))
-          `(htab ,(bs:vector 31 device_t-desc))
+          `(n_htab ,(bs:vector 31 device_t-desc))
+          `(a_htab ,(bs:vector 4096 device_t-desc))
           `(spice ,spice_t-desc))))
 (define-fh-compound-type struct-env struct-env-desc struct-env? 
  make-struct-env)
@@ -348,20 +356,35 @@
          ((force ~dev_insert) ~sys ~name ~type ~dev))))))
 (export dev_insert)
 
-;; device_t *dev_lookup(sys_t *sys, char *name);
-(define dev_lookup
-  (let ((~dev_lookup
+;; device_t *dev_lookup_byname(sys_t *sys, char *name);
+(define dev_lookup_byname
+  (let ((~dev_lookup_byname
           (delay (fh-link-proc
                    ffi-void*
-                   "dev_lookup"
+                   "dev_lookup_byname"
                    (list ffi-void* ffi-void*)
                    (force ffi-octsx-llibs)))))
     (lambda (sys name)
       (let ((~sys ((fht-unwrap sys_t*) sys))
             (~name (unwrap~pointer name)))
         ((fht-wrap device_t*)
-         ((force ~dev_lookup) ~sys ~name))))))
-(export dev_lookup)
+         ((force ~dev_lookup_byname) ~sys ~name))))))
+(export dev_lookup_byname)
+
+;; device_t *dev_lookup_byaddr(sys_t *sys, void *addr);
+(define dev_lookup_byaddr
+  (let ((~dev_lookup_byaddr
+          (delay (fh-link-proc
+                   ffi-void*
+                   "dev_lookup_byaddr"
+                   (list ffi-void* ffi-void*)
+                   (force ffi-octsx-llibs)))))
+    (lambda (sys addr)
+      (let ((~sys ((fht-unwrap sys_t*) sys))
+            (~addr (unwrap~pointer addr)))
+        ((fht-wrap device_t*)
+         ((force ~dev_lookup_byaddr) ~sys ~addr))))))
+(export dev_lookup_byaddr)
 
 ;; char *dev_name(device_t *dev);
 (define dev_name
@@ -810,7 +833,8 @@
     (OCT_T_BUS . 2)
     (OCT_T_MCU . 1)
     (OCT_T_NONE . 0)
-    (OCT_HSIZ . 31)
+    (OCT_A_HSIZ . 4096)
+    (OCT_N_HSIZ . 31)
     (SPC_MEA_MAX . 10)
     (SPC_DAC_MAX . 10)
     (SPC_ADC_MAX . 10)))
