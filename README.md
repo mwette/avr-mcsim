@@ -27,7 +27,7 @@ $ make
 $ cd demo; make demo24.asm demo24.hex; cd ..
 ```
 
-Runing demo24 (follow along with demo/demo24.asm):
+To run the demo, following along with demo/demo24.asm:
 ```
 $ ./octsim -b 0xb8 demo/demo24.hex   # sets breakpoint at main
 ...
