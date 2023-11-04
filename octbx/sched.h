@@ -17,6 +17,7 @@
 #define LIBSIM_SCHED_H__
 
 #include <stdint.h>
+#include "hooks.h"
 
 #define NANOSEC 1000000000
 #define PICOSEC 1000000000000
@@ -124,7 +125,8 @@ typedef struct tkosc {
   tkevt_t todo;				/* scheduled */
   tkevt_t done;				/* free */
   tkevt_t *evt;				/* currently running */
-
+  hooks_t next_tick_hooks;		/* callback on next */
+  
   osctick_t tick;			/* tick */
   simtime_t time;			/* time at tick */
   float drift;				/* drift at tick */
@@ -156,6 +158,10 @@ void tkosc_print(tkosc_t *sch);
 tkevt_t *tkosc_sched(tkosc_t *sch, osctick_t when, int8_t neps,
 		     tkevt_rout_t *rout, void *arg);
 tkevt_t *tkosc_cancel(tkosc_t *sch, tkevt_t *evt);
+
+void next_tick_hook(tkosc_t *);
+void add_next_tick_hook(tkosc_t *, void (*)(void*));
+void rem_next_tick_hook(tkosc_t *, void (*)(void*));
 
 
 /* oscillator, a tkosc, driven by tmsch

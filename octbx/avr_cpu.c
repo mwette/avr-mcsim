@@ -41,6 +41,14 @@
    | (((uintptr_t)(A) >> 4) & 0xF))
 #endif
 
+MAKE_HOOK(cpu_call, struct cpu *);
+MAKE_HOOK(cpu_ret, struct cpu *);
+MAKE_HOOK(cpu_intr, struct cpu *);
+MAKE_HOOK(cpu_reti, struct cpu *);
+MAKE_HOOK(cpu_pre_exec, struct cpu *);
+MAKE_HOOK(cpu_post_exec, struct cpu *);
+MAKE_HOOK(cpu_post_fetch, struct cpu *);
+
 /* === CPU ================================================================== */
 
 #define AM(CPU,ADDR) ((CPU)->upd.asml.am*(ADDR))

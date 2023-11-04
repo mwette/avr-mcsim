@@ -1,5 +1,5 @@
 /* hooks.c
- * 
+ *
  * Copyright (C) 2022-2023 Matthew Wette
  *
  * This library is free software; you can redistribute it and/or
@@ -11,24 +11,24 @@
 #include <stdlib.h>
 #include "hooks.h"
 
+/* This assumed unused first elements in list as in Knuth's Vol 1. */
 
-#ifdef USE_GUILE
-#include "libguile.h"
-#else
+void add_hook(struct hook_link *hooks, void (*hook)()) {
+  struct hook_link *link;
 
-struct hook_link {
-  struct hook_link *next;
-  void (*hook)(struct cpu *cpu);
-};
+  for (link = hooks; link; link = link->next) {
+    if (link->hook == hook)
+      /* silently ignore */
+      return;
+  }
 
-void add_hook(struct hook_link *hooks, void (*hook)(struct cpu*)) {
-  struct hook_link *link = malloc(sizeof(struct hook_link));
+  link = malloc(sizeof(struct hook_link));
   link->next = hooks->next;
   link->hook = hook;
   hooks->next = link;
 }
 
-void rem_hook(struct hook_link *hooks, void (*hook)(struct cpu*)) {
+void rem_hook(struct hook_link *hooks, void (*hook)(void *)) {
   struct hook_link *next, *prev = hooks;
   while (prev != 0) {
     next = prev->next;
@@ -41,34 +41,12 @@ void rem_hook(struct hook_link *hooks, void (*hook)(struct cpu*)) {
   }
 }
 
-void exe_hook(struct hook_link *hooks, struct cpu *cpu) {
+void exe_hook(struct hook_link *hooks, void *arg) {
   struct hook_link *link = hooks->next;
   while (link != 0) {
-    (*link->hook)(cpu);
+    (*link->hook)(arg);
     link = link->next;
   }
 }
 
-#define MAKE_HOOK(N)					\
-struct hook_link N ## _hooks;				\
-void add_ ## N ## _hook(void (*hook)(struct cpu*)) {	\
-  add_hook(&N ## _hooks, hook);				\
-}  							\
-void rem_ ## N ## _hook(void (*hook)(struct cpu*)) {	\
-  rem_hook(&N ## _hooks, hook);				\
-} 							\
-void N ## _hook(struct cpu *cpu) { 			\
-  exe_hook(&N ## _hooks, cpu);				\
-} 							\
-int N ## _hook_enabled
-
-MAKE_HOOK(cpu_call);
-MAKE_HOOK(cpu_ret);
-MAKE_HOOK(cpu_intr);
-MAKE_HOOK(cpu_reti);
-MAKE_HOOK(cpu_pre_exec);
-MAKE_HOOK(cpu_post_exec);
-MAKE_HOOK(cpu_post_fetch);
-
-#endif
 /* --- last line --- */

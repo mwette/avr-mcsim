@@ -11,6 +11,7 @@
 #define AVR_CPU_H_
 
 #include <stdint.h>
+#include "hooks.h"
 #include "sched.h"
 
 #define REG0_IX 0
@@ -192,6 +193,17 @@ void cpu_sei(cpu_t *cpu);
 void cpu_cli(cpu_t *cpu);
 void cpu_set_trace(cpu_t *cpu);
 void cpu_clr_trace(cpu_t *cpu);
+
+struct cpu;
+
+DEF_HOOK(cpu_call, struct cpu*);
+DEF_HOOK(cpu_ret, struct cpu*);
+DEF_HOOK(cpu_intr, struct cpu*);
+DEF_HOOK(cpu_reti, struct cpu*);
+
+DEF_HOOK(cpu_pre_exec, struct cpu*);
+DEF_HOOK(cpu_post_exec, struct cpu*);
+DEF_HOOK(cpu_post_fetch, struct cpu*);
 
 #endif
 /* --- last line --- */

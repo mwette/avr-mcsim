@@ -1,5 +1,5 @@
 /* sched.c
- * 
+ *
  * Copyright (C) 2019-2023 Matthew Wette
  *
  * This library is free software; you can redistribute it and/or
@@ -62,7 +62,7 @@ static uint32_t u_rand(uint32_t *seedp)
 
 float nml_rand(uint32_t *seedp) {
   uint32_t x, rv = u_rand(seedp);
-  
+
   x = (rv/2) % NML_NVAL;
   if (rv & 0x01) {
     return -nml_vals[x];
@@ -74,7 +74,7 @@ float nml_rand(uint32_t *seedp) {
 simtime_t tm_from_float(float f) {
   simtime_t tm;
   float intg;
-  
+
   intg = floorf(f);
   tm.sec = (int)intg;
   tm.nsec = (int)(1.0e9*(f - intg));
@@ -117,7 +117,7 @@ int tm_le(simtime_t a, simtime_t b) {
 int tm_gt(simtime_t a, simtime_t b) {
   return tm_lt(b, a);
 }
-  
+
 int tm_ge(simtime_t a, simtime_t b) {
   return 1 - tm_lt(a, b);
 }
@@ -278,7 +278,7 @@ void tkosc_init(tkosc_t *tkosc, tmsch_t *tmsch, int nevt) {
   tkevt_t *evts;
 
   assert(tmsch != 0);
-  
+
   memset(tkosc, 0, sizeof(tkosc_t));
   if (nevt <= 0) nevt = TKOSC_NEVT_DEF;
   evts = tkosc->evts = malloc(nevt*sizeof(tkevt_t));
@@ -328,12 +328,13 @@ tkevt_t *tkosc_sched(tkosc_t *tkosc, osctick_t when, int8_t neps,
   osctick_t tick;
   simtime_t time;
 
-  /* If not scheduled, start it. 
+  /* If not scheduled, start it.
    * TODO: add osc attr struct arg to _init() and init there
    */
   if (tkosc->tmevt == 0) {
-    tick = tkosc->tick; time = tmsch->time; 
+    tick = tkosc->tick; time = tmsch->time;
     tkosc->tmevt = tmsch_sched(tmsch, time, tkosc->neps, tkosc_evt, tkosc);
+    next_tick_hook(tkosc);
   }
 
   assert((neps == NEPS_BREAK) || ((0 < neps) && (neps < 100)));
@@ -384,7 +385,7 @@ void tkosc_break_evt(void *arg, tkclk_t *tkclk) {
   tmsch_t *tmsch = tkosc->tmsch;
   tkevt_t *next;
   tmevt_t *evt;
-  
+
   evt = tmsch_sched(tmsch, tmsch->time, NEPS_BREAK, tmsch_break_evt, arg);
   evt->name = "tmsch_break_evt";
 
@@ -404,7 +405,7 @@ static void tkosc_free_evt(tkosc_t *tkosc, tkevt_t *tkevt) {
 
 static tkevt_t *tkosc_grab_evt(tkosc_t *tkosc) {
   tkevt_t *evt, *prev, *next;
-  
+
   evt = tkosc->todo.next;
   if (evt == 0) return 0;
   if (tk_gt(evt->when, tkosc->tick)) return 0;
@@ -448,13 +449,26 @@ void tkosc_evt(void *arg, tmsch_t *tmsch) {
     dt += tick_per*tkosc->drift_dev*drift;
     tkosc->drift = drift;
   }
-  
+
   time = tm_add(tkosc->time, tm_from_float(dt));
   tkosc->tmevt = tmsch_sched(tmsch, time, tkosc->neps, tkosc_evt, arg);
   tkosc->tmevt->name = __func__;
- 
+  next_tick_hook(tkosc);
+
   tkosc->time = time;
   tkosc->tick = tkosc->tick + tkosc->step;
+}
+
+void next_tick_hook(tkosc_t *osc) {
+  struct hook_link *link;
+  for (link = osc->next_tick_hooks.next; link; link = link->next) 
+    (*link->hook)(osc);
+}
+void add_next_tick_hook(tkosc_t *osc, void (*hook)(void*)) {
+  add_hook(&osc->next_tick_hooks, hook);
+}
+void rem_next_tick_hook(tkosc_t *osc, void (*hook)(void*)) {
+  rem_hook(&osc->next_tick_hooks, hook);
 }
 
 void tkclk_init(tkclk_t *tkclk, tkosc_t *tkosc, uint16_t div) {
@@ -477,7 +491,7 @@ tkevt_t *tkclk_sched(tkclk_t *clk, uint32_t delta, int8_t neps,
   evt->clk = clk;
   if (rout = tkosc_break_evt) evt->name = "tkosc_break_evt";
   return evt;
-}  
+}
 
 /* always return zero to xhx_act = tmclk_cancel(...); */
 tkevt_t *tkclk_cancel(tkclk_t *clk, tkevt_t *evt) {
