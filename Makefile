@@ -22,18 +22,7 @@ LDFLAGS = -g \
 LDLIBS = -loctsx -loctbx -ldl -lm
 LIBS = $(LDFLAGS) $(LDLIBS)
 
-#CFLAGS += -fstack-protector-all
-#CFLAGS += -pg
-#LDFLAGS += -pg
-
-GUILE_CFLAGS = -DWITH_GUILE -I/opt/local/include/guile/3.0
-GUILE_LIBS = -L/opt/local/lib -lguile-3.0
-
-default: sublibs #oct4809
-
-octscm: octscm.c
-	$(CC) -o $@ $(CFLAGS) $(GUILE_CFLAGS) $^ \
-		$(LDFLAGS) -L. -Wl,-rpath=$(TOP) $(LDLIBS) $(GUILE_LIBS)
+default: sublibs
 
 .PHONY: sublibs
 sublibs:
@@ -75,6 +64,7 @@ oct4809:
 		avr0per/tcb.c \
 		avr0per/twi.c \
 		avr0per/usart.c \
+		avr0per/wdt.c \
 		\
 		octbx/avr_mcu.c \
 		octbx/avr_cpu.c \
