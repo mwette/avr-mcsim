@@ -494,7 +494,7 @@ tkevt_t *tkclk_sched(tkclk_t *clk, uint32_t delta, int8_t neps,
   when = div*(when / div);
   evt = tkosc_sched(osc, when, neps, rout, arg);
   evt->clk = clk;
-  if (rout = tkosc_break_evt) evt->name = "tkosc_break_evt";
+  if (rout == tkosc_break_evt) evt->name = "tkosc_break_evt";
   return evt;
 }
 

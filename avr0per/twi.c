@@ -179,6 +179,7 @@ static char *sigstr(twi_sig_t sig) {
   case SIG_SDALO: return "SIG_SDALO"; break;
   case SIG_SDAHI: return "SIG_SDAHI"; break;
   }
+  return (char *)0;
 }
 
 static char *mststr(int st) {
@@ -582,6 +583,15 @@ static void tws_step(twi_t *twi, twi_sig_t sig) {
       iopin_wrD(scl, 1);
       twi->s.xst = 99;
       iprint(2, "  S DONE for now.  need SDA up again\n");
+      break;
+    case SIG_START:
+    case SIG_STOP: 
+    case SIG_NONE: 
+    case SIG_LATCH: 
+    case SIG_SHIFT:
+    case SIG_CMD_START:
+    case SIG_SDAHI:
+      // TBD
       break;
     }
     break;

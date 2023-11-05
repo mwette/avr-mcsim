@@ -21,13 +21,15 @@ static char ibuf[] = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
  */
 int iprint(int lev, char *fmt, ...) {
   va_list ap;
+  int ln;
   
   ibuf[2*lev] = '\0';
   printf("%s", ibuf);
   va_start(ap, fmt);
-  vprintf(fmt, ap);
+  ln = vprintf(fmt, ap);
   fflush(stdout);
   ibuf[2*lev] = '\t';
+  return ln;
 }
 
 void log_tick(void *arg, tkosc_t *osc) {

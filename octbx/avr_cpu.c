@@ -4018,11 +4018,11 @@ insn_rout_t decode_insn(uint16_t insn, cpu_vers_t vers) {
     } else if ((insn & 0x0208) == 0x0200) {
       return eval_SBRS;
     } else if (vers == CPU_VERS_AVRxm) {
-      if ((insn & 0x020F) == 0x9206) {
+      if ((insn & 0x020F) == 0x0206) {
 	return eval_LAC;
-      } else if ((insn & 0x020F) == 0x9205) {
+      } else if ((insn & 0x020F) == 0x0205) {
 	return eval_LAS;
-      } else if ((insn & 0x020F) == 0x9207) {
+      } else if ((insn & 0x020F) == 0x0207) {
 	return eval_LAT;
       }
     }
@@ -4115,7 +4115,7 @@ void cpu_disp(cpu_t *cpu) {
 }
 
 static volatile int foo_v = 0;
-static int foo() { foo_v = 1; }
+static int foo() { foo_v = 1; return 0; }
 
 /* latch update register, compute next update, return number of clocks
  * This should also deal with write to and reads from I/O registers.
