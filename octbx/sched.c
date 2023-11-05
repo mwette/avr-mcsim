@@ -230,6 +230,11 @@ void tmsch_break_evt(void *arg, tmsch_t *sch) {
   //printf("breakpoint\n");
 }
 
+/* signal handler: if flag > 0 longjmp() else set flag = 1
+ * in while {: after rout(); if (flag == 1) { flag = 0; return; }
+ *
+ */
+
 void tmsch_run(tmsch_t *tmsch, simtime_t to, int neps) {
   tmevt_t *evt, *prev, *next;
   tmevt_rout_t *rout;
