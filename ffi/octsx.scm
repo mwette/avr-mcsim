@@ -2,12 +2,16 @@
 
 (define-module (ffi octsx)
   #:use-module (ffi octbx)
-  #:use-module (ffi ffi-help-rt)
   #:use-module ((system foreign) #:prefix ffi:)
-  #:use-module (bytestructures guile))
+  #:use-module (system foreign-library)
+  #:use-module (nyacc foreign cdata))
 
-(define ffi-octsx-llibs
-  (delay (list (dynamic-link "liboctsx"))))
+(define (foreign-pointer-search name)
+  (let loop ((libs (list #f "liboctsx")))
+    (cond ((null? libs) (error "no library for ~s" name))
+          ((false-if-exception
+             (foreign-library-pointer (car libs) name)))
+          (else (loop (cdr libs))))))
 
 
 ;; typedef struct spice_dac {
@@ -15,88 +19,42 @@
 ;;   iopin_t *pin; /* connection */
 ;;   double av[2]; /* int'val beg, end values */
 ;; } spice_dac_t;
-(define-public spice_dac_t-desc
-  (bs:struct
-    (list `(name ,(fh:pointer int8))
-          `(pin ,iopin_t*-desc)
-          `(av ,(bs:vector 2 double)))))
-(define-fh-compound-type spice_dac_t spice_dac_t-desc spice_dac_t? 
- make-spice_dac_t)
-(export spice_dac_t spice_dac_t? make-spice_dac_t)
-(define-public spice_dac_t*-desc
-  (fh:pointer spice_dac_t-desc))
-(define-fh-pointer-type spice_dac_t* spice_dac_t*-desc spice_dac_t*? 
- make-spice_dac_t*)
-(export spice_dac_t* spice_dac_t*? make-spice_dac_t*)
-(fh-ref<=>deref!
-  spice_dac_t*
-  make-spice_dac_t*
-  spice_dac_t
-  make-spice_dac_t)
-(define-public struct-spice_dac-desc
-  spice_dac_t-desc)
-(define-fh-compound-type struct-spice_dac struct-spice_dac-desc 
- struct-spice_dac? make-struct-spice_dac)
-(export struct-spice_dac struct-spice_dac? make-struct-spice_dac)
-(define-public struct-spice_dac*-desc
-  spice_dac_t*-desc)
-(define-fh-pointer-type struct-spice_dac* struct-spice_dac*-desc 
- struct-spice_dac*? make-struct-spice_dac*)
-(export struct-spice_dac* struct-spice_dac*? make-struct-spice_dac*)
-(fh-ref<=>deref!
-  struct-spice_dac*
-  make-struct-spice_dac*
-  struct-spice_dac
-  make-struct-spice_dac)
+(define-public spice_dac_t
+  (name-ctype
+    'spice_dac_t
+    (cstruct
+      (list `(name ,(cpointer (cbase 'char)))
+            `(pin ,iopin_t*)
+            `(av ,(carray (cbase 'double) 2))))))
+(define-public spice_dac_t*
+  (name-ctype 'spice_dac_t* (cpointer spice_dac_t)))
+(define-public struct-spice_dac
+  (name-ctype 'struct-spice_dac spice_dac_t))
+(define-public struct-spice_dac*
+  (name-ctype 'struct-spice_dac* spice_dac_t*))
 
 ;; typedef struct spice_adc {
 ;;   char *name; /* spice name */
 ;;   iopin_t *pin; /* connection */
 ;; } spice_adc_t;
-(define-public spice_adc_t-desc
-  (bs:struct
-    (list `(name ,(fh:pointer int8))
-          `(pin ,iopin_t*-desc))))
-(define-fh-compound-type spice_adc_t spice_adc_t-desc spice_adc_t? 
- make-spice_adc_t)
-(export spice_adc_t spice_adc_t? make-spice_adc_t)
-(define-public spice_adc_t*-desc
-  (fh:pointer spice_adc_t-desc))
-(define-fh-pointer-type spice_adc_t* spice_adc_t*-desc spice_adc_t*? 
- make-spice_adc_t*)
-(export spice_adc_t* spice_adc_t*? make-spice_adc_t*)
-(fh-ref<=>deref!
-  spice_adc_t*
-  make-spice_adc_t*
-  spice_adc_t
-  make-spice_adc_t)
-(define-public struct-spice_adc-desc
-  spice_adc_t-desc)
-(define-fh-compound-type struct-spice_adc struct-spice_adc-desc 
- struct-spice_adc? make-struct-spice_adc)
-(export struct-spice_adc struct-spice_adc? make-struct-spice_adc)
-(define-public struct-spice_adc*-desc
-  spice_adc_t*-desc)
-(define-fh-pointer-type struct-spice_adc* struct-spice_adc*-desc 
- struct-spice_adc*? make-struct-spice_adc*)
-(export struct-spice_adc* struct-spice_adc*? make-struct-spice_adc*)
-(fh-ref<=>deref!
-  struct-spice_adc*
-  make-struct-spice_adc*
-  struct-spice_adc
-  make-struct-spice_adc)
+(define-public spice_adc_t
+  (name-ctype
+    'spice_adc_t
+    (cstruct
+      (list `(name ,(cpointer (cbase 'char)))
+            `(pin ,iopin_t*)))))
+(define-public spice_adc_t*
+  (name-ctype 'spice_adc_t* (cpointer spice_adc_t)))
+(define-public struct-spice_adc
+  (name-ctype 'struct-spice_adc spice_adc_t))
+(define-public struct-spice_adc*
+  (name-ctype 'struct-spice_adc* spice_adc_t*))
 
 ;; typedef spice_adc_t spice_mea_t;
-(define-public spice_mea_t-desc spice_adc_t-desc)
-(define-fh-type-alias spice_mea_t spice_adc_t)
-(export spice_mea_t)
-(define-public spice_mea_t? spice_adc_t?)
-(define-public make-spice_mea_t make-spice_adc_t)
-(define-public spice_mea_t*-desc spice_adc_t*-desc)
-(define-fh-type-alias spice_mea_t* spice_adc_t*)
-(export spice_mea_t*)
-(define-public spice_mea_t*? spice_adc_t*?)
-(define-public make-spice_mea_t* make-spice_adc_t*)
+(define-public spice_mea_t
+  (name-ctype 'spice_mea_t spice_adc_t))
+(define-public spice_mea_t*
+  (name-ctype 'spice_mea_t* spice_adc_t*))
 
 ;; typedef struct spice {
 ;;   void *hdl; /* handle */
@@ -114,74 +72,52 @@
 ;;   double tv[2];
 ;;   //logr_t *logr;
 ;; } spice_t;
-(define-public spice_t-desc
-  (bs:struct
-    (list `(hdl ,(fh:pointer 'void))
-          `(dt_ns ,int)
-          `(evt ,tmevt_t*-desc)
-          `(nadc ,int)
-          `(adc_names ,(fh:pointer (fh:pointer int8)))
-          `(adcs ,(bs:vector 10 spice_adc_t-desc))
-          `(ndac ,int)
-          `(dac_names ,(fh:pointer (fh:pointer int8)))
-          `(dacs ,(bs:vector 10 spice_dac_t-desc))
-          `(nmea ,int)
-          `(mea_names ,(fh:pointer (fh:pointer int8)))
-          `(meas ,(bs:vector 10 spice_mea_t-desc))
-          `(tv ,(bs:vector 2 double)))))
-(define-fh-compound-type spice_t spice_t-desc spice_t? make-spice_t)
-(export spice_t spice_t? make-spice_t)
-(define-public spice_t*-desc
-  (fh:pointer spice_t-desc))
-(define-fh-pointer-type spice_t* spice_t*-desc spice_t*? make-spice_t*)
-(export spice_t* spice_t*? make-spice_t*)
-(fh-ref<=>deref!
-  spice_t*
-  make-spice_t*
-  spice_t
-  make-spice_t)
-(define-public struct-spice-desc spice_t-desc)
-(define-fh-compound-type struct-spice struct-spice-desc struct-spice? 
- make-struct-spice)
-(export struct-spice struct-spice? make-struct-spice)
-(define-public struct-spice*-desc spice_t*-desc)
-(define-fh-pointer-type struct-spice* struct-spice*-desc struct-spice*? 
- make-struct-spice*)
-(export struct-spice* struct-spice*? make-struct-spice*)
-(fh-ref<=>deref!
-  struct-spice*
-  make-struct-spice*
-  struct-spice
-  make-struct-spice)
+(define-public spice_t
+  (name-ctype
+    'spice_t
+    (cstruct
+      (list `(hdl ,(cpointer 'void))
+            `(dt_ns ,(cbase 'int))
+            `(evt ,tmevt_t*)
+            `(nadc ,(cbase 'int))
+            `(adc_names ,(cpointer (cpointer (cbase 'char))))
+            `(adcs ,(carray spice_adc_t 10))
+            `(ndac ,(cbase 'int))
+            `(dac_names ,(cpointer (cpointer (cbase 'char))))
+            `(dacs ,(carray spice_dac_t 10))
+            `(nmea ,(cbase 'int))
+            `(mea_names ,(cpointer (cpointer (cbase 'char))))
+            `(meas ,(carray spice_mea_t 10))
+            `(tv ,(carray (cbase 'double) 2))))))
+(define-public spice_t*
+  (name-ctype 'spice_t* (cpointer spice_t)))
+(define-public struct-spice
+  (name-ctype 'struct-spice spice_t))
+(define-public struct-spice*
+  (name-ctype 'struct-spice* spice_t*))
 
 ;; void spice_init(spice_t *, struct tmsch *clk, int argc, char **argv);
-(define spice_init
-  (let ((~spice_init
-          (delay (fh-link-proc
-                   ffi:void
-                   "spice_init"
-                   (list ffi-void* ffi-void* ffi:int ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public spice_init
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "spice_init")
+                        (list '* '* ffi:int '*)))))
     (lambda (arg0 clk argc argv)
-      (let ((~arg0 ((fht-unwrap spice_t*) arg0))
-            (~clk ((fht-unwrap struct-tmsch*) clk))
-            (~argc (unwrap~fixed argc))
-            (~argv (unwrap~pointer argv)))
-        ((force ~spice_init) ~arg0 ~clk ~argc ~argv)))))
-(export spice_init)
+      (let ((arg0 (unwrap-pointer arg0))
+            (clk (unwrap-pointer clk))
+            (argc (unwrap-number argc))
+            (argv (unwrap-pointer argv)))
+        ((force ~proc) arg0 clk argc argv)))))
 
 ;; void spice_fini(spice_t *);
-(define spice_fini
-  (let ((~spice_fini
-          (delay (fh-link-proc
-                   ffi:void
-                   "spice_fini"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public spice_fini
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "spice_fini")
+                        (list '*)))))
     (lambda (arg0)
-      (let ((~arg0 ((fht-unwrap spice_t*) arg0)))
-        ((force ~spice_fini) ~arg0)))))
-(export spice_fini)
+      (let ((arg0 (unwrap-pointer arg0)))
+        ((force ~proc) arg0)))))
 
 ;; typedef enum {
 ;;   OCT_T_NONE,
@@ -191,26 +127,21 @@
 ;;   OCT_T_CIR,
 ;;   OCT_T__MAX,
 ;; } devtype_t;
-(define devtype_t-enum-nvl
-  '((OCT_T_NONE . 0)
-    (OCT_T_MCU . 1)
-    (OCT_T_BUS . 2)
-    (OCT_T_OSC . 3)
-    (OCT_T_CIR . 4)
-    (OCT_T__MAX . 5))
-  )
-(define devtype_t-enum-vnl
-  (map (lambda (pair) (cons (cdr pair) (car pair)))
-       devtype_t-enum-nvl))
-(define-public (unwrap-devtype_t n)
-  (cond
-   ((symbol? n)
-    (or (assq-ref devtype_t-enum-nvl n)
-        (throw 'ffi-help-error "bad arg: ~A" n)))
-   ((integer? n) n)
-   (else (error "bad arg"))))
-(define-public (wrap-devtype_t v)
-  (assq-ref devtype_t-enum-vnl v))
+(define-public devtype_t
+  (name-ctype
+    'devtype_t
+    (cenum '((OCT_T_NONE 0)
+             (OCT_T_MCU 1)
+             (OCT_T_BUS 2)
+             (OCT_T_OSC 3)
+             (OCT_T_CIR 4)
+             (OCT_T__MAX 5)))))
+(define-public unwrap-devtype_t
+  (let ((vald (cenum-vald (ctype-info devtype_t))))
+    (lambda (arg) (or (assq-ref vald arg) arg))))
+(define-public wrap-devtype_t
+  (let ((symd (cenum-symd (ctype-info devtype_t))))
+    (lambda (arg) (or (assq-ref symd arg) arg))))
 
 ;; typedef struct device {
 ;;   struct {
@@ -221,42 +152,25 @@
 ;;   devtype_t type;
 ;;   void *guts;
 ;; } device_t;
-(define-public device_t-desc
-  (bs:struct
-    (list `(n ,(bs:struct
-                 (list `(next ,(fh:pointer 'void))
-                       `(prev ,(fh:pointer 'void)))))
-          `(a ,(bs:struct
-                 (list `(next ,(fh:pointer 'void))
-                       `(prev ,(fh:pointer 'void)))))
-          `(name ,(fh:pointer int8))
-          `(type ,int)
-          `(guts ,(fh:pointer 'void)))))
-(define-fh-compound-type device_t device_t-desc device_t? make-device_t)
-(export device_t device_t? make-device_t)
-(define-public device_t*-desc
-  (fh:pointer device_t-desc))
-(define-fh-pointer-type device_t* device_t*-desc device_t*? make-device_t*)
-(export device_t* device_t*? make-device_t*)
-(fh-ref<=>deref!
-  device_t*
-  make-device_t*
-  device_t
-  make-device_t)
-(define-public struct-device-desc device_t-desc)
-(define-fh-compound-type struct-device struct-device-desc struct-device? 
- make-struct-device)
-(export struct-device struct-device? make-struct-device)
-(define-public struct-device*-desc
-  device_t*-desc)
-(define-fh-pointer-type struct-device* struct-device*-desc struct-device*? 
- make-struct-device*)
-(export struct-device* struct-device*? make-struct-device*)
-(fh-ref<=>deref!
-  struct-device*
-  make-struct-device*
-  struct-device
-  make-struct-device)
+(define-public device_t
+  (name-ctype
+    'device_t
+    (cstruct
+      (list `(n ,(cstruct
+                   (list `(next ,(cpointer 'void))
+                         `(prev ,(cpointer 'void)))))
+            `(a ,(cstruct
+                   (list `(next ,(cpointer 'void))
+                         `(prev ,(cpointer 'void)))))
+            `(name ,(cpointer (cbase 'char)))
+            `(type ,devtype_t)
+            `(guts ,(cpointer 'void))))))
+(define-public device_t*
+  (name-ctype 'device_t* (cpointer device_t)))
+(define-public struct-device
+  (name-ctype 'struct-device device_t))
+(define-public struct-device*
+  (name-ctype 'struct-device* device_t*))
 
 ;; struct env {
 ;;   tmsch_t clk;
@@ -267,183 +181,141 @@
 ;;   device_t a_htab[0x1000];
 ;;   spice_t spice;
 ;; };
-(define-public struct-env-desc
-  (bs:struct
-    (list `(clk ,tmsch_t-desc)
-          `(flag ,(bs:struct (list `(use_spice ,unsigned-int 1))))
-          `(n_htab ,(bs:vector 31 device_t-desc))
-          `(a_htab ,(bs:vector 4096 device_t-desc))
-          `(spice ,spice_t-desc))))
-(define-fh-compound-type struct-env struct-env-desc struct-env? 
- make-struct-env)
-(export struct-env struct-env? make-struct-env)
-(define-public struct-env*-desc
-  (fh:pointer struct-env-desc))
-(define-fh-pointer-type struct-env* struct-env*-desc struct-env*? 
- make-struct-env*)
-(export struct-env* struct-env*? make-struct-env*)
-(fh-ref<=>deref!
-  struct-env*
-  make-struct-env*
-  struct-env
-  make-struct-env)
+(define-public struct-env
+  (name-ctype
+    'struct-env
+    (cstruct
+      (list `(clk ,tmsch_t)
+            `(flag ,(cstruct
+                      (list `(use_spice ,(cbase 'unsigned) 1))))
+            `(n_htab ,(carray device_t 31))
+            `(a_htab ,(carray device_t 4096))
+            `(spice ,spice_t)))))
+(define-public struct-env*
+  (name-ctype 'struct-env* (cpointer struct-env)))
 
 ;; typedef struct env sys_t;
-(define-public sys_t-desc struct-env-desc)
-(define-public sys_t*-desc struct-env*-desc)
-(define-fh-compound-type sys_t sys_t-desc sys_t? make-sys_t)
-(export sys_t sys_t? make-sys_t)
-(define-fh-pointer-type sys_t* sys_t*-desc sys_t*? make-sys_t*)
-(export sys_t* sys_t*? make-sys_t*)
+(define-public sys_t
+  (name-ctype 'sys_t struct-env))
+(define-public sys_t*
+  (name-ctype 'sys_t* struct-env*))
 
 ;; sys_t *make_sys(int argc, char **argv);
-(define make_sys
-  (let ((~make_sys
-          (delay (fh-link-proc
-                   ffi-void*
-                   "make_sys"
-                   (list ffi:int ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public make_sys
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "make_sys")
+                        (list ffi:int '*)))))
     (lambda (argc argv)
-      (let ((~argc (unwrap~fixed argc))
-            (~argv (unwrap~pointer argv)))
-        ((fht-wrap sys_t*)
-         ((force ~make_sys) ~argc ~argv))))))
-(export make_sys)
+      (let ((argc (unwrap-number argc))
+            (argv (unwrap-pointer argv)))
+        ((lambda (~ret) (make-cdata sys_t* ~ret))
+         ((force ~proc) argc argv))))))
 
 ;; void sys_init(sys_t *sys, int argc, char **argv);
-(define sys_init
-  (let ((~sys_init
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_init"
-                   (list ffi-void* ffi:int ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_init
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_init")
+                        (list '* ffi:int '*)))))
     (lambda (sys argc argv)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~argc (unwrap~fixed argc))
-            (~argv (unwrap~pointer argv)))
-        ((force ~sys_init) ~sys ~argc ~argv)))))
-(export sys_init)
+      (let ((sys (unwrap-pointer sys))
+            (argc (unwrap-number argc))
+            (argv (unwrap-pointer argv)))
+        ((force ~proc) sys argc argv)))))
 
 ;; void sys_fini(sys_t *sys);
-(define sys_fini
-  (let ((~sys_fini
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_fini"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_fini
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_fini")
+                        (list '*)))))
     (lambda (sys)
-      (let ((~sys ((fht-unwrap sys_t*) sys)))
-        ((force ~sys_fini) ~sys)))))
-(export sys_fini)
+      (let ((sys (unwrap-pointer sys)))
+        ((force ~proc) sys)))))
 
 ;; device_t *dev_insert(sys_t *sys, char *name, devtype_t type, void *dev);
-(define dev_insert
-  (let ((~dev_insert
-          (delay (fh-link-proc
-                   ffi-void*
-                   "dev_insert"
-                   (list ffi-void* ffi-void* ffi:int ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public dev_insert
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "dev_insert")
+                        (list '* '* ffi:int '*)))))
     (lambda (sys name type dev)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~name (unwrap~pointer name))
-            (~type (unwrap-devtype_t type))
-            (~dev (unwrap~pointer dev)))
-        ((fht-wrap device_t*)
-         ((force ~dev_insert) ~sys ~name ~type ~dev))))))
-(export dev_insert)
+      (let ((sys (unwrap-pointer sys))
+            (name (unwrap-pointer name))
+            (type (unwrap~enum type))
+            (dev (unwrap-pointer dev)))
+        ((lambda (~ret) (make-cdata device_t* ~ret))
+         ((force ~proc) sys name type dev))))))
 
 ;; device_t *dev_lookup_byname(sys_t *sys, char *name);
-(define dev_lookup_byname
-  (let ((~dev_lookup_byname
-          (delay (fh-link-proc
-                   ffi-void*
-                   "dev_lookup_byname"
-                   (list ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public dev_lookup_byname
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "dev_lookup_byname")
+                        (list '* '*)))))
     (lambda (sys name)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~name (unwrap~pointer name)))
-        ((fht-wrap device_t*)
-         ((force ~dev_lookup_byname) ~sys ~name))))))
-(export dev_lookup_byname)
+      (let ((sys (unwrap-pointer sys))
+            (name (unwrap-pointer name)))
+        ((lambda (~ret) (make-cdata device_t* ~ret))
+         ((force ~proc) sys name))))))
 
 ;; device_t *dev_lookup_byaddr(sys_t *sys, void *addr);
-(define dev_lookup_byaddr
-  (let ((~dev_lookup_byaddr
-          (delay (fh-link-proc
-                   ffi-void*
-                   "dev_lookup_byaddr"
-                   (list ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public dev_lookup_byaddr
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "dev_lookup_byaddr")
+                        (list '* '*)))))
     (lambda (sys addr)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~addr (unwrap~pointer addr)))
-        ((fht-wrap device_t*)
-         ((force ~dev_lookup_byaddr) ~sys ~addr))))))
-(export dev_lookup_byaddr)
+      (let ((sys (unwrap-pointer sys))
+            (addr (unwrap-pointer addr)))
+        ((lambda (~ret) (make-cdata device_t* ~ret))
+         ((force ~proc) sys addr))))))
 
 ;; char *dev_name(device_t *dev);
-(define dev_name
-  (let ((~dev_name
-          (delay (fh-link-proc
-                   ffi-void*
-                   "dev_name"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public dev_name
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "dev_name")
+                        (list '*)))))
     (lambda (dev)
-      (let ((~dev ((fht-unwrap device_t*) dev)))
-        ((force ~dev_name) ~dev)))))
-(export dev_name)
+      (let ((dev (unwrap-pointer dev)))
+        ((force ~proc) dev)))))
 
 ;; int dev_type(device_t *dev);
-(define dev_type
-  (let ((~dev_type
-          (delay (fh-link-proc
-                   ffi:int
-                   "dev_type"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public dev_type
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:int
+                        (foreign-pointer-search "dev_type")
+                        (list '*)))))
     (lambda (dev)
-      (let ((~dev ((fht-unwrap device_t*) dev)))
-        ((force ~dev_type) ~dev)))))
-(export dev_type)
+      (let ((dev (unwrap-pointer dev)))
+        ((force ~proc) dev)))))
 
 ;; void *dev_guts(device_t *dev);
-(define dev_guts
-  (let ((~dev_guts
-          (delay (fh-link-proc
-                   ffi-void*
-                   "dev_guts"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public dev_guts
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "dev_guts")
+                        (list '*)))))
     (lambda (dev)
-      (let ((~dev ((fht-unwrap device_t*) dev)))
-        ((force ~dev_guts) ~dev)))))
-(export dev_guts)
+      (let ((dev (unwrap-pointer dev)))
+        ((force ~proc) dev)))))
 
 ;; typedef enum {
 ;;   BUS_LEV_LOW = 0,
 ;;   BUS_LEV_HI = 1,
 ;; } buslev_t;
-(define buslev_t-enum-nvl
-  '((BUS_LEV_LOW . 0) (BUS_LEV_HI . 1))
-  )
-(define buslev_t-enum-vnl
-  (map (lambda (pair) (cons (cdr pair) (car pair)))
-       buslev_t-enum-nvl))
-(define-public (unwrap-buslev_t n)
-  (cond
-   ((symbol? n)
-    (or (assq-ref buslev_t-enum-nvl n)
-        (throw 'ffi-help-error "bad arg: ~A" n)))
-   ((integer? n) n)
-   (else (error "bad arg"))))
-(define-public (wrap-buslev_t v)
-  (assq-ref buslev_t-enum-vnl v))
+(define-public buslev_t
+  (name-ctype
+    'buslev_t
+    (cenum '((BUS_LEV_LOW 0) (BUS_LEV_HI 1)))))
+(define-public unwrap-buslev_t
+  (let ((vald (cenum-vald (ctype-info buslev_t))))
+    (lambda (arg) (or (assq-ref vald arg) arg))))
+(define-public wrap-buslev_t
+  (let ((symd (cenum-symd (ctype-info buslev_t))))
+    (lambda (arg) (or (assq-ref symd arg) arg))))
 
 ;; typedef struct bus {
 ;;   tmsch_t *tmsch;
@@ -454,366 +326,284 @@
 ;;   uint32_t t_fall_ns;
 ;;   tmevt_t *relevel_act;
 ;; } bus_t;
-(define-public bus_t-desc
-  (bs:struct
-    (list `(tmsch ,tmsch_t*-desc)
-          `(npin ,int)
-          `(pins ,(bs:vector 4 iopin_t*-desc))
-          `(lev ,int)
-          `(t_rise_ns ,uint32)
-          `(t_fall_ns ,uint32)
-          `(relevel_act ,tmevt_t*-desc))))
-(define-fh-compound-type bus_t bus_t-desc bus_t? make-bus_t)
-(export bus_t bus_t? make-bus_t)
-(define-public bus_t*-desc
-  (fh:pointer bus_t-desc))
-(define-fh-pointer-type bus_t* bus_t*-desc bus_t*? make-bus_t*)
-(export bus_t* bus_t*? make-bus_t*)
-(fh-ref<=>deref!
-  bus_t*
-  make-bus_t*
-  bus_t
-  make-bus_t)
-(define-public struct-bus-desc bus_t-desc)
-(define-fh-compound-type struct-bus struct-bus-desc struct-bus? 
- make-struct-bus)
-(export struct-bus struct-bus? make-struct-bus)
-(define-public struct-bus*-desc bus_t*-desc)
-(define-fh-pointer-type struct-bus* struct-bus*-desc struct-bus*? 
- make-struct-bus*)
-(export struct-bus* struct-bus*? make-struct-bus*)
-(fh-ref<=>deref!
-  struct-bus*
-  make-struct-bus*
-  struct-bus
-  make-struct-bus)
+(define-public bus_t
+  (name-ctype
+    'bus_t
+    (cstruct
+      (list `(tmsch ,tmsch_t*)
+            `(npin ,(cbase 'int))
+            `(pins ,(carray iopin_t* 4))
+            `(lev ,(cbase 'int))
+            `(t_rise_ns ,(cbase 'uint32_t))
+            `(t_fall_ns ,(cbase 'uint32_t))
+            `(relevel_act ,tmevt_t*)))))
+(define-public bus_t*
+  (name-ctype 'bus_t* (cpointer bus_t)))
+(define-public struct-bus
+  (name-ctype 'struct-bus bus_t))
+(define-public struct-bus*
+  (name-ctype 'struct-bus* bus_t*))
 
 ;; bus_t *make_bus(tmsch_t *sch);
-(define make_bus
-  (let ((~make_bus
-          (delay (fh-link-proc
-                   ffi-void*
-                   "make_bus"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public make_bus
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "make_bus")
+                        (list '*)))))
     (lambda (sch)
-      (let ((~sch ((fht-unwrap tmsch_t*) sch)))
-        ((fht-wrap bus_t*) ((force ~make_bus) ~sch))))))
-(export make_bus)
+      (let ((sch (unwrap-pointer sch)))
+        ((lambda (~ret) (make-cdata bus_t* ~ret))
+         ((force ~proc) sch))))))
 
 ;; void bus_relevel(bus_t *bus);
-(define bus_relevel
-  (let ((~bus_relevel
-          (delay (fh-link-proc
-                   ffi:void
-                   "bus_relevel"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public bus_relevel
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "bus_relevel")
+                        (list '*)))))
     (lambda (bus)
-      (let ((~bus ((fht-unwrap bus_t*) bus)))
-        ((force ~bus_relevel) ~bus)))))
-(export bus_relevel)
+      (let ((bus (unwrap-pointer bus)))
+        ((force ~proc) bus)))))
 
 ;; void bus_conn_to_pin(bus_t *bus, iopin_t *pin);
-(define bus_conn_to_pin
-  (let ((~bus_conn_to_pin
-          (delay (fh-link-proc
-                   ffi:void
-                   "bus_conn_to_pin"
-                   (list ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public bus_conn_to_pin
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "bus_conn_to_pin")
+                        (list '* '*)))))
     (lambda (bus pin)
-      (let ((~bus ((fht-unwrap bus_t*) bus))
-            (~pin ((fht-unwrap iopin_t*) pin)))
-        ((force ~bus_conn_to_pin) ~bus ~pin)))))
-(export bus_conn_to_pin)
+      (let ((bus (unwrap-pointer bus))
+            (pin (unwrap-pointer pin)))
+        ((force ~proc) bus pin)))))
 
 ;; void bus_pin_changed(void *tgt, struct iopin *pin, int op, int arg);
-(define bus_pin_changed
-  (let ((~bus_pin_changed
-          (delay (fh-link-proc
-                   ffi:void
-                   "bus_pin_changed"
-                   (list ffi-void* ffi-void* ffi:int ffi:int)
-                   (force ffi-octsx-llibs)))))
+(define-public bus_pin_changed
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "bus_pin_changed")
+                        (list '* '* ffi:int ffi:int)))))
     (lambda (tgt pin op arg)
-      (let ((~tgt (unwrap~pointer tgt))
-            (~pin ((fht-unwrap struct-iopin*) pin))
-            (~op (unwrap~fixed op))
-            (~arg (unwrap~fixed arg)))
-        ((force ~bus_pin_changed) ~tgt ~pin ~op ~arg)))))
-(export bus_pin_changed)
+      (let ((tgt (unwrap-pointer tgt))
+            (pin (unwrap-pointer pin))
+            (op (unwrap-number op))
+            (arg (unwrap-number arg)))
+        ((force ~proc) tgt pin op arg)))))
 
 ;; mcu_t *make_mcu(tmsch_t *tmsch, char *dev, char *code);
-(define make_mcu
-  (let ((~make_mcu
-          (delay (fh-link-proc
-                   ffi-void*
-                   "make_mcu"
-                   (list ffi-void* ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public make_mcu
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "make_mcu")
+                        (list '* '* '*)))))
     (lambda (tmsch dev code)
-      (let ((~tmsch ((fht-unwrap tmsch_t*) tmsch))
-            (~dev (unwrap~pointer dev))
-            (~code (unwrap~pointer code)))
-        ((fht-wrap mcu_t*)
-         ((force ~make_mcu) ~tmsch ~dev ~code))))))
-(export make_mcu)
+      (let ((tmsch (unwrap-pointer tmsch))
+            (dev (unwrap-pointer dev))
+            (code (unwrap-pointer code)))
+        ((lambda (~ret) (make-cdata mcu_t* ~ret))
+         ((force ~proc) tmsch dev code))))))
 
 ;; cpu_t *get_mcu_cpu(mcu_t *mcu);
-(define get_mcu_cpu
-  (let ((~get_mcu_cpu
-          (delay (fh-link-proc
-                   ffi-void*
-                   "get_mcu_cpu"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public get_mcu_cpu
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "get_mcu_cpu")
+                        (list '*)))))
     (lambda (mcu)
-      (let ((~mcu ((fht-unwrap mcu_t*) mcu)))
-        ((fht-wrap cpu_t*) ((force ~get_mcu_cpu) ~mcu))))))
-(export get_mcu_cpu)
+      (let ((mcu (unwrap-pointer mcu)))
+        ((lambda (~ret) (make-cdata cpu_t* ~ret))
+         ((force ~proc) mcu))))))
 
 ;; tmsch_t *sys_tmsch(sys_t *sys);
-(define sys_tmsch
-  (let ((~sys_tmsch
-          (delay (fh-link-proc
-                   ffi-void*
-                   "sys_tmsch"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_tmsch
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "sys_tmsch")
+                        (list '*)))))
     (lambda (sys)
-      (let ((~sys ((fht-unwrap sys_t*) sys)))
-        ((fht-wrap tmsch_t*) ((force ~sys_tmsch) ~sys))))))
-(export sys_tmsch)
+      (let ((sys (unwrap-pointer sys)))
+        ((lambda (~ret) (make-cdata tmsch_t* ~ret))
+         ((force ~proc) sys))))))
 
 ;; tkclk_t *sys_cpu_clk(sys_t *sys);
-(define sys_cpu_clk
-  (let ((~sys_cpu_clk
-          (delay (fh-link-proc
-                   ffi-void*
-                   "sys_cpu_clk"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_cpu_clk
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "sys_cpu_clk")
+                        (list '*)))))
     (lambda (sys)
-      (let ((~sys ((fht-unwrap sys_t*) sys)))
-        ((fht-wrap tkclk_t*) ((force ~sys_cpu_clk) ~sys))))))
-(export sys_cpu_clk)
+      (let ((sys (unwrap-pointer sys)))
+        ((lambda (~ret) (make-cdata tkclk_t* ~ret))
+         ((force ~proc) sys))))))
 
 ;; tmsch_t *get_sys_clk(sys_t *sys);
-(define get_sys_clk
-  (let ((~get_sys_clk
-          (delay (fh-link-proc
-                   ffi-void*
-                   "get_sys_clk"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public get_sys_clk
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "get_sys_clk")
+                        (list '*)))))
     (lambda (sys)
-      (let ((~sys ((fht-unwrap sys_t*) sys)))
-        ((fht-wrap tmsch_t*) ((force ~get_sys_clk) ~sys))))))
-(export get_sys_clk)
+      (let ((sys (unwrap-pointer sys)))
+        ((lambda (~ret) (make-cdata tmsch_t* ~ret))
+         ((force ~proc) sys))))))
 
 ;; simtime_t get_simtime(sys_t *sys);
-(define get_simtime
-  (let ((~get_simtime
-          (delay (fh-link-proc
-                   (list ffi:int32 ffi:int32)
-                   "get_simtime"
-                   (list ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public get_simtime
+  (let ((~proc (delay (ffi:pointer->procedure
+                        (list ffi:int32 ffi:int32)
+                        (foreign-pointer-search "get_simtime")
+                        (list '*)))))
     (lambda (sys)
-      (let ((~sys ((fht-unwrap sys_t*) sys)))
-        ((fht-wrap simtime_t)
-         ((force ~get_simtime) ~sys))))))
-(export get_simtime)
+      (let ((sys (unwrap-pointer sys)))
+        ((lambda (~ret) (make-cdata simtime_t ~ret))
+         ((force ~proc) sys))))))
 
 ;; void get_simtime_tp(sys_t *sys, simtime_t *tp);
-(define get_simtime_tp
-  (let ((~get_simtime_tp
-          (delay (fh-link-proc
-                   ffi:void
-                   "get_simtime_tp"
-                   (list ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public get_simtime_tp
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "get_simtime_tp")
+                        (list '* '*)))))
     (lambda (sys tp)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~tp ((fht-unwrap simtime_t*) tp)))
-        ((force ~get_simtime_tp) ~sys ~tp)))))
-(export get_simtime_tp)
+      (let ((sys (unwrap-pointer sys))
+            (tp (unwrap-pointer tp)))
+        ((force ~proc) sys tp)))))
 
 ;; void sys_run_to(sys_t *sys, simtime_t to);
-(define sys_run_to
-  (let ((~sys_run_to
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_to"
-                   (list ffi-void* (list ffi:int32 ffi:int32))
-                   (force ffi-octsx-llibs)))))
+(define-public sys_run_to
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_run_to")
+                        (list '* (list ffi:int32 ffi:int32))))))
     (lambda (sys to)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~to ((fht-unwrap simtime_t) to)))
-        ((force ~sys_run_to) ~sys ~to)))))
-(export sys_run_to)
+      (let ((sys (unwrap-pointer sys)))
+        ((force ~proc) sys to)))))
 
 ;; void sys_run_ns(sys_t *sys, long ns);
-(define sys_run_ns
-  (let ((~sys_run_ns
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_ns"
-                   (list ffi-void* ffi:long)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_run_ns
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_run_ns")
+                        (list '* ffi:long)))))
     (lambda (sys ns)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~ns (unwrap~fixed ns)))
-        ((force ~sys_run_ns) ~sys ~ns)))))
-(export sys_run_ns)
+      (let ((sys (unwrap-pointer sys))
+            (ns (unwrap-number ns)))
+        ((force ~proc) sys ns)))))
 
 ;; void sys_run_sns(sys_t *sys, long s, long ns);
-(define sys_run_sns
-  (let ((~sys_run_sns
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_sns"
-                   (list ffi-void* ffi:long ffi:long)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_run_sns
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_run_sns")
+                        (list '* ffi:long ffi:long)))))
     (lambda (sys s ns)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~s (unwrap~fixed s))
-            (~ns (unwrap~fixed ns)))
-        ((force ~sys_run_sns) ~sys ~s ~ns)))))
-(export sys_run_sns)
+      (let ((sys (unwrap-pointer sys))
+            (s (unwrap-number s))
+            (ns (unwrap-number ns)))
+        ((force ~proc) sys s ns)))))
 
 ;; void sys_run_sus(sys_t *sys, long s, long us);
-(define sys_run_sus
-  (let ((~sys_run_sus
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_sus"
-                   (list ffi-void* ffi:long ffi:long)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_run_sus
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_run_sus")
+                        (list '* ffi:long ffi:long)))))
     (lambda (sys s us)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~s (unwrap~fixed s))
-            (~us (unwrap~fixed us)))
-        ((force ~sys_run_sus) ~sys ~s ~us)))))
-(export sys_run_sus)
+      (let ((sys (unwrap-pointer sys))
+            (s (unwrap-number s))
+            (us (unwrap-number us)))
+        ((force ~proc) sys s us)))))
 
 ;; void sys_run_sms(sys_t *sys, long s, long ms);
-(define sys_run_sms
-  (let ((~sys_run_sms
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_sms"
-                   (list ffi-void* ffi:long ffi:long)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_run_sms
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_run_sms")
+                        (list '* ffi:long ffi:long)))))
     (lambda (sys s ms)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~s (unwrap~fixed s))
-            (~ms (unwrap~fixed ms)))
-        ((force ~sys_run_sms) ~sys ~s ~ms)))))
-(export sys_run_sms)
+      (let ((sys (unwrap-pointer sys))
+            (s (unwrap-number s))
+            (ms (unwrap-number ms)))
+        ((force ~proc) sys s ms)))))
 
 ;; void sys_run_to_cpu_addr(sys_t *sys, cpu_t *cpu, uint32_t pc);
-(define sys_run_to_cpu_addr
-  (let ((~sys_run_to_cpu_addr
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_to_cpu_addr"
-                   (list ffi-void* ffi-void* ffi:uint32)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_run_to_cpu_addr
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_run_to_cpu_addr")
+                        (list '* '* ffi:uint32)))))
     (lambda (sys cpu pc)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~cpu ((fht-unwrap cpu_t*) cpu))
-            (~pc (unwrap~fixed pc)))
-        ((force ~sys_run_to_cpu_addr) ~sys ~cpu ~pc)))))
-(export sys_run_to_cpu_addr)
+      (let ((sys (unwrap-pointer sys))
+            (cpu (unwrap-pointer cpu))
+            (pc (unwrap-number "uint32_t")))
+        ((force ~proc) sys cpu pc)))))
 
 ;; void sys_run_dt(sys_t *sys, float dt);
-(define sys_run_dt
-  (let ((~sys_run_dt
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_run_dt"
-                   (list ffi-void* ffi:float)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_run_dt
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_run_dt")
+                        (list '* ffi:float)))))
     (lambda (sys dt)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~dt (unwrap~float dt)))
-        ((force ~sys_run_dt) ~sys ~dt)))))
-(export sys_run_dt)
+      (let ((sys (unwrap-pointer sys))
+            (dt (unwrap-number dt)))
+        ((force ~proc) sys dt)))))
 
 ;; void sys_cont(sys_t *sys, cpu_t *cpu);
-(define sys_cont
-  (let ((~sys_cont
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_cont"
-                   (list ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_cont
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_cont")
+                        (list '* '*)))))
     (lambda (sys cpu)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~cpu ((fht-unwrap cpu_t*) cpu)))
-        ((force ~sys_cont) ~sys ~cpu)))))
-(export sys_cont)
+      (let ((sys (unwrap-pointer sys))
+            (cpu (unwrap-pointer cpu)))
+        ((force ~proc) sys cpu)))))
 
 ;; void sys_cpu_next(sys_t *sys, cpu_t *cpu, int n);
-(define sys_cpu_next
-  (let ((~sys_cpu_next
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_cpu_next"
-                   (list ffi-void* ffi-void* ffi:int)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_cpu_next
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_cpu_next")
+                        (list '* '* ffi:int)))))
     (lambda (sys cpu n)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~cpu ((fht-unwrap cpu_t*) cpu))
-            (~n (unwrap~fixed n)))
-        ((force ~sys_cpu_next) ~sys ~cpu ~n)))))
-(export sys_cpu_next)
+      (let ((sys (unwrap-pointer sys))
+            (cpu (unwrap-pointer cpu))
+            (n (unwrap-number n)))
+        ((force ~proc) sys cpu n)))))
 
 ;; void sys_cpu_step(sys_t *sys, cpu_t *cpu, int n);
-(define sys_cpu_step
-  (let ((~sys_cpu_step
-          (delay (fh-link-proc
-                   ffi:void
-                   "sys_cpu_step"
-                   (list ffi-void* ffi-void* ffi:int)
-                   (force ffi-octsx-llibs)))))
+(define-public sys_cpu_step
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "sys_cpu_step")
+                        (list '* '* ffi:int)))))
     (lambda (sys cpu n)
-      (let ((~sys ((fht-unwrap sys_t*) sys))
-            (~cpu ((fht-unwrap cpu_t*) cpu))
-            (~n (unwrap~fixed n)))
-        ((force ~sys_cpu_step) ~sys ~cpu ~n)))))
-(export sys_cpu_step)
+      (let ((sys (unwrap-pointer sys))
+            (cpu (unwrap-pointer cpu))
+            (n (unwrap-number n)))
+        ((force ~proc) sys cpu n)))))
 
 ;; iopin_t *mcu_pin_byname(mcu_t *mcu, char *name);
-(define mcu_pin_byname
-  (let ((~mcu_pin_byname
-          (delay (fh-link-proc
-                   ffi-void*
-                   "mcu_pin_byname"
-                   (list ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public mcu_pin_byname
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "mcu_pin_byname")
+                        (list '* '*)))))
     (lambda (mcu name)
-      (let ((~mcu ((fht-unwrap mcu_t*) mcu))
-            (~name (unwrap~pointer name)))
-        ((fht-wrap iopin_t*)
-         ((force ~mcu_pin_byname) ~mcu ~name))))))
-(export mcu_pin_byname)
+      (let ((mcu (unwrap-pointer mcu))
+            (name (unwrap-pointer name)))
+        ((lambda (~ret) (make-cdata iopin_t* ~ret))
+         ((force ~proc) mcu name))))))
 
 ;; void connect_nodes(iopin_t *a, iopin_t *b);
-(define connect_nodes
-  (let ((~connect_nodes
-          (delay (fh-link-proc
-                   ffi:void
-                   "connect_nodes"
-                   (list ffi-void* ffi-void*)
-                   (force ffi-octsx-llibs)))))
+(define-public connect_nodes
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "connect_nodes")
+                        (list '* '*)))))
     (lambda (a b)
-      (let ((~a ((fht-unwrap iopin_t*) a))
-            (~b ((fht-unwrap iopin_t*) b)))
-        ((force ~connect_nodes) ~a ~b)))))
-(export connect_nodes)
+      (let ((a (unwrap-pointer a)) (b (unwrap-pointer b)))
+        ((force ~proc) a b)))))
 
 ;; access to enum symbols and #define'd constants:
 (define ffi-octsx-symbol-tab
@@ -845,18 +635,21 @@
         (ffi-octbx-symbol-val k))))
 (export ffi-octsx-symbol-val)
 
-(define (unwrap-enum obj)
-  (cond ((number? obj) obj)
-        ((symbol? obj) (ffi-octsx-symbol-val obj))
-        ((fh-object? obj) (struct-ref obj 0))
+(define (unwrap~enum arg)
+  (cond ((number? arg) arg)
+        ((symbol? arg) (ffi-octsx-symbol-val arg))
+        ((cdata? arg) (cdata-ref arg))
         (else (error "type mismatch"))))
 
 (define ffi-octsx-types
-  '((struct . "spice_dac") (pointer . "spice_dac_t") "spice_dac_t" (struct . 
+  '((pointer struct . "spice_dac") (struct . "spice_dac") (pointer . 
+    "spice_dac_t") "spice_dac_t" (pointer struct . "spice_adc") (struct . 
     "spice_adc") (pointer . "spice_adc_t") "spice_adc_t" "spice_mea_t" 
-    (struct . "spice") (pointer . "spice_t") "spice_t" (struct . "device") 
-    (pointer . "device_t") "device_t" (struct . "env") (pointer . "sys_t") 
-    "sys_t" (struct . "bus") (pointer . "bus_t") "bus_t"))
+    (pointer . "spice_mea_t") (pointer struct . "spice") (struct . "spice") 
+    (pointer . "spice_t") "spice_t" "devtype_t" (pointer struct . "device") 
+    (struct . "device") (pointer . "device_t") "device_t" (struct . "env") 
+    (pointer . "sys_t") "sys_t" "buslev_t" (pointer struct . "bus") (struct . 
+    "bus") (pointer . "bus_t") "bus_t"))
 (export ffi-octsx-types)
 
 ;; --- last line ---

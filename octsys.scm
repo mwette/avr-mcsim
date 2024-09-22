@@ -19,18 +19,17 @@
             
             dev-name dev-guts
             make-bus bus? bus-relevel bus-conn-to-pin
-            fh-ref
             )
   
   #:use-module (rnrs bytevectors)
+  #:use-module (system foreign)
+  #:use-module (system foreign-library)
+  #:use-module (nyacc foreign cdata)
   #:use-module ((ffi octbx) #:prefix oct:)
-  #:use-module ((ffi octsx) #:prefix oct:)
-  #:use-module (ffi ffi-help-rt)
-  #:use-module ((system foreign) #:prefix ffi:))
+  #:use-module ((ffi octsx) #:prefix oct:))
 
-(define lbx (dynamic-link "liboctbx"))
-(define lsx (dynamic-link "liboctsx"))
-
+(define lbx (load-foreign-library "liboctbx" #:search-path '(".")))
+(define lsx (load-foreign-library "liboctsx" #:search-path '(".")))
 
 (define (sf fmt . args) (apply simple-format #t fmt args))
 (use-modules (ice-9 format))
@@ -42,7 +41,7 @@
 
 (define-public (echo obj) (display obj) (newline))
 (define-public (echo-cpu obj)
-  (let ((cpu (oct:make-cpu_t* obj)))
+  (let ((cpu (make-cdata oct:cpu_t* obj)))
     (sf "echo-cpu called\n")
     (cpu-disp cpu)
     (sf "---\n")))
@@ -57,29 +56,26 @@
 (define hook-tab (make-hash-table))
 (define-syntax expose-hook
   (lambda (x)
-    (define (c2s str) (string-map (lambda (c) (if (char=? c #\_) #\- c)) str))
     (define (s2c str) (string-map (lambda (c) (if (char=? c #\-) #\_ c)) str))
     (syntax-case x ()
-      ((_ name arg) ;; arg is actually arg-type or param-type or pt
+      ((_ name type)
        (let* ((c-name (s2c (symbol->string (syntax->datum #'name)))))
          #`(begin
              (define-public #,(gen-id #'name "add-" #'name "-hook!")
                (let* ((n #,(gen-str "add_" c-name "_hook"))
-                      (f (ffi:pointer->procedure
-                          ffi:void (dynamic-func n lbx) (list '*))))
+                      (add (foreign-library-function lbx n #:arg-types '(*))))
                  (lambda (proc)
-                   (define (wrapped-proc obj) (proc ((fht-wrap arg) obj)))
-                   (hash-set! hook-tab proc wrapped-proc)
-                   (f (ffi:procedure->pointer
-                       ffi:void wrapped-proc (list '*))))))
+                   (let* ((w-proc (lambda (obj) (proc ((make-cdata type) obj))))
+                          (w-pptr (procedure->pointer void w-proc '(*))))
+                     (hash-set! hook-tab proc w-proc)
+                     (add w-pptr)))))
              (define-public #,(gen-id #'name "rem-" #'name "-hook!")
                (let* ((n #,(gen-str "rem_" c-name "_hook"))
-                      (f (ffi:pointer->procedure
-                          ffi:void (dynamic-func n lbx) (list '*))))
+                      (rem (foreign-library-function lbx n #:arg-types '(*))))
                  (lambda (proc)
-                   (let ((wrapped-proc (hash-ref hook-tab proc)))
-                     (when wrapped-proc
-                       (f wrapped-proc)
+                   (let ((w-proc (hash-ref hook-tab proc)))
+                     (when w-proc
+                       (rem w-proc)
                        (hash-remove! hook-tab proc))))))))))))
 ;; ^ example:
 ;;   (expose-hook cpu-intr cpu_t*)
@@ -102,7 +98,7 @@
 (export %sys)
 
 (define (make-sys . args)
-  (let ((sys (oct:make_sys 0 ffi:%null-pointer)))
+  (let ((sys (oct:make_sys 0 %null-pointer)))
     (unless (%sys) (%sys sys))
     sys))
 
@@ -157,7 +153,7 @@
 ;; cpu-show-insn cpu pc (define cpu-show-insn cpu_show_insn)
 
 (define (insn-wsize insn cpu)
-  (oct:insn_wsize insn (fh-object-ref cpu 'vers)))
+  (oct:insn_wsize insn (cdata-ref cpu 'vers)))
 
 (define* (cpu-insn-wsize cpu #:optional insn)
   (let ((insn (or insn (oct:cpu_get_insn cpu))))
@@ -168,12 +164,12 @@
 
 (define-public get-simtime              ; guile ffi does not return structs
   (lambda* (#:optional sys)
-    (let ((t (oct:make-simtime_t)))
-      (oct:get_simtime_tp (or sys (%sys)) (pointer-to t))
+    (let ((t (make-cdata oct:simtime_t)))
+      (oct:get_simtime_tp (or sys (%sys)) (cdata& t))
       t)))
 
 (define-public sys-cont
-  (lambda* (sys #:optional (cpu ffi:%null-pointer)) (oct:sys_cont sys cpu)))
+  (lambda* (sys #:optional (cpu %null-pointer)) (oct:sys_cont sys cpu)))
 (define-public sys-cpu-next
   (lambda* (sys cpu #:optional (n 1)) (oct:sys_cpu_next sys cpu n)))
 (define-public sys-cpu-step
@@ -202,8 +198,8 @@
 
 ;; use to get back to gdb
 (define-public sys-dummy
-  (let ((~f (ffi:pointer->procedure
-             ffi:void (dynamic-func "sys_dummy" lsx) (list))))
+  (let ((~f (pointer->procedure
+             void (dynamic-func "sys_dummy" lsx) (list))))
     (lambda* () (~f))))
   
 
@@ -214,11 +210,11 @@
 (use-modules (sxml match))
 (use-modules (sxml xpath))
 
-(define (dev-name dev) (ffi:pointer->string (oct:dev_name dev)))
+(define (dev-name dev) (pointer->string (oct:dev_name dev)))
 (define dev-guts oct:dev_guts)
-(define sys? oct:sys_t*?)
-(define mcu? oct:mcu_t*?)
-(define bus? oct:bus_t*?)
+(define (sys? data) (eq? oct:sys_t* (cdata-ct data)))
+(define (mcu? data) (eq? oct:mcu_t* (cdata-ct data)))
+(define (bus? data) (eq? oct:bus_t* (cdata-ct data)))
 
 (define make-bus oct:make_bus)
 (define bus-relevel oct:bus_relevel)
@@ -242,13 +238,13 @@
 
 (define* (dev-lookup name #:optional sys)
   (let* ((dev (oct:dev_lookup_byname (or sys (%sys) name) name))
-         (dev (if (eqv? ffi:%null-pointer (fh-object-ref dev)) #f dev))
+         (dev (if (eqv? %null-pointer (cdata-ref dev)) #f dev))
          (guts (and dev (dev-guts dev))))
     (and dev
          (case (oct:dev_type dev)
            ((0) dev)
-           ((1) (oct:make-mcu_t* guts))
-           ((2) (oct:make-bus_t* guts))
+           ((1) (make-cdata oct:mcu_t* guts))
+           ((2) (make-cdata oct:bus_t* guts))
            ;;((3) (oct:make-osc_t* guts))
            (else #f)))))
 (export dev-lookup)
