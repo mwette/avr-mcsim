@@ -158,6 +158,11 @@
 
   % --- global -----------------------
 
+  \coordinate (SF1a) at ($(WFS.south)+(+0.5cm,-0.5cm)$);
+  \coordinate (SF1b) at ($(FLD.south)+(-0.5cm,-0.5cm)$);
+  \draw[->,rounded corners] (WFS.290) --(SF1a) --
+      node[above]{10:failure} (SF1b) -- (FLD.250);
+
   \iffalse        
   \coordinate (D2x) at ($(SE1)+(0,-0.1cm)$);
   \coordinate (D2y) at ($0.2*(D2x) + 0.8*(D2x -| FLD)$);
@@ -177,7 +182,7 @@
   \draw[->,rounded corners] (FLD) -- (FR2)
       -- node [above,pos=0.2] {9:reset} (FR1) -- (RDY);
   
-  \node (sig) [below=1cm of DR2,rectangle,draw] {\tiny MattRW v230319c};
+  \node (sig) [below=1cm of DR2,rectangle,draw] {\tiny MattRW v240929a};
 \end{tikzpicture}
 
 \iffalse
