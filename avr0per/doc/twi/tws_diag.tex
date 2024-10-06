@@ -45,7 +45,7 @@
 
   \node (WFS) [right=3.0cm of RDY,rounded corners=15pt,
     draw, minimum height=1.0cm, minimum width=2.0cm, thick]
-        {\parbox[c]{0.8in}{\centering{WAIT for STOP{ }$|$Sr}}};
+        {\parbox[c]{0.8in}{\centering{WAIT for STOP{ }$|$ Sr}}};
 
   \node (D3) [left=1.0cm of WFS,diamond,draw] {};
   \draw[->] (WFS) -- node [above] {6:intr} (D3);      
@@ -158,11 +158,18 @@
 
   % --- global -----------------------
 
+  \iffalse      
   \coordinate (SF1a) at ($(WFS.south)+(+0.5cm,-0.5cm)$);
   \coordinate (SF1b) at ($(FLD.south)+(-0.5cm,-0.5cm)$);
   \draw[->,rounded corners] (WFS.290) --(SF1a) --
       node[above]{10:failure} (SF1b) -- (FLD.250);
-
+  \else
+  \coordinate (SF1a) at ($(WFS.south)+(+.5cm,-1.0cm)$);
+  \node (SF1b) at ($(SF1a)+(+0.5cm,0)$) [,circle,draw,inner sep=0] {F};
+  \draw[->,rounded corners] (WFS.290) -- (SF1a)
+      node[right,pos=.5]{10:failure} -- (SF1b);
+  \fi
+      
   \iffalse        
   \coordinate (D2x) at ($(SE1)+(0,-0.1cm)$);
   \coordinate (D2y) at ($0.2*(D2x) + 0.8*(D2x -| FLD)$);
@@ -182,7 +189,7 @@
   \draw[->,rounded corners] (FLD) -- (FR2)
       -- node [above,pos=0.2] {9:reset} (FR1) -- (RDY);
   
-  \node (sig) [below=1cm of DR2,rectangle,draw] {\tiny MattRW v240929a};
+  \node (sig) [below=1cm of DR2,rectangle,draw] {\tiny MattRW v241006a};
 \end{tikzpicture}
 
 \iffalse
