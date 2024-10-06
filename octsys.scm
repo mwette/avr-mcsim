@@ -177,7 +177,7 @@
 
 (define-public sys-run-ns oct:sys_run_ns)
 (define-public (sys-run-us sys us) (oct:sys_run_ns sys (* 1000 us)))
-(define-public (sys-run-ms sys us) (oct:sys_run_ns sys (* 1000000 us)))
+(define-public (sys-run-ms sys ms) (oct:sys_run_ns sys (* 1000000 ms)))
 (define-public sys-run-sns oct:sys_run_sns)
 (define-public sys-run-sus oct:sys_run_sus)
 (define-public sys-run-sms oct:sys_run_sms)

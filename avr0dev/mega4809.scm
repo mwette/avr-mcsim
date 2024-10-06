@@ -1,21 +1,18 @@
-;; Copyright (C) 2020,2023 Matthew Wette
-;;
-;; This library is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU Lesser General Public
-;; License as published by the Free Software Foundation; either
-;; version 2.1 of the License, or (at your option) any later version.
-
 ;; generated with `guild compile-ffi avr0dev/mega4809.ffi'
 
 (define-module (avr0dev mega4809)
-  #:use-module (avr0per ffi)
-  #:use-module (octbx ffi)
-  #:use-module (system ffi-help-rt)
+  #:use-module (ffi avr0per)
+  #:use-module (ffi octbx)
   #:use-module ((system foreign) #:prefix ffi:)
-  #:use-module (bytestructures guile))
+  #:use-module (system foreign-library)
+  #:use-module (nyacc foreign cdata))
 
-(define avr0dev-mega4809-llibs
-  (delay (list (dynamic-link "mega4809"))))
+(define (foreign-pointer-search name)
+  (let loop ((libs (list #f "mega4809")))
+    (cond ((null? libs) (error "no library for ~s" name))
+          ((false-if-exception
+             (foreign-library-pointer (car libs) name)))
+          (else (loop (cdr libs))))))
 
 
 ;; typedef struct mega4809 {
@@ -47,219 +44,166 @@
 ;;   uint8_t data[0x4000]; /* I/O + 6KB SRAM */
 ;;   uint8_t onio[0x4000]; /* on I/O event map */
 ;; } mega4809_t;
-(define-public mega4809_t-desc
-  (bs:struct
-    (list `(base ,mcu_t-desc)
-          `(clkctrl ,clkctrl_t-desc)
-          `(adc0 ,adc_t-desc)
-          `(portA ,port_t-desc)
-          `(portB ,port_t-desc)
-          `(portC ,port_t-desc)
-          `(portD ,port_t-desc)
-          `(portE ,port_t-desc)
-          `(portF ,port_t-desc)
-          `(rstctrl ,rstctrl_t-desc)
-          `(slpctrl ,slpctrl_t-desc)
-          `(syscfg ,syscfg_t-desc)
-          `(tca0 ,tca_t-desc)
-          `(tcb0 ,tcb_t-desc)
-          `(tcb1 ,tcb_t-desc)
-          `(tcb2 ,tcb_t-desc)
-          `(tcb3 ,tcb_t-desc)
-          `(twi0 ,twi_t-desc)
-          `(usart0 ,usart_t-desc)
-          `(usart1 ,usart_t-desc)
-          `(usart2 ,usart_t-desc)
-          `(usart3 ,usart_t-desc)
-          `(wdt ,wdt_t-desc)
-          `(regs ,(bs:vector 32 uint8))
-          `(prog ,(bs:vector 24576 uint16))
-          `(data ,(bs:vector 16384 uint8))
-          `(onio ,(bs:vector 16384 uint8)))))
-(define-fh-compound-type mega4809_t mega4809_t-desc mega4809_t? 
- make-mega4809_t)
-(export mega4809_t mega4809_t? make-mega4809_t)
-(define-public mega4809_t*-desc
-  (fh:pointer mega4809_t-desc))
-(define-fh-pointer-type mega4809_t* mega4809_t*-desc mega4809_t*? 
- make-mega4809_t*)
-(export mega4809_t* mega4809_t*? make-mega4809_t*)
-(fh-ref<=>deref!
-  mega4809_t*
-  make-mega4809_t*
-  mega4809_t
-  make-mega4809_t)
-(define-public struct-mega4809-desc
-  mega4809_t-desc)
-(define-fh-compound-type struct-mega4809 struct-mega4809-desc struct-mega4809?
- make-struct-mega4809)
-(export struct-mega4809 struct-mega4809? make-struct-mega4809)
-(define-public struct-mega4809*-desc
-  mega4809_t*-desc)
-(define-fh-pointer-type struct-mega4809* struct-mega4809*-desc 
- struct-mega4809*? make-struct-mega4809*)
-(export struct-mega4809* struct-mega4809*? make-struct-mega4809*)
-(fh-ref<=>deref!
-  struct-mega4809*
-  make-struct-mega4809*
-  struct-mega4809
-  make-struct-mega4809)
+(define-public mega4809_t
+  (name-ctype
+    'mega4809_t
+    (cstruct
+      (list `(base ,mcu_t)
+            `(clkctrl ,clkctrl_t)
+            `(adc0 ,adc_t)
+            `(portA ,port_t)
+            `(portB ,port_t)
+            `(portC ,port_t)
+            `(portD ,port_t)
+            `(portE ,port_t)
+            `(portF ,port_t)
+            `(rstctrl ,rstctrl_t)
+            `(slpctrl ,slpctrl_t)
+            `(syscfg ,syscfg_t)
+            `(tca0 ,tca_t)
+            `(tcb0 ,tcb_t)
+            `(tcb1 ,tcb_t)
+            `(tcb2 ,tcb_t)
+            `(tcb3 ,tcb_t)
+            `(twi0 ,twi_t)
+            `(usart0 ,usart_t)
+            `(usart1 ,usart_t)
+            `(usart2 ,usart_t)
+            `(usart3 ,usart_t)
+            `(wdt ,wdt_t)
+            `(regs ,(carray (cbase 'uint8_t) 32))
+            `(prog ,(carray (cbase 'uint16_t) 24576))
+            `(data ,(carray (cbase 'uint8_t) 16384))
+            `(onio ,(carray (cbase 'uint8_t) 16384))))))
+(define-public mega4809_t*
+  (name-ctype 'mega4809_t* (cpointer mega4809_t)))
+(define-public struct-mega4809
+  (name-ctype 'struct-mega4809 mega4809_t))
+(define-public struct-mega4809*
+  (name-ctype 'struct-mega4809* mega4809_t*))
 
 ;; mcu_t *make_mega4809(tmsch_t *);
-(define make_mega4809
-  (let ((~make_mega4809
-          (delay (fh-link-proc
-                   ffi-void*
-                   "make_mega4809"
-                   (list ffi-void*)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public make_mega4809
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "make_mega4809")
+                        (list '*)))))
     (lambda (arg0)
-      (let ((~arg0 ((fht-unwrap tmsch_t*) arg0)))
-        ((fht-wrap mcu_t*)
-         ((force ~make_mega4809) ~arg0))))))
-(export make_mega4809)
+      (let ((arg0 (unwrap-pointer arg0)))
+        ((lambda (~ret) (make-cdata mcu_t* ~ret))
+         ((force ~proc) arg0))))))
 
 ;; void mega4809_init(void *_mcu, tmsch_t *tmsch);
-(define mega4809_init
-  (let ((~mega4809_init
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_init"
-                   (list ffi-void* ffi-void*)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_init
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_init")
+                        (list '* '*)))))
     (lambda (_mcu tmsch)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~tmsch ((fht-unwrap tmsch_t*) tmsch)))
-        ((force ~mega4809_init) ~_mcu ~tmsch)))))
-(export mega4809_init)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (tmsch (unwrap-pointer tmsch)))
+        ((force ~proc) _mcu tmsch)))))
 
 ;; void mega4809_fini(void *_mcu);
-(define mega4809_fini
-  (let ((~mega4809_fini
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_fini"
-                   (list ffi-void*)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_fini
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_fini")
+                        (list '*)))))
     (lambda (_mcu)
-      (let ((~_mcu (unwrap~pointer _mcu)))
-        ((force ~mega4809_fini) ~_mcu)))))
-(export mega4809_fini)
+      (let ((_mcu (unwrap-pointer _mcu)))
+        ((force ~proc) _mcu)))))
 
 ;; void mega4809_rt(void *_mcu, int flag);
-(define mega4809_rt
-  (let ((~mega4809_rt
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_rt"
-                   (list ffi-void* ffi:int)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_rt
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_rt")
+                        (list '* ffi:int)))))
     (lambda (_mcu flag)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~flag (unwrap~fixed flag)))
-        ((force ~mega4809_rt) ~_mcu ~flag)))))
-(export mega4809_rt)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (flag (unwrap-number flag)))
+        ((force ~proc) _mcu flag)))))
 
 ;; uint8_t mega4809_rd(void *_mcu, int idx);
-(define mega4809_rd
-  (let ((~mega4809_rd
-          (delay (fh-link-proc
-                   ffi:uint8
-                   "mega4809_rd"
-                   (list ffi-void* ffi:int)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_rd
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:uint8
+                        (foreign-pointer-search "mega4809_rd")
+                        (list '* ffi:int)))))
     (lambda (_mcu idx)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~idx (unwrap~fixed idx)))
-        ((force ~mega4809_rd) ~_mcu ~idx)))))
-(export mega4809_rd)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (idx (unwrap-number idx)))
+        ((force ~proc) _mcu idx)))))
 
 ;; void mega4809_wr(void *_mcu, int idx, uint8_t val);
-(define mega4809_wr
-  (let ((~mega4809_wr
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_wr"
-                   (list ffi-void* ffi:int ffi:uint8)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_wr
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_wr")
+                        (list '* ffi:int ffi:uint8)))))
     (lambda (_mcu idx val)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~idx (unwrap~fixed idx))
-            (~val (unwrap~fixed val)))
-        ((force ~mega4809_wr) ~_mcu ~idx ~val)))))
-(export mega4809_wr)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (idx (unwrap-number idx))
+            (val (unwrap-number "uint8_t")))
+        ((force ~proc) _mcu idx val)))))
 
 ;; void mega4809_bs(void *_mcu, int idx, uint8_t val, uint8_t msk);
-(define mega4809_bs
-  (let ((~mega4809_bs
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_bs"
-                   (list ffi-void* ffi:int ffi:uint8 ffi:uint8)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_bs
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_bs")
+                        (list '* ffi:int ffi:uint8 ffi:uint8)))))
     (lambda (_mcu idx val msk)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~idx (unwrap~fixed idx))
-            (~val (unwrap~fixed val))
-            (~msk (unwrap~fixed msk)))
-        ((force ~mega4809_bs) ~_mcu ~idx ~val ~msk)))))
-(export mega4809_bs)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (idx (unwrap-number idx))
+            (val (unwrap-number "uint8_t"))
+            (msk (unwrap-number "uint8_t")))
+        ((force ~proc) _mcu idx val msk)))))
 
 ;; void mega4809_ni(void *_mcu, int ivec);
-(define mega4809_ni
-  (let ((~mega4809_ni
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_ni"
-                   (list ffi-void* ffi:int)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_ni
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_ni")
+                        (list '* ffi:int)))))
     (lambda (_mcu ivec)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~ivec (unwrap~fixed ivec)))
-        ((force ~mega4809_ni) ~_mcu ~ivec)))))
-(export mega4809_ni)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (ivec (unwrap-number ivec)))
+        ((force ~proc) _mcu ivec)))))
 
 ;; iopin_t *mega4809_pn(void *_mcu, char *name);
-(define mega4809_pn
-  (let ((~mega4809_pn
-          (delay (fh-link-proc
-                   ffi-void*
-                   "mega4809_pn"
-                   (list ffi-void* ffi-void*)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_pn
+  (let ((~proc (delay (ffi:pointer->procedure
+                        '*
+                        (foreign-pointer-search "mega4809_pn")
+                        (list '* '*)))))
     (lambda (_mcu name)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~name (unwrap~pointer name)))
-        ((fht-wrap iopin_t*)
-         ((force ~mega4809_pn) ~_mcu ~name))))))
-(export mega4809_pn)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (name (unwrap-pointer name)))
+        ((lambda (~ret) (make-cdata iopin_t* ~ret))
+         ((force ~proc) _mcu name))))))
 
 ;; void mega4809_ia(void *_mcu, int ivec);
-(define mega4809_ia
-  (let ((~mega4809_ia
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_ia"
-                   (list ffi-void* ffi:int)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_ia
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_ia")
+                        (list '* ffi:int)))))
     (lambda (_mcu ivec)
-      (let ((~_mcu (unwrap~pointer _mcu))
-            (~ivec (unwrap~fixed ivec)))
-        ((force ~mega4809_ia) ~_mcu ~ivec)))))
-(export mega4809_ia)
+      (let ((_mcu (unwrap-pointer _mcu))
+            (ivec (unwrap-number ivec)))
+        ((force ~proc) _mcu ivec)))))
 
 ;; void mega4809_wdr(void *_mcu);
-(define mega4809_wdr
-  (let ((~mega4809_wdr
-          (delay (fh-link-proc
-                   ffi:void
-                   "mega4809_wdr"
-                   (list ffi-void*)
-                   (force avr0dev-mega4809-llibs)))))
+(define-public mega4809_wdr
+  (let ((~proc (delay (ffi:pointer->procedure
+                        ffi:void
+                        (foreign-pointer-search "mega4809_wdr")
+                        (list '*)))))
     (lambda (_mcu)
-      (let ((~_mcu (unwrap~pointer _mcu)))
-        ((force ~mega4809_wdr) ~_mcu)))))
-(export mega4809_wdr)
+      (let ((_mcu (unwrap-pointer _mcu)))
+        ((force ~proc) _mcu)))))
 
 ;; access to enum symbols and #define'd constants:
 (define avr0dev-mega4809-symbol-tab '())
@@ -267,18 +211,19 @@
 (define avr0dev-mega4809-symbol-val
   (lambda (k)
     (or (assq-ref avr0dev-mega4809-symbol-tab k)
-        (avr0per-ffi-symbol-val k)
-        (octbx-ffi-symbol-val k))))
+        (ffi-avr0per-symbol-val k)
+        (ffi-octbx-symbol-val k))))
 (export avr0dev-mega4809-symbol-val)
 
-(define (unwrap-enum obj)
-  (cond ((number? obj) obj)
-        ((symbol? obj) (avr0dev-mega4809-symbol-val obj))
-        ((fh-object? obj) (struct-ref obj 0))
+(define (unwrap~enum arg)
+  (cond ((number? arg) arg)
+        ((symbol? arg) (avr0dev-mega4809-symbol-val arg))
+        ((cdata? arg) (cdata-ref arg))
         (else (error "type mismatch"))))
 
 (define avr0dev-mega4809-types
-  '((struct . "mega4809") (pointer . "mega4809_t") "mega4809_t"))
+  '((pointer struct . "mega4809") (struct . "mega4809") (pointer . 
+    "mega4809_t") "mega4809_t"))
 (export avr0dev-mega4809-types)
 
 ;; --- last line ---

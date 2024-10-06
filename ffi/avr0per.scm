@@ -65,15 +65,18 @@
             `(TEMP ,(cbase 'uint8_t))
             `(rez0E ,(cbase 'uint8_t))
             `(rez0F ,(cbase 'uint8_t))
-            `(_ ,(cstruct
-                   (list `(RESL ,(cbase 'uint8_t))
-                         `(RESH ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(WINLTL ,(cbase 'uint8_t))
-                         `(WINLTH ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(WINHTL ,(cbase 'uint8_t))
-                         `(WINHTH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(RESL ,(cbase 'uint8_t))
+                       `(RESH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(WINLTL ,(cbase 'uint8_t))
+                       `(WINLTH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(WINHTL ,(cbase 'uint8_t))
+                       `(WINHTH ,(cbase 'uint8_t)))))
             `(CALIB ,(cbase 'uint8_t))))))
 (define-public adc_reg_t*
   (name-ctype 'adc_reg_t* (cpointer adc_reg_t)))
@@ -840,25 +843,30 @@
             `(rez1D ,(cbase 'uint8_t))
             `(rez1E ,(cbase 'uint8_t))
             `(rez1F ,(cbase 'uint8_t))
-            `(_ ,(cstruct
-                   (list `(CNTL ,(cbase 'uint8_t))
-                         `(CNTH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CNTL ,(cbase 'uint8_t))
+                       `(CNTH ,(cbase 'uint8_t)))))
             `(rez22 ,(cbase 'uint8_t))
             `(rez23 ,(cbase 'uint8_t))
             `(rez24 ,(cbase 'uint8_t))
             `(rez25 ,(cbase 'uint8_t))
-            `(_ ,(cstruct
-                   (list `(PERL ,(cbase 'uint8_t))
-                         `(PERH ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(CMP0L ,(cbase 'uint8_t))
-                         `(CMP0H ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(CMP1L ,(cbase 'uint8_t))
-                         `(CMP1H ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(CMP2L ,(cbase 'uint8_t))
-                         `(CMP2H ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(PERL ,(cbase 'uint8_t))
+                       `(PERH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CMP0L ,(cbase 'uint8_t))
+                       `(CMP0H ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CMP1L ,(cbase 'uint8_t))
+                       `(CMP1H ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CMP2L ,(cbase 'uint8_t))
+                       `(CMP2H ,(cbase 'uint8_t)))))
             `(rez2E ,(cbase 'uint8_t))
             `(rez2F ,(cbase 'uint8_t))
             `(rez30 ,(cbase 'uint8_t))
@@ -867,18 +875,22 @@
             `(rez33 ,(cbase 'uint8_t))
             `(rez34 ,(cbase 'uint8_t))
             `(rez35 ,(cbase 'uint8_t))
-            `(_ ,(cstruct
-                   (list `(PERBUFL ,(cbase 'uint8_t))
-                         `(PERBUFH ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(CMP0BUFL ,(cbase 'uint8_t))
-                         `(CMP0BUFH ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(CMP1BUFL ,(cbase 'uint8_t))
-                         `(CMP1BUFH ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(CMP2BUFL ,(cbase 'uint8_t))
-                         `(CMP2BUFH ,(cbase 'uint8_t)))))))))
+            `(#f
+              ,(cstruct
+                 (list `(PERBUFL ,(cbase 'uint8_t))
+                       `(PERBUFH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CMP0BUFL ,(cbase 'uint8_t))
+                       `(CMP0BUFH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CMP1BUFL ,(cbase 'uint8_t))
+                       `(CMP1BUFH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CMP2BUFL ,(cbase 'uint8_t))
+                       `(CMP2BUFH ,(cbase 'uint8_t)))))))))
 (define-public tca_single_reg_t*
   (name-ctype
     'tca_single_reg_t*
@@ -1150,12 +1162,14 @@
             `(STATUS ,(cbase 'uint8_t))
             `(DBGCTRL ,(cbase 'uint8_t))
             `(TEMP ,(cbase 'uint8_t))
-            `(_ ,(cstruct
-                   (list `(CNTL ,(cbase 'uint8_t))
-                         `(CNTH ,(cbase 'uint8_t)))))
-            `(_ ,(cstruct
-                   (list `(CCMPL ,(cbase 'uint8_t))
-                         `(CCMPH ,(cbase 'uint8_t)))))))))
+            `(#f
+              ,(cstruct
+                 (list `(CNTL ,(cbase 'uint8_t))
+                       `(CNTH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(CCMPL ,(cbase 'uint8_t))
+                       `(CCMPH ,(cbase 'uint8_t)))))))))
 (define-public tcb_reg_t*
   (name-ctype 'tcb_reg_t* (cpointer tcb_reg_t)))
 (define-public struct-tcb_reg
@@ -1413,9 +1427,10 @@
             `(CTRLA ,(cbase 'uint8_t))
             `(CTRLB ,(cbase 'uint8_t))
             `(CTRLC ,(cbase 'uint8_t))
-            `(_ ,(cstruct
-                   (list `(BAUDL ,(cbase 'uint8_t))
-                         `(BAUDH ,(cbase 'uint8_t)))))
+            `(#f
+              ,(cstruct
+                 (list `(BAUDL ,(cbase 'uint8_t))
+                       `(BAUDH ,(cbase 'uint8_t)))))
             `(CTRLD ,(cbase 'uint8_t))
             `(DBGCTRL ,(cbase 'uint8_t))
             `(EVCTRL ,(cbase 'uint8_t))

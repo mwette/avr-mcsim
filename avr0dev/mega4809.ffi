@@ -10,8 +10,8 @@
 (define-ffi-module (avr0dev mega4809)
   #:include '("avr0dev/mega4809.h")
   #:library '("mega4809")
-  #:use-ffi-module (avr0per ffi)
-  #:use-ffi-module (octbx ffi)
+  #:use-ffi-module (ffi avr0per)
+  #:use-ffi-module (ffi octbx)
   )
 
 ;; --- last line ---
